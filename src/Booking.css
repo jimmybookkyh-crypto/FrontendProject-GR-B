@@ -1,0 +1,21 @@
+.seat {
+  width: 45px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+}
+
+.seat-available {
+  background-color: #198754;
+  color: white;
+}
+
+.seat-selected {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.seat-occupied {
+  background-color: #dc3545;
+  color: white;
+}
