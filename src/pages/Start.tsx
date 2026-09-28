@@ -18,6 +18,8 @@ import Ninja from "../images/Ninja.jpg";
 import charlie from "../images/charlie.jpg";
 import Thor from "../images/Thor.jpg";
 import Batman from "../images/Batman.jpg";
+import fyra from "../images/fyra.jpg";
+import superman2 from "../images/superman2.jpg";
 
 export default function Start() {
   return (
@@ -69,7 +71,7 @@ function NavBar() {
 
 function HeroCarousel() {
   return (
-    <Carousel>
+    <Carousel className="hero-carousel">
       <Carousel.Item>
         <img
         className="d-block w-100 hero-image"
@@ -135,7 +137,7 @@ function FilmerStart() {
       
         <Col>
           <Card>
-            <Card.Img variant="top" src={Spidermanfilm} />
+            <Card.Img variant="top" src={Thor} />
             <Card.Body>
              <Button variant="danger">Biljetter</Button>
             </Card.Body>
@@ -180,7 +182,7 @@ function FilmerStart() {
 
          <Col>
           <Card>
-            <Card.Img variant="top" src={Thor} />
+            <Card.Img variant="top" src={Spidermanfilm} />
             <Card.Body>
              <Button variant="danger">Biljetter</Button>
             </Card.Body>
