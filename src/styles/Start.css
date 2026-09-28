@@ -1,0 +1,9 @@
+.hero-image {
+  min-height: 55vh;
+  display: flex;
+  align-items: center;
+  /* Byt mot er egen "Filmdraperi"-bild i /public */
+  background:
+    linear-gradient(rgba(16, 14, 28, 0.55), var(--fv-midnatt)),
+    url("/hero-draperi.jpg") center / cover no-repeat;
+}
