@@ -1,4 +1,4 @@
-import { Row } from "react-bootstrap";
+import { Row, Container, Col, Card } from "react-bootstrap";
 
 
 export default function BookingPage() {
@@ -10,18 +10,82 @@ export default function BookingPage() {
   ];
 
   return <>
+    <Container className="py-4">
+      <Row className="mb-4">
+      <Col>
+        <Card>
+          <Card.Body>
+            <Row>
+              <Col md={4}>
+                <img
+                  src=""
+                  alt="Film"
+                  className="img-fluid"
+                  />
+                  </Col>
+                  <Col md={8}>
+                    <h2>Filmnamn</h2>
+                    <p>Datum: 2026-10-01</p>
+                    <p>Tid: 19:00</p>
+                    <p>Salong: Salong 1</p>
+                  </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
-    <section className="MovieContainer">
-     <img className="MovieImg"/>
-     <article className="MovieInfo">
-      <p>Film</p>
-      <p>Datum</p>
-      <p>Tid</p>
-      <p>Salong</p>
-</article>
-    </section>
+      <Row className="mb-4">
+        <Col>
+
+          <Card>
+            <Card.Body>
+
+              <h3 className="text-center mb-4">
+                Salong 1
+              </h3>
+
+              {/* FILMDUK */}
+              <div className="bg-dark text-white text-center py-3 mb-5 rounded">
+                FILMDUK
+              </div>
+
+              {/* STOLAR */}
+              <div>
+                {rows.map((row) => (
+                  <div
+                    key={row[0]}
+                    className="d-flex justify-content-center gap-2 mb-2"
+                  >
+                    {row.map((seat) => (
+                      <button
+                        key={seat}
+                        className="seat seat-available"
+                      >
+                        {seat}
+                      </button>
+                    ))}
+                  </div> 
+                ))}
+                </div>
+
+                {/* LEGEND */}
+                <div className="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+                  <span>🟢 Ledig</span>
+                  <span>🔴 Upptagen</span>
+                  <span>🔵 Vald</span>
+                  <span>🟡 Rekommenderad</span>
+                </div>
+
+            </Card.Body>
+          </Card>
+
+        </Col>
+      </Row>
+      
+
     
-    <section className="Auditorium">
+    {/* <section className="Auditorium">
       <article className="Screen">
 
         </article>
@@ -39,121 +103,49 @@ export default function BookingPage() {
             ))}
           </div>
         ))}
-       
-          
-
-        {/* <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-          <button className="btn btn-success">A11</button>
-          <button className="btn btn-success">A12</button>
-        </div>
-        <div className="d-flex justify-content-center gap-2 mb-2">
-          <button className="btn btn-success">A1</button>
-          <button className="btn btn-success">A2</button>
-          <button className="btn btn-success">A3</button>
-          <button className="btn btn-success">A4</button>
-          <button className="btn btn-success">A5</button>
-          <button className="btn btn-success">A6</button>
-          <button className="btn btn-success">A7</button>
-          <button className="btn btn-success">A8</button>
-          <button className="btn btn-success">A9</button>
-          <button className="btn btn-success">A10</button>
-          <button className="btn btn-success">A11</button>
-          <button className="btn btn-success">A12</button>
-        </div> */}
       </article>
-    </section>
+    </section> */}
 
-    <section className="Ticketsinfo">
-      <article className="Tickets">
-        <p>Vuxen</p>
-        <p>Barn</p>
-        <p>Pensionär</p>
-      </article>
-      <article className="summary">
-        <p>total</p>
-      </article>
-      <button className="Bookingbutton"></button>
-    </section>
+      <Row>
 
+        <Col md={6} className="mb-3">
+          <Card>
+            <Card.Body>
+
+              <h3>Biljetter</h3>
+
+              <p>Vuxen – 140 kr</p>
+              <p>Barn – 80 kr</p>
+              <p>Pensionär – 120 kr</p>
+
+            </Card.Body>
+          </Card>
+        </Col>
+
+
+        <Col md={6} className="mb-3">
+          <Card>
+            <Card.Body>
+
+              <h3>Sammanfattning</h3>
+
+              <p>Valda platser: A3, A4</p>
+              <p>Antal biljetter: 2</p>
+
+              <hr />
+
+              <h4>Total: 280 kr</h4>
+
+              <button className="btn btn-primary w-100">
+                Boka
+              </button>
+
+            </Card.Body>
+          </Card>
+        </Col>
+
+      </Row>
+    </Container>
   </>;
 }
 
