@@ -12,6 +12,17 @@ export default function BookingPage() {
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
+  const [adultTickets, setAdultTickets] = useState(0);
+  const [childTickets, setChildTickets] = useState(0);
+  const [seniorTickets, setSeniorTickets] = useState(0);
+  const adultPrice = 140;
+  const childPrice = 80;
+  const seniorPrice = 120;
+  const totalPrice =
+    adultTickets * adultPrice +
+    childTickets * childPrice +
+    seniorTickets * seniorPrice;
+
   const handleSeatClick = (seat: string) => {
     setSelectedSeats((current) =>
       current.includes(seat)
@@ -20,7 +31,7 @@ export default function BookingPage() {
   }
   // hårdkodad del för mockup
   const occupiedSeats = ["C2", "C3"];  // bokar stolar för att visa i mockup
-  
+
   return <>
     <Container className="py-4">
       <Row className="mb-4">
@@ -103,9 +114,72 @@ export default function BookingPage() {
           <Card>
             <Card.Body>
               <h3>Biljetter</h3>
-              <p>Vuxen – 140 kr</p>
-              <p>Barn – 80 kr</p>
-              <p>Pensionär – 120 kr</p>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span>Vuxen : 140 kr</span>
+                <div className="btn-group">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setAdultTickets(Math.max(0, adultTickets - 1))
+                    }
+                  >
+                    −
+                  </button>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setAdultTickets(adultTickets + 1)
+                    }
+                  >
+                    +
+                  </button>
+                  <p>{adultTickets}</p>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span>Barn : 80 kr</span>
+                <div className="btn-group">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setChildTickets(Math.max(0, childTickets - 1))
+                    }
+                  >
+                    −
+                  </button>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setChildTickets(childTickets + 1)
+                    }
+                  >
+                    +
+                  </button>
+                  <p>{childTickets}</p>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span>Pensionär : 120 kr</span>
+                <div className="btn-group">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setSeniorTickets(Math.max(0, seniorTickets - 1))
+                    }
+                  >
+                    −
+                  </button>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setSeniorTickets(seniorTickets + 1)
+                    }
+                  >
+                    +
+                  </button>
+                  <p>{seniorTickets}</p>
+                </div>
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -117,7 +191,7 @@ export default function BookingPage() {
               <p>Valda platser: A3, A4</p>
               <p>Antal biljetter: 2</p>
               <hr />
-              <h4>Total: 280 kr</h4>
+              <h4>Total: {totalPrice} kr</h4>
               <button className="btn btn-primary w-100">
                 Boka
               </button>
