@@ -82,11 +82,9 @@ export default function BookingPage() {
               <h3 className="text-center mb-4">
                 Salong 1
               </h3>
-              {/* FILMDUK */}
               <div className="bg-dark text-white text-center py-3 mb-5 rounded">
                 FILMDUK
               </div>
-              {/* STOLAR */}
               <div>
                 {rows.map((row) => (
                   <div
@@ -116,7 +114,6 @@ export default function BookingPage() {
                   </div>
                 ))}
                 </div>
-                {/* LEGEND */}
                 <div className="d-flex justify-content-center gap-3 mt-4 flex-wrap">
                   <span>🟢 Ledig</span>
                   <span>🔴 Upptagen</span>
