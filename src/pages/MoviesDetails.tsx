@@ -3,7 +3,7 @@ export default function MovieDetails() {
 }
 
 MovieDetails.route = {
-  path: "/moviedetails",
+  path: "/moviedetails/moviecatalog/:id",
   order: 1,
   label: "Film detaljer",
 };
