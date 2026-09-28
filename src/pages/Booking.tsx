@@ -1,5 +1,6 @@
 import { Row, Container, Col, Card } from "react-bootstrap";
 import { useState } from "react";
+import { useNavigate } from "react-router"
 import "../Booking.css"
 
 export default function BookingPage() {
@@ -9,6 +10,7 @@ export default function BookingPage() {
     ["C1", "C2", "C3", "C4", "C5"],
     ["D1", "D2", "D3", "D4", "D5"],
   ];
+  const navigate = useNavigate();
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
@@ -22,6 +24,7 @@ export default function BookingPage() {
     adultTickets * adultPrice +
     childTickets * childPrice +
     seniorTickets * seniorPrice;
+  const totaltTickets = adultTickets + childTickets + seniorTickets;
 
   const handleSeatClick = (seat: string) => {
     setSelectedSeats((current) =>
@@ -29,12 +32,25 @@ export default function BookingPage() {
         ? current.filter((selected) => selected !== seat)
         : [...current, seat])
   }
+
+  const handleCheckout = () => {
+    navigate("/bookingconfirmation", {
+      state: {
+        seats: selectedSeats,
+        adultTickets,
+        childTickets,
+        seniorTickets,
+        totalPrice,
+      },
+    });
+  }
   // hårdkodad del för mockup
   const occupiedSeats = ["C2", "C3"];  // bokar stolar för att visa i mockup
 
-  const totaltTickets = adultTickets + childTickets + seniorTickets;
-
   return <>
+    <button onClick={() => navigate("/moviedetails")} className="btn btn-secondary">
+  ← Tillbaka
+</button>
     <Container className="py-4">
       <Row className="mb-4">
       <Col>
@@ -198,11 +214,14 @@ export default function BookingPage() {
               <p>Antal biljetter: {totaltTickets}</p>
               <hr />
               <h4>Total: {totalPrice} kr</h4>
-              <button className="btn btn-primary w-100"
+              <button
+                className="btn btn-primary w-100"
                 disabled={
                   selectedSeats.length === 0 || totaltTickets !== selectedSeats.length
-                }>
-                Boka
+                }
+                onClick={handleCheckout}
+              >
+                Gå vidare till betalning
               </button>
             </Card.Body>
           </Card>
