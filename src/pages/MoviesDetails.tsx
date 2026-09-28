@@ -8,12 +8,20 @@ import Ratio from 'react-bootstrap/Ratio';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
+import backgroundImage from "../assets/img/biodukbg.png";
+
 
 export default function MovieDetails() {
 
   
   return ( 
-  <Container>
+  <Container style={{
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    minHeight: "100vh",
+  }}>
     <Row className="justify-content-md-center">
       <Col>
         <Trailer/>
@@ -35,14 +43,11 @@ function Trailer() {
         <Card.Title>Trailer</Card.Title>
         <Ratio aspectRatio="16x9">
             <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID"
+              src="https://www.youtube.com/embed/Go8nTmfrQd8"
               title="Movie trailer"
               allowFullScreen
             />
           </Ratio>
-        <Card.Text>
-          information om film finns här
-        </Card.Text>
       </Card.Body>
     </Card>
   );
@@ -54,9 +59,13 @@ function FilmInfo () {
       <Card.Body>
         <Card.Title>Film info</Card.Title>
         <Card.Text>
-          information om film finns här
+          <p>Direktör: Taika Waititi</p>
+          <p>Manus författare: Taika Waititi, Jennifer Kaytin Robinson, Stan Lee</p>
+          <p>Skådespelare: Chris Hemsworth, Natilie Portman, Christian Bale</p>
+
+          <p>Thor tar hjälp av Valkyrie, Korg och sitt ex Jane Foster för att bekämpa Gorr the God Butcher, som har för avsikt att utrota gudarna.</p>
         </Card.Text>
-      </Card.Body>
+      </Card.Body>S
     </Card>
   );
 }
@@ -78,13 +87,13 @@ function SlotSelection() {
       <Button variant="primary" size="lg" onClick={() => navigate(`/booking`)}>
         salong 1 tid 16:00
       </Button>
-      <Button variant="primary" size="lg" onClick={() => navigate(`/booking`)}>
+      <Button variant="primary" size="lg">
         salong 2 tid 16:00
       </Button>
-      <Button variant="primary" size="lg" onClick={() => navigate(`/booking`)}>
+      <Button variant="primary" size="lg">
         salong 1 tid 20:00
       </Button>
-      <Button variant="primary" size="lg" onClick={() => navigate(`/booking`)}>
+      <Button variant="primary" size="lg">
         salong 2 tid 20:00
       </Button>
     </div>
