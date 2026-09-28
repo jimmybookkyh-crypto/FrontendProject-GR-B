@@ -3,16 +3,10 @@
   height: 40px;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
 }
 
 .seat-available {
   background-color: #198754;
-  color: white;
-}
-
-.seat-occupied {
-  background-color: #dc3545;
   color: white;
 }
 
@@ -21,7 +15,7 @@
   color: white;
 }
 
-.seat-recommended {
-  background-color: #ffc107;
-  color: black;
+.seat-occupied {
+  background-color: #dc3545;
+  color: white;
 }
