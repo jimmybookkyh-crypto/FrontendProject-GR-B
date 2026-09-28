@@ -32,6 +32,8 @@ export default function BookingPage() {
   // hårdkodad del för mockup
   const occupiedSeats = ["C2", "C3"];  // bokar stolar för att visa i mockup
 
+  const totaltTickets = adultTickets + childTickets + seniorTickets;
+
   return <>
     <Container className="py-4">
       <Row className="mb-4">
@@ -183,16 +185,23 @@ export default function BookingPage() {
             </Card.Body>
           </Card>
         </Col>
-
+      
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
               <h3>Sammanfattning</h3>
-              <p>Valda platser: A3, A4</p>
-              <p>Antal biljetter: 2</p>
+              <p>Valda platser:{" "}
+                {selectedSeats.length > 0
+                  ? selectedSeats.join(", ")
+                  : "Inga valda"}
+              </p>
+              <p>Antal biljetter: {totaltTickets}</p>
               <hr />
               <h4>Total: {totalPrice} kr</h4>
-              <button className="btn btn-primary w-100">
+              <button className="btn btn-primary w-100"
+                disabled={
+                  selectedSeats.length === 0 || totaltTickets !== selectedSeats.length
+                }>
                 Boka
               </button>
             </Card.Body>
