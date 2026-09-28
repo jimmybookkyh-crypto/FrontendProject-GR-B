@@ -1,4 +1,5 @@
 import { Row, Container, Col, Card } from "react-bootstrap";
+import "../Booking.css"
 
 
 export default function BookingPage() {
