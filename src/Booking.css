@@ -21,19 +21,25 @@ background:
   color: var(--off-white);
 }
 
+
 .top-col-row {
   display: flex;
   justify-self: center;
   align-items: center;
   gap: clamp(3px, 6vw, 120px);
+  background: rgba(16, 14, 28, 0.65);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    margin:0.5rem 0.5rem 1rem;
 }
 
-.info-box {
+/* .info-box {
   border: 1px solid rgba(253, 252, 250, 0.4);
   border-radius: 1rem;
   padding: 10px;
   max-width: 100%;
-}
+} */
 
 .colsize-40 {
   width: 90% !important;
@@ -44,10 +50,8 @@ background:
 }
 
 .booking-val-col{
-  display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 2rem;
 }
 
 .ticket-card {
@@ -57,6 +61,7 @@ background:
   border-radius: 1rem;
   padding: 24px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  margin:0 0.5rem 0;
 }
 .btn-outline-secondary{
   background: rgba(16, 14, 28, 0.65);
@@ -85,6 +90,7 @@ background:
     border-radius: 1rem;
     padding: 24px;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    margin:0 0.5rem 0.5rem;
 }
 .seat {
   flex: 0 0 auto;
@@ -175,6 +181,6 @@ background:
 
   .booking-duk-col,
   .booking-val-col {
-    max-width: none;
+    max-width: 640px;
   }
 }
