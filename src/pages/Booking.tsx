@@ -4,11 +4,15 @@ import { useNavigate } from "react-router"
 import "../Booking.css"
 
 export default function BookingPage() {
-  const rows = [
-    ["A1", "A2", "A3", "A4", "A5"],
-    ["B1", "B2", "B3", "B4", "B5"],
-    ["C1", "C2", "C3", "C4", "C5"],
-    ["D1", "D2", "D3", "D4", "D5"],
+const rows = [
+    ["01", "02", "03", "04", "05", "06", "07", "08"], 
+    ["09", "10", "11", "12", "13", "14", "15", "16", "17"],
+    ["18", "19", "20", "21", "22", "23", "24", "25", "26", "27"],
+    ["28", "29", "30", "31", "32", "33", "34", "35", "36", "37"],
+    ["38", "39", "40", "41", "42", "43", "44", "45", "46", "47"],
+    ["48", "49", "50", "51", "52", "53", "54", "55", "56", "57"],
+    ["58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69"], 
+    ["70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81"],
   ];
   const navigate = useNavigate();
 
@@ -45,14 +49,14 @@ export default function BookingPage() {
     });
   }
   // hårdkodad del för mockup
-  const occupiedSeats = ["C2", "C3"];  // bokar stolar för att visa i mockup
+  const occupiedSeats = ["12", "35", "36"];  // bokar stolar för att visa i mockup
 
   return <>
     <button onClick={() => navigate("/moviedetails")} className="btn btn-secondary">
   ← Tillbaka
     </button>
     <h1>Boka biljetter</h1>
-    <Container className="row justify-content-between">
+    <Container className="justify-content-between">
       <Row className="mb-4">
       <Col>
         <Card>
@@ -76,8 +80,8 @@ export default function BookingPage() {
           </Card>
         </Col>
       </Row>
-      <Row className="mb-4">
-        <Col>
+      <Row className="booking-main-row g-4">
+        <Col xs={12} lg={7} className="booking-duk-col">
           <Card className="seatchart-card">
             <Card.Body>
               <h3 className="text-center mb-4">
@@ -124,9 +128,7 @@ export default function BookingPage() {
           </Card>
 
         </Col>
-      </Row>
-      <Row className="two-col-row">
-        <Col md={6} className="mb-3">
+        <Col xs={12} lg={5} className="booking-val-col">
           <Card className="ticket-card">
             <Card.Body>
               <h3>Biljetter</h3>
@@ -196,14 +198,6 @@ export default function BookingPage() {
                   <p>{seniorTickets}</p>
                 </div>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      
-        <Col md={6} className="mb-3">
-          <Card className="summary-card">
-            <Card.Body>
-              <h3>Sammanfattning</h3>
               <p>Valda platser:{" "}
                 {selectedSeats.length > 0
                   ? selectedSeats.join(", ")
@@ -224,7 +218,8 @@ export default function BookingPage() {
             </Card.Body>
           </Card>
         </Col>
-
+      
+        
       </Row>
     </Container>
   </>;
