@@ -50,21 +50,22 @@ export default function BookingPage() {
   return <>
     <button onClick={() => navigate("/moviedetails")} className="btn btn-secondary">
   ← Tillbaka
-</button>
-    <Container className="py-4">
+    </button>
+    <h1>Boka biljetter</h1>
+    <Container className="row justify-content-between">
       <Row className="mb-4">
       <Col>
         <Card>
           <Card.Body>
-            <Row>
-              <Col md={4}>
+              <Row className="top-col-row">
+                <Col md={6}>
                 <img
-                  src=""
+                    src="src/assets/img/ph.png"
                   alt="Film"
-                  className="img-fluid"
+                    className="test-40 img-fluid"
                   />
                   </Col>
-                  <Col md={8}>
+                  <Col md={6} className="test-40 info-box">
                     <h2>Filmnamn</h2>
                     <p>Datum: 2026-10-01</p>
                     <p>Tid: 19:00</p>
@@ -77,7 +78,7 @@ export default function BookingPage() {
       </Row>
       <Row className="mb-4">
         <Col>
-          <Card>
+          <Card className="seatchart-card">
             <Card.Body>
               <h3 className="text-center mb-4">
                 Salong 1
@@ -124,9 +125,9 @@ export default function BookingPage() {
 
         </Col>
       </Row>
-      <Row>
+      <Row className="two-col-row">
         <Col md={6} className="mb-3">
-          <Card>
+          <Card className="ticket-card">
             <Card.Body>
               <h3>Biljetter</h3>
               <div className="d-flex justify-content-between align-items-center mb-3">
@@ -200,7 +201,7 @@ export default function BookingPage() {
         </Col>
       
         <Col md={6} className="mb-3">
-          <Card>
+          <Card className="summary-card">
             <Card.Body>
               <h3>Sammanfattning</h3>
               <p>Valda platser:{" "}

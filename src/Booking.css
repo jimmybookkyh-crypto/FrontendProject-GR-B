@@ -1,21 +1,105 @@
+:root {
+  --gold: #DFA213;
+  --red: #BE1733;
+  --blue-dark: #100E1C;
+  --off-white: #F5F7FA;
+}
+
+body {
+background:
+    linear-gradient(to bottom,
+      #100E1C 50%,
+      #BE1733 100%
+    ),
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(0, 0, 0, 0.25) 20px,
+      rgba(255, 255, 255, 0.05) 40px);
+
+  background-blend-mode: multiply;
+  min-height: 100vh;
+  color: var(--off-white);
+}
+.top-col-row {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  
+}
+.info-box {
+  border: 1px solid rgba(253, 252, 250, 0.4);
+  border-radius: 1rem;
+  padding: 10px;
+  max-width: 100%;
+  
+}
+
+.test-40 {
+  width: 90% !important;
+    max-width: 400px;
+    box-sizing: border-box;
+    margin: 10px;
+    height: auto;
+}
+.two-col-row {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+    background: rgba(16, 14, 28, 0.65);
+      backdrop-filter: blur(10px);
+      padding: 5px;
+      
+}
+
+.ticket-card{
+  background: rgba(16, 14, 28, 0.65);
+    backdrop-filter: blur(10px);
+    padding: 5px;
+}
+
+.summary-card {
+
+ 
+}
+
+.seatchart-card {
+  background: rgba(16, 14, 28, 0.55);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(223, 162, 19, 0.35);
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  
+}
 .seat {
-  width: 45px;
-  height: 40px;
-  border: none;
+  width: 42px;
+  height: 42px;
   border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: 0.2s;
+  transform: perspective(80px) rotateX(10deg);
+  margin: 5px;
 }
 
 .seat-available {
-  background-color: #198754;
-  color: white;
-}
-
-.seat-selected {
-  background-color: #0d6efd;
-  color: white;
+  background: linear-gradient(#f5f7fa, #dcdfe3);
+  color: #100E1C;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .seat-occupied {
-  background-color: #dc3545;
-  color: white;
+  background: linear-gradient(#3a3a3a, #1f1f1f);
+  color: #777;
+  cursor: not-allowed;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
 }
+
+.seat-selected {
+  background: linear-gradient(#DFA213, #b98a0f);
+  color: #100E1C;
+  transform: perspective(80px) rotateX(10deg) scale(1.05);
+  box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
+}
+
