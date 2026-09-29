@@ -1,4 +1,4 @@
-import { Row, Container, Col, Card } from "react-bootstrap";
+import { Row, Container, Col, Card, InputGroup, Form} from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router"
 import "../Booking.css"
@@ -32,7 +32,7 @@ export default function BookingPage() {
   }
 ]
 
-  const currentSalon = auditoriums[0];
+  const currentSalon = auditoriums[0]; //hämta salong från databas
 
   const buildRows = (seatsPerRow: number[]) => {
     let seatNumber = 1;
@@ -79,6 +79,23 @@ export default function BookingPage() {
         ? current.filter((selected) => selected !== seat)
         : [...current, seat])
   }
+
+  const handleInputChange = (value: string, setter: (val: number) => void, currentTicketTypeVal: number) => {
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      setter(0);
+      return;
+    }
+
+    const otherTicketsCount = totaltTickets - currentTicketTypeVal;
+    const maxAllowed = selectedSeats.length - otherTicketsCount;
+
+    if (parsed > maxAllowed) {
+      setter(Math.max(0, maxAllowed));
+    } else {
+      setter(parsed);
+    }
+  };
 
   const handleCheckout = () => {
     navigate("/bookingconfirmation", {
@@ -128,10 +145,14 @@ export default function BookingPage() {
           <Card className="seatchart-card">
             <Card.Body>
               <h3 className="text-center mb-4">
-                Salong 1
+                Salong 1 {/*Hämta salong från databas och namn*/}
               </h3>
-              <div className="bg-dark text-white text-center py-3 mb-5 rounded">
-                FILMDUK
+              <div className="screen-icon-wrap">
+                <img
+                  src="src/assets/img/screenIco.png"
+                  alt="Bioduk"
+                  className="screen-icon"
+                />
               </div>
               <div className= "seat-map">
                 {rows.map((row) => (
@@ -177,69 +198,81 @@ export default function BookingPage() {
               <h3>Biljetter</h3>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Vuxen : 140 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setAdultTickets(Math.max(0, adultTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setAdultTickets(Math.max(0, adultTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={adultTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setAdultTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setAdultTickets(adultTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setAdultTickets(adultTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{adultTickets}</p>
-                </div>
+                </InputGroup>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Barn : 80 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setChildTickets(Math.max(0, childTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setChildTickets(Math.max(0, childTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={childTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setChildTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setChildTickets(childTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setChildTickets(childTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{childTickets}</p>
-                </div>
+                </InputGroup>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Pensionär : 120 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setSeniorTickets(Math.max(0, seniorTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setSeniorTickets(Math.max(0, seniorTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={seniorTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setSeniorTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setSeniorTickets(seniorTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setSeniorTickets(seniorTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{seniorTickets}</p>
-                </div>
+                </InputGroup>
               </div>
               <p>Valda platser:{" "}
                 {selectedSeats.length > 0

@@ -43,6 +43,13 @@ background:
     height: auto;
 }
 
+.booking-val-col{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 2rem;
+}
+
 .ticket-card {
   background: rgba(16, 14, 28, 0.65);
   backdrop-filter: blur(12px);
@@ -50,6 +57,16 @@ background:
   border-radius: 1rem;
   padding: 24px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+.btn-outline-secondary{
+  background: rgba(16, 14, 28, 0.65);
+  border: 1px solid rgba(253, 252, 250, 0.4);
+  color: var(--off-white);
+}
+
+.text-center{
+  max-width: 1.5rem;
+  margin: 0.2rem;
 }
 
  h3 {
@@ -59,8 +76,6 @@ background:
   color: var(--gold);
   text-align: center;
 }
-
-
 
 .seatchart-card {
   overflow-x: auto;
@@ -123,6 +138,21 @@ background:
   transform: perspective(80px) rotateX(10deg) scale(1.05);
   box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
 }
+.screen-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  width: 100%;
+}
+
+.screen-icon {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(245, 247, 250, 0.25));
+}
+
 
 .booking-main-row {
   display: flex;
