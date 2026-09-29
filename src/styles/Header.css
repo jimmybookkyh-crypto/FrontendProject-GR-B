@@ -1,0 +1,182 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
+.fv-navbar {
+  --fv-yellow: #f5b400;
+  --fv-bg: #0d0d14;
+  --fv-panel: #222226;
+  --fv-line: #2c2c3a;
+  --fv-active-shadow: #ffffff; /* skugga/ram på vald flik (HEM) */
+
+  background: var(--fv-bg);
+  border-bottom: 1px solid var(--fv-line);
+  /* höger padding växer med skärmbredden så Logga in inte klistrar i kanten */
+  padding: 0 clamp(1rem, 5vw, 4.5rem) 5px 0.5rem;
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+}
+
+.fv-brand {
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  margin-right: 1rem;
+}
+
+.fv-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+
+/* ---------- Menylänkar (Hem / Filmer / Event / Om oss) ---------- */
+
+.fv-navbar .fv-nav {
+  align-items: stretch;
+  gap: 0.6rem; /* tätt mellan flikarna, som i Figma */
+}
+
+.fv-navbar .nav-link,
+.fv-navbar .dropdown-toggle {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  position: relative;
+  padding: 0.95rem 3.5rem;
+  z-index: 0;
+}
+
+/* Sned flik med gul ram, som i Figma */
+.fv-navbar .nav-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: skewX(-20deg);
+  background: var(--fv-panel);
+  box-shadow: 3px 3px 0 var(--fv-yellow); /* linje nedanför + till höger */
+  transition: background-color 0.15s ease;
+  z-index: -1;
+}
+
+.fv-navbar .nav-link:hover::before,
+.fv-navbar .nav-link:focus-visible::before {
+  background: #2e2e34;
+}
+
+/* Vald flik: fylld gul */
+.fv-navbar .fv-nav .nav-link.active,
+.fv-navbar .fv-nav .nav-link.show {
+  color: #000; /* svart text på vald flik */
+}
+
+.fv-navbar .nav-link.active::before,
+.fv-navbar .nav-link.show::before {
+  background: var(--fv-yellow);
+  box-shadow: 3px 3px 0 var(--fv-active-shadow);
+}
+
+.fv-navbar .nav-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ---------- Om oss-dropdown ---------- */
+
+.fv-dropdown .dropdown-toggle::after {
+  display: none;
+}
+
+.fv-navbar .dropdown-menu {
+  background: var(--fv-bg);
+  border: 1px solid var(--fv-line);
+  border-right: 2px solid var(--fv-yellow);
+  border-bottom: 2px solid var(--fv-yellow);
+  border-radius: 0;
+  padding: 0;
+  min-width: 11rem;
+  margin-top: 5px;
+}
+
+.fv-navbar .dropdown-item {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.08em;
+  color: #fff;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--fv-line);
+}
+
+.fv-navbar .dropdown-item:last-child {
+  border-bottom: 0;
+}
+
+.fv-navbar .dropdown-item:hover,
+.fv-navbar .dropdown-item:focus {
+  background: var(--fv-panel);
+  color: var(--fv-yellow);
+}
+
+/* ---------- Logga in (höger) ---------- */
+
+.fv-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  color: var(--fv-yellow);
+  text-decoration: none;
+  font-size: 2rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.fv-login-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: none;
+}
+
+.fv-login:hover,
+.fv-login:focus-visible {
+  color: #fff;
+}
+
+.fv-login:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+/* Flytta Logga in 3 cm åt vänster, bara på desktop */
+@media (min-width: 992px) {
+  .fv-login {
+    margin-right: 1cm;
+  }
+}
+
+/* ---------- Mobil (hopfälld meny) ---------- */
+
+@media (max-width: 991.98px) {
+  .fv-navbar {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .fv-navbar .fv-nav {
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+  }
+
+  .fv-navbar .nav-link,
+  .fv-navbar .dropdown-toggle {
+    padding: 0.6rem 1rem;
+    font-size: 1.6rem;
+  }
+
+  .fv-navbar .nav-link::before {
+    transform: none;
+  }
+
+  .fv-login {
+    margin: 1rem 0 0.5rem;
+  }
+}

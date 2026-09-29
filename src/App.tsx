@@ -1,9 +1,10 @@
 import { Outlet } from "react-router";
+import Header from "./Partials/Header.tsx";
 
 export default function App() {
   return (
     <>
-      {/* <Header /> */}
+       <Header /> 
       <main>
         <Outlet />
       </main>
