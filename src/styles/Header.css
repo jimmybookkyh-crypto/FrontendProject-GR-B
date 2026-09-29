@@ -20,7 +20,7 @@
 }
 
 .fv-logo {
-  height: 52px;
+  height: 72px; /* logotypens storlek, ändra här */
   width: auto;
   display: block;
 }
@@ -74,6 +74,16 @@
 .fv-navbar .nav-link.show::before {
   background: var(--fv-yellow);
   box-shadow: 3px 3px 0 var(--fv-active-shadow);
+}
+
+/* När Om oss-dropdownen är öppen ska bara Om oss vara markerad (inte t.ex. Hem) */
+.fv-navbar .fv-nav.om-oss-open .nav-link.active:not(.dropdown-toggle) {
+  color: #fff;
+}
+
+.fv-navbar .fv-nav.om-oss-open .nav-link.active:not(.dropdown-toggle)::before {
+  background: var(--fv-panel);
+  box-shadow: 3px 3px 0 var(--fv-yellow);
 }
 
 .fv-navbar .nav-link:focus-visible {
@@ -149,16 +159,67 @@
   outline-offset: 4px;
 }
 
-/* Flytta Logga in 3 cm åt vänster, bara på desktop */
+/* ---------- Desktop: flikarna centrerade med mer avstånd ---------- */
+/* Skevningen äter ca 1.3rem av gapet, så synligt avstånd = gap - 1.3rem */
+
+/* 992-1199 px: minst plats, flikarna centreras mellan logga och Logga in */
 @media (min-width: 992px) {
+  .fv-navbar .fv-nav {
+    margin: 0 auto;
+    gap: 2.2rem;
+  }
+
+  .fv-navbar .nav-link,
+  .fv-navbar .dropdown-toggle {
+    width: 7.5rem;
+  }
+
   .fv-login {
+    margin-left: 0;
     margin-right: 1cm;
+  }
+}
+
+/* 1200-1599 px */
+@media (min-width: 1200px) {
+  .fv-navbar .fv-nav {
+    gap: 2.8rem;
+  }
+
+  .fv-navbar .nav-link,
+  .fv-navbar .dropdown-toggle {
+    width: 9rem;
+  }
+}
+
+/* 1600 px och uppåt: flikarna exakt mitt i baren, stora och luftiga */
+@media (min-width: 1600px) {
+  .fv-navbar .fv-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 !important;
+    gap: 3.4rem;
+  }
+
+  .fv-navbar .nav-link,
+  .fv-navbar .dropdown-toggle {
+    width: 11rem;
+  }
+
+  .fv-login {
+    margin-left: auto;
   }
 }
 
 /* ---------- Mobil (hopfälld meny) ---------- */
 
 @media (max-width: 991.98px) {
+  .fv-logo {
+    height: 56px;
+  }
+
   .fv-navbar {
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
@@ -7,6 +8,7 @@ import "../styles/Header.css";
 
 export default function Header() {
   const { pathname } = useLocation();
+  const [omOssOpen, setOmOssOpen] = useState(false);
 
   return (
     <Navbar
@@ -21,7 +23,7 @@ export default function Header() {
 
       <Navbar.Toggle aria-controls="fv-navbar-nav" />
       <Navbar.Collapse id="fv-navbar-nav">
-        <Nav className="me-auto fv-nav">
+        <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
           <Nav.Link as={NavLink} to="/" end className="fv-link">
             Hem
           </Nav.Link>
@@ -37,14 +39,15 @@ export default function Header() {
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
             active={pathname.startsWith("/about")}
+            onToggle={(isOpen) => setOmOssOpen(isOpen)}
           >
-            <NavDropdown.Item as={Link} to="/about#hitta-till-oss">
+            <NavDropdown.Item as={Link} to="/about">
               Hitta till oss
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about#salonger">
+            <NavDropdown.Item as={Link} to="/about">
               Salonger
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about#snacks-meny">
+            <NavDropdown.Item as={Link} to="/about">
               Snacks meny
             </NavDropdown.Item>
           </NavDropdown>
