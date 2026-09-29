@@ -1,11 +1,240 @@
+:root {
+  --fv-guldgul: #dfa213;
+  --fv-guldgul-hover: #f0b426;
+  --fv-vinrod: #8e1733;
+  --fv-vinrod-hover: #a81c3c;
+  --fv-midnatt: #100e1c;
+  --fv-offwhite: #f5f7fa;
+  --fv-kort-bg: #1a1830;
+}
+
+/* ---------- Innehållsyta (allt utom NavBar/Footer) ---------- */
+.sida-innehall {
+  background-color: var(--fv-midnatt);
+  /* Enkel "filmdraperi"-känsla tills egen bild finns */
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(142, 23, 51, 0.25) 0px,
+    rgba(142, 23, 51, 0.25) 2px,
+    transparent 2px,
+    transparent 14px
+  );
+  padding-bottom: 2.5rem;
+}
+
+/* ---------- Hero-carousel ---------- */
 .hero-carousel {
-  width: 85%;
-  max-width: 1500px;
+  width: 100%;
   margin: 0 auto;
+  position: relative;
 }
 
 .hero-image {
   width: 100%;
-  height: 450px;
-  object-fit: contain;
+  height: 260px;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.75);
+}
+
+.hero-carousel .carousel-caption {
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  text-align: left;
+  padding: 0;
+}
+
+.hero-carousel .carousel-caption h3 {
+  font-family: "Antonio", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fv-offwhite);
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+/* ---------- Hero-carousel: pilar ---------- */
+.hero-carousel .carousel-control-prev,
+.hero-carousel .carousel-control-next {
+  width: 4rem;
+  opacity: 1; /* Bootstrap dämpar annars pilarna till 50% */
+}
+
+.hero-carousel .carousel-control-prev {
+  justify-content: flex-start;
+  padding-left: 1rem;
+}
+
+.hero-carousel .carousel-control-next {
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+.hero-carousel .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next-icon {
+  background-image: none; /* tar bort Bootstraps standardikon helt */
+  width: 1.6rem;
+  height: 3.5rem;
+  background-color: var(--fv-guldgul);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 50% 50%);
+  filter: drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.hero-carousel .carousel-control-prev-icon {
+  transform: scaleX(-1); /* speglar formen så den pekar vänster */
+}
+
+.hero-carousel .carousel-control-prev:hover .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next:hover .carousel-control-next-icon {
+  background-color: var(--fv-guldgul-hover);
+  transform: scale(1.08);
+}
+
+.hero-carousel .carousel-control-prev:hover .carousel-control-prev-icon {
+  transform: scaleX(-1) scale(1.08);
+}
+
+/* ---------- Filterknappar: Idag / Imorgon / Kalender ---------- */
+.filter-sektion {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.filter-rad {
+  margin: 0 auto;
+}
+
+.filter-knapp {
+  --bs-btn-color: var(--fv-offwhite);
+  --bs-btn-bg: var(--fv-vinrod);
+  --bs-btn-border-color: var(--fv-vinrod);
+  --bs-btn-hover-color: var(--fv-offwhite);
+  --bs-btn-hover-bg: var(--fv-vinrod-hover);
+  --bs-btn-hover-border-color: var(--fv-vinrod-hover);
+  --bs-btn-active-color: var(--fv-midnatt);
+  --bs-btn-active-bg: var(--fv-guldgul);
+  --bs-btn-active-border-color: var(--fv-guldgul);
+  font-family: "Antonio", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.filter-knapp:hover {
+  transform: translateY(-2px);
+}
+
+.filter-knapp.active {
+  color: var(--fv-midnatt);
+  background-color: var(--fv-guldgul);
+  border-color: var(--fv-guldgul);
+}
+
+/* Kalenderfältet som fälls ut */
+#kalender-val .form-control {
+  background-color: var(--fv-offwhite);
+  border-color: var(--fv-guldgul);
+  color: var(--fv-midnatt);
+  color-scheme: light; /* säkerställer mörk, synlig kalenderikon i Chrome/Edge */
+}
+#kalender-val .form-label {
+  color: var(--fv-offwhite);
+  font-family: "Oswald", sans-serif;
+}
+
+/* ---------- Filmkatalog ---------- */
+.filmkatalog {
+  padding-top: 1.5rem;
+}
+
+.filmkort {
+  background-color: var(--fv-kort-bg);
+  border: 1px solid rgba(223, 162, 19, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  height: 100%;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.filmkort:hover {
+  transform: translateY(-4px);
+  border-color: var(--fv-guldgul);
+}
+
+.filmkort .card-img-top {
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+}
+
+.filmkort-body {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem;
+  background-color: var(--fv-kort-bg);
+}
+
+.boka-knapp {
+  --bs-btn-color: var(--fv-offwhite);
+  --bs-btn-bg: var(--fv-vinrod);
+  --bs-btn-border-color: var(--fv-vinrod);
+  --bs-btn-hover-color: var(--fv-offwhite);
+  --bs-btn-hover-bg: var(--fv-vinrod-hover);
+  --bs-btn-hover-border-color: var(--fv-vinrod-hover);
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.85rem;
+  width: 100%;
+  border-radius: 0.3rem;
+}
+
+/* ==========================================================
+   LÄSPLATTA / LIGGANDE MOBIL: min-width 768px
+   ========================================================== */
+@media (min-width: 768px) {
+  .hero-image {
+    height: 380px;
+  }
+
+  .hero-carousel .carousel-caption h3 {
+    font-size: 2.25rem;
+  }
+
+  .filter-knapp {
+    font-size: 1.1rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .boka-knapp {
+    font-size: 0.95rem;
+  }
+}
+
+/* ==========================================================
+   DESKTOP: min-width 1200px
+   ========================================================== */
+@media (min-width: 1200px) {
+  .hero-carousel {
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  .hero-image {
+    height: 500px;
+  }
 }

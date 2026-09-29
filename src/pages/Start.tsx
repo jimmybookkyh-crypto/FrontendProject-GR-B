@@ -12,17 +12,17 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
-import TMNT from "../images/TMNT.jpg";
-import Spiderman from "../images/Spiderman.jpeg";
-import Superman from "../images/Superman.jpg";
-import Mulanfilm from "../images/Mulanfilm.jpeg";
-import Spidermanfilm from "../images/Spidelmanfilm.jpg";
-import Ninja from "../images/Ninja.jpg";
-import charlie from "../images/charlie.jpg";
-import Thor from "../images/Thor.jpg";
-import Batman from "../images/Batman.jpg";
-import fyra from "../images/fyra.jpg";
-import superman2 from "../images/superman2.jpg";
+import TMNT from "../assets/TMNT.jpg";
+import Spiderman from "../assets/Spiderman.jpeg";
+import Superman from "../assets/Superman.jpg";
+import Mulanfilm from "../assets/Mulanfilm.jpeg";
+import Spidermanfilm from "../assets/Spiderman.jpg";
+import Ninja from "../assets/Ninja.jpg";
+import charlie from "../assets/charlie.jpg";
+import Thor from "../assets/Thor.jpg";
+import Batman from "../assets/Batman.jpg";
+import fyra from "../assets/fyra.jpg";
+import superman2 from "../assets/superman2.jpg";
 
 type FilmMock = {
   id: string;
@@ -48,42 +48,51 @@ const filmerImorgon: FilmMock[] = [
   { id: "mulan", titel: "Mulan", bild: Mulanfilm },
 ];
 
-function dagensDatumISO(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
-const IDAG_ISO = dagensDatumISO();
-
 export default function Start() {
   const [aktivtFilter, setAktivtFilter] = useState<
     "idag" | "imorgon" | "kalender"
   >("idag");
-  const [valtDatum, setValtDatum] = useState<string>("");
+  const [datum, setDatum] = useState("");
+  const idag = new Date().toISOString().split("T")[0];
 
-  const visadeFilmer = aktivtFilter === "idag" ? filmerIdag : filmerImorgon;
+  const visadeFilmer =
+    aktivtFilter === "idag"
+      ? filmerIdag
+      : aktivtFilter === "imorgon"
+        ? filmerImorgon
+        : datum
+          ? filmerImorgon // Kalender + datum valt: visa "imorgon"-filmerna (mockup)
+          : filmerIdag; // Kalender men inget datum valt än
 
   function valjFilter(filter: "idag" | "imorgon" | "kalender") {
     setAktivtFilter(filter);
   }
 
+  function handleDatumChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setDatum(event.target.value);
+  }
+
   return (
     <>
       <NavBar />
-      <HeroCarousel />
-      <FilterKnappar
-        aktivtFilter={aktivtFilter}
-        valtDatum={valtDatum}
-        onValjFilter={valjFilter}
-        onValjDatum={setValtDatum}
-      />
-      <Container>
-        <FilmerStart filmer={visadeFilmer} />
-      </Container>
+      <div className="sida-innehall">
+        <HeroCarousel />
+        <FilterKnappar
+          aktivtFilter={aktivtFilter}
+          datum={datum}
+          idag={idag}
+          onValjFilter={valjFilter}
+          onDatumChange={handleDatumChange}
+        />
+        <Container className="filmkatalog">
+          <FilmerStart filmer={visadeFilmer} />
+        </Container>
+      </div>
       <Footer />
     </>
   );
 }
-/*Placeholder NAVBAR*/
+/*Placeholder NAVBAR – stylas inte i Start.css*/
 function NavBar() {
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
@@ -147,29 +156,31 @@ function HeroCarousel() {
   );
 }
 
-/* 3 filter knappar placeholder ( Görs sedan som komponenter ) */
+/* 3 filterknappar – staplas på mobil, tre i rad på läsplatta/desktop */
 
 type FilterKnapparProps = {
   aktivtFilter: "idag" | "imorgon" | "kalender";
-  valtDatum: string;
+  datum: string;
+  idag: string;
   onValjFilter: (filter: "idag" | "imorgon" | "kalender") => void;
-  onValjDatum: (datum: string) => void;
+  onDatumChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 function FilterKnappar({
   aktivtFilter,
-  valtDatum,
+  datum,
+  idag,
   onValjFilter,
-  onValjDatum,
+  onDatumChange,
 }: FilterKnapparProps) {
   return (
-    <Container className="mt-4 mb-4">
-      <Row className="g-5">
-        <Col>
+    <Container className="filter-sektion">
+      <Row className="g-2 g-md-5">
+        <Col xs={12} md={4}>
           <Button
             variant="danger"
             size="lg"
-            className="w-100"
+            className="w-100 filter-knapp"
             active={aktivtFilter === "idag"}
             onClick={() => onValjFilter("idag")}
           >
@@ -177,11 +188,11 @@ function FilterKnappar({
           </Button>
         </Col>
 
-        <Col>
+        <Col xs={12} md={4}>
           <Button
             variant="danger"
             size="lg"
-            className="w-100"
+            className="w-100 filter-knapp"
             active={aktivtFilter === "imorgon"}
             onClick={() => onValjFilter("imorgon")}
           >
@@ -189,11 +200,11 @@ function FilterKnappar({
           </Button>
         </Col>
 
-        <Col>
+        <Col xs={12} md={4}>
           <Button
             variant="danger"
             size="lg"
-            className="w-100"
+            className="w-100 filter-knapp"
             active={aktivtFilter === "kalender"}
             onClick={() => onValjFilter("kalender")}
             aria-expanded={aktivtFilter === "kalender"}
@@ -211,9 +222,9 @@ function FilterKnappar({
               <Form.Control
                 id="datumval"
                 type="date"
-                min={IDAG_ISO}
-                value={valtDatum}
-                onChange={(e) => onValjDatum(e.target.value)}
+                min={idag}
+                value={datum}
+                onChange={onDatumChange}
               />
             </Col>
           </Row>
@@ -222,33 +233,32 @@ function FilterKnappar({
     </Container>
   );
 }
-/*6 st filmer cards med knapp till biljetter. ( Knappar görs sedan som komponenter )*/
+/*6 st filmer cards med knapp till biljetter.*/
 
 function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
   return (
-    <Container>
-      <Row xs={1} md={3} className="g-5">
-        {filmer.map((film) => (
-          <Col key={film.id}>
-            <Card>
-              <Card.Img variant="top" src={film.bild} alt={film.titel} />
-              <Card.Body>
-                <Button
-                  as={Link as any}
-                  to={`/moviedetails/moviecatalog/${film.id}`}
-                  variant="danger"
-                >
-                  Biljetter
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+    <Row xs={2} md={3} className="g-3 g-md-5">
+      {filmer.map((film) => (
+        <Col key={film.id}>
+          <Card className="filmkort">
+            <Card.Img variant="top" src={film.bild} alt={film.titel} />
+            <Card.Body className="filmkort-body">
+              <Button
+                as={Link as any}
+                to={`/moviedetails/moviecatalog/${film.id}`}
+                variant="danger"
+                className="boka-knapp"
+              >
+                Biljetter →
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      ))}
+    </Row>
   );
 }
-/*Placeholder FOOTER*/
+/*Placeholder FOOTER – stylas inte i Start.css*/
 
 function Footer() {
   return (
