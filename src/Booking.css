@@ -34,55 +34,73 @@ background:
   
 }
 
-.test-40 {
+.colsize-40 {
   width: 90% !important;
     max-width: 400px;
     box-sizing: border-box;
     margin: 10px;
     height: auto;
 }
-/* .two-col-row {
-  display: flex;
-  gap: 50px;
-  justify-content: center;
-    background: rgba(16, 14, 28, 0.65);
-      backdrop-filter: blur(10px);
-      padding: 5px;
-      
-} */
 
-.ticket-card{
+.ticket-card {
   background: rgba(16, 14, 28, 0.65);
-    backdrop-filter: blur(10px);
-    padding: 5px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.35);
+  border-radius: 1rem;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
 }
 
-.summary-card {
-
- 
+.ticket-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--gold);
+  text-align: center;
 }
 
 .seatchart-card {
-  background: rgba(16, 14, 28, 0.55);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(223, 162, 19, 0.35);
-  border-radius: 14px;
-  padding: 25px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  
+  overflow-x: auto;
+    background: rgba(16, 14, 28, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(253, 252, 250, 0.35);
+    border-radius: 1rem;
+    padding: 24px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
 }
 .seat {
-  width: 42px;
-  height: 42px;
+  flex: 0 0 auto;
+  width: clamp(18px, 3.2vw, 42px);
+  height: clamp(18px, 3.2vw, 42px);
   border-radius: 8px;
   border: none;
-  font-size: 12px;
+  font-size: clamp(8px, 1.4vw, 12px);
   font-weight: 600;
   transition: 0.2s;
   transform: perspective(80px) rotateX(10deg);
-  margin: 5px;
+  margin: clamp(2px, 0.4vw, 5px);
+}
+@media (max-width: 991.98px) {
+  .seat {
+    width: clamp(25px, 4.3vw, 55px);
+    height: clamp(25px, 4.3vw, 55px);
+    font-size: clamp(10px, 1.8vw, 15px);
+    margin: clamp(2px, 0.5vw, 7px);
+  }
+}
+.seat-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.seat-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
 .seat-available {
   background: linear-gradient(#f5f7fa, #dcdfe3);
   color: #100E1C;

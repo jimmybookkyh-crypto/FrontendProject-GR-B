@@ -4,7 +4,50 @@ import { useNavigate } from "react-router"
 import "../Booking.css"
 
 export default function BookingPage() {
-const rows = [
+
+  const auditoriums = [
+    {
+      name: "Stora Salongen",
+      seatsPerRow: [
+      8,
+      9,
+      10,
+      10,
+      10,
+      10,
+      12,
+      12
+    ]
+    },
+  {
+    "name": "Lilla Salongen",
+    "seatsPerRow": [
+      6,
+      8,
+      9,
+      10,
+      10,
+      12
+    ]
+  }
+]
+
+  const currentSalon = auditoriums[0];
+
+  const buildRows = (seatsPerRow: number[]) => {
+    let seatNumber = 1;
+    return seatsPerRow.map((count) =>
+      Array.from({ length: count }, () => {
+        const id = String(seatNumber).padStart(2, "0");
+        seatNumber += 1;
+        return id;
+      })
+    );
+  };
+  
+  const rows = buildRows(currentSalon.seatsPerRow);
+
+/* const rows = [
     ["01", "02", "03", "04", "05", "06", "07", "08"], 
     ["09", "10", "11", "12", "13", "14", "15", "16", "17"],
     ["18", "19", "20", "21", "22", "23", "24", "25", "26", "27"],
@@ -13,7 +56,7 @@ const rows = [
     ["48", "49", "50", "51", "52", "53", "54", "55", "56", "57"],
     ["58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69"], 
     ["70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81"],
-  ];
+  ]; */
   const navigate = useNavigate();
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -66,10 +109,10 @@ const rows = [
                 <img
                     src="src/assets/img/ph.png"
                   alt="Film"
-                    className="test-40 img-fluid"
+                    className="colsize-40 img-fluid"
                   />
                   </Col>
-                  <Col md={6} className="test-40 info-box">
+                  <Col md={6} className="colsize-40 info-box">
                     <h2>Filmnamn</h2>
                     <p>Datum: 2026-10-01</p>
                     <p>Tid: 19:00</p>
@@ -90,11 +133,11 @@ const rows = [
               <div className="bg-dark text-white text-center py-3 mb-5 rounded">
                 FILMDUK
               </div>
-              <div>
+              <div className= "seat-map">
                 {rows.map((row) => (
-                  <div
+                  <div 
                     key={row[0]}
-                    className="d-flex justify-content-center gap-2 mb-2"
+                    className="seat-row d-flex justify-content-center gap-2 mb-2"
                   >
                     {row.map((seat) => {
                       const isOccupied = occupiedSeats.includes(seat);
@@ -120,9 +163,9 @@ const rows = [
                 ))}
                 </div>
                 <div className="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-                  <span>🟢 Ledig</span>
-                  <span>🔴 Upptagen</span>
-                  <span>🔵 Vald</span>
+                  <span>⚪ Ledig</span>
+                  <span>⚫ Upptagen</span>
+                  <span>🟡 Vald</span>
                 </div>
             </Card.Body>
           </Card>
