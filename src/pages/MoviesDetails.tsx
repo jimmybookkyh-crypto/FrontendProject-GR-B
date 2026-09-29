@@ -51,7 +51,7 @@ function Trailer() {
 
 function FilmInfo() {
   return (
-    <Card className="mb-4 shadow-lg border-0 bg-dark text-white bg-opacity-75">
+    <Card className="mb-0 shadow-lg border-0 bg-dark text-white bg-opacity-75">
       <Card.Body className="p-4">
 
         {/* Badges */}
@@ -85,7 +85,7 @@ function FilmInfo() {
         <hr className="border-secondary my-3" />
 
         {/* Filminformation */}
-        <div className="small text-white-50">
+        <div className="small text-white-50 mt-1">
           <div className="mb-1">
             <strong className="text-white">Regissör:</strong> Taika Waititi
           </div>
@@ -125,12 +125,13 @@ function SlotSelection() {
           Välj visningstid
         </Card.Title>
 
-        <div className="d-grid gap-3">
+        <div className="d-grid gap-3 w-75 mx-auto">
           <Button
             variant="outline-light"
             size="lg"
-            className="rounded-pill py-3 px-4 fw-bold d-flex justify-content-between align-items-center"
+            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
             onClick={() => navigate('/booking')}
+             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
           >
             <span>Salong 1</span>
             <span>kl 16:00</span>
@@ -139,7 +140,8 @@ function SlotSelection() {
           <Button
             variant="outline-light"
             size="lg"
-            className="rounded-pill py-3 px-4 fw-bold d-flex justify-content-between align-items-center"
+            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
           >
             <span>Salong 2</span>
             <span>kl 16:00</span>
@@ -148,7 +150,8 @@ function SlotSelection() {
           <Button
             variant="outline-light"
             size="lg"
-            className="rounded-pill py-3 px-4 fw-bold d-flex justify-content-between align-items-center"
+            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
           >
             <span>Salong 1</span>
             <span>kl 20:00</span>
@@ -157,7 +160,8 @@ function SlotSelection() {
           <Button
             variant="outline-light"
             size="lg"
-            className="rounded-pill py-3 px-4 fw-bold d-flex justify-content-between align-items-center"
+            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
           >
             <span>Salong 2</span>
             <span>kl 20:00</span>
