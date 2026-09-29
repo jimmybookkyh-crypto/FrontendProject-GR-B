@@ -1,13 +1,20 @@
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 
 export default function Header() {
+  const { pathname } = useLocation();
+
   return (
-    <Navbar expand="lg" className="fv-navbar" data-bs-theme="dark">
+    <Navbar
+      expand="lg"
+      sticky="top"
+      className="fv-navbar"
+      data-bs-theme="dark"
+    >
       <Navbar.Brand as={Link} to="/" className="fv-brand">
         <img src={logo} alt="FV – startsida" className="fv-logo" />
       </Navbar.Brand>
@@ -18,7 +25,7 @@ export default function Header() {
           <Nav.Link as={NavLink} to="/" end className="fv-link">
             Hem
           </Nav.Link>
-          <Nav.Link as={NavLink} to="/filmer" className="fv-link">
+          <Nav.Link as={NavLink} to="/moviecatalog" className="fv-link">
             Filmer
           </Nav.Link>
           <Nav.Link as={NavLink} to="/event" className="fv-link">
@@ -29,14 +36,15 @@ export default function Header() {
             title="Om oss"
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
+            active={pathname.startsWith("/about")}
           >
-            <NavDropdown.Item as={Link} to="/hitta-till-oss">
+            <NavDropdown.Item as={Link} to="/about#hitta-till-oss">
               Hitta till oss
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/salonger">
+            <NavDropdown.Item as={Link} to="/about#salonger">
               Salonger
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/snacks-meny">
+            <NavDropdown.Item as={Link} to="/about#snacks-meny">
               Snacks meny
             </NavDropdown.Item>
           </NavDropdown>
