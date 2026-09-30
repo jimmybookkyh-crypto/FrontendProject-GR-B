@@ -100,9 +100,9 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
   return (
     <Container className="filter-sektion">
       <Row className="g-2 g-md-5 d-flex justify-content-center">
-        <Col xs={12} md={4}>
-          <Button
-            variant="danger"
+        <Col xs={12} md={5}>
+          <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+            variant="outline-dark"
             size="lg"
             className="w-100 filter-knapp"
             active={aktivtFilter === "allaFilmer"}
@@ -112,9 +112,9 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
           </Button>
         </Col>
 
-        <Col xs={12} md={4}>
-          <Button
-            variant="danger"
+        <Col xs={12} md={5}>
+          <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+            variant="outline-dark"
             size="lg"
             className="w-100 filter-knapp"
             active={aktivtFilter === "kommandeFilmer"}
@@ -138,10 +138,10 @@ function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
           <Card className="filmkort">
             <Card.Img variant="top" src={film.bild} alt={film.titel} />
             <Card.Body className="filmkort-body">
-              <Button
+              <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+                variant="outline-light"
                 as={Link as any}
                 to={`/moviedetails/moviecatalog/${film.id}`}
-                variant="danger"
                 className="boka-knapp"
               >
                 Biljetter →
