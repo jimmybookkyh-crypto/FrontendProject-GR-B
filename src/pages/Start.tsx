@@ -2,7 +2,6 @@ import { useState } from "react";
 import "../styles/Start.css";
 import { Link } from "react-router";
 import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
 import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -10,6 +9,7 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
+import Biodukbg from "../assets/img/biodukbg.png";
 import TMNT from "../assets/TMNT.jpg";
 import Spiderman from "../assets/Spiderman.jpeg";
 import Superman from "../assets/Superman.jpg";
@@ -72,7 +72,10 @@ export default function Start() {
 
   return (
     <>
-      <div className="sida-innehall">
+      <div
+        className="sida-innehall"
+        style={{ backgroundImage: `url(${Biodukbg})` }}
+      >
         <HeroCarousel />
         <FilterKnappar
           aktivtFilter={aktivtFilter}
@@ -85,7 +88,6 @@ export default function Start() {
           <FilmerStart filmer={visadeFilmer} />
         </Container>
       </div>
-      <Footer />
     </>
   );
 }
@@ -150,8 +152,6 @@ function FilterKnappar({
       <Row className="g-2 g-md-5">
         <Col xs={12} md={4}>
           <Button
-            variant="danger"
-            size="lg"
             className="w-100 filter-knapp"
             active={aktivtFilter === "idag"}
             onClick={() => onValjFilter("idag")}
@@ -162,8 +162,6 @@ function FilterKnappar({
 
         <Col xs={12} md={4}>
           <Button
-            variant="danger"
-            size="lg"
             className="w-100 filter-knapp"
             active={aktivtFilter === "imorgon"}
             onClick={() => onValjFilter("imorgon")}
@@ -174,8 +172,6 @@ function FilterKnappar({
 
         <Col xs={12} md={4}>
           <Button
-            variant="danger"
-            size="lg"
             className="w-100 filter-knapp"
             active={aktivtFilter === "kalender"}
             onClick={() => onValjFilter("kalender")}
@@ -218,7 +214,7 @@ function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
               <Button
                 as={Link as any}
                 to={`/moviedetails/moviecatalog/${film.id}`}
-                variant="danger"
+                variant="normal"
                 className="boka-knapp"
               >
                 Biljetter →
@@ -228,19 +224,6 @@ function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
         </Col>
       ))}
     </Row>
-  );
-}
-/*Placeholder FOOTER – stylas inte i Start.css*/
-
-function Footer() {
-  return (
-    <Container>
-      <Navbar expand="lg" className="bg-body-tertiary">
-        <Container>
-          <Navbar.Brand href="#">Footer</Navbar.Brand>
-        </Container>
-      </Navbar>
-    </Container>
   );
 }
 

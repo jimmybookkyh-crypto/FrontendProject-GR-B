@@ -1,7 +1,7 @@
 :root {
   --fv-guldgul: #dfa213;
   --fv-guldgul-hover: #f0b426;
-  --fv-vinrod: #8E1733;
+  --fv-vinrod: #8e1733;
   --fv-vinrod-hover: #a81c3c;
   --fv-midnatt: #100e1c;
   --fv-offwhite: #f5f7fa;
@@ -11,14 +11,9 @@
 /* ---------- Innehållsyta (allt utom NavBar/Footer) ---------- */
 .sida-innehall {
   background-color: var(--fv-midnatt);
-  /* Enkel "filmdraperi"-känsla tills egen bild finns */
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(142, 23, 51, 0.25) 0px,
-    rgba(142, 23, 51, 0.25) 2px,
-    transparent 2px,
-    transparent 14px
-  );
+  background-repeat: repeat-x;
+  background-position: top;
+  background-size: auto 100%;
   padding-bottom: 2.5rem;
 }
 
@@ -111,16 +106,7 @@
 }
 
 .filter-knapp {
-  --bs-btn-color: var(--fv-offwhite);
-  --bs-btn-bg: var(--fv-vinrod);
-  --bs-btn-border-color: var(--fv-vinrod);
-  --bs-btn-hover-color: var(--fv-offwhite);
-  --bs-btn-hover-bg: var(--fv-vinrod-hover);
-  --bs-btn-hover-border-color: var(--fv-vinrod-hover);
-  --bs-btn-active-color: var(--fv-midnatt);
-  --bs-btn-active-bg: var(--fv-guldgul);
-  --bs-btn-active-border-color: var(--fv-guldgul);
-  font-family: "Antonio", sans-serif;
+  font-family: "Bebas Neue", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 1rem;
@@ -130,16 +116,21 @@
   transition:
     transform 0.15s ease,
     background-color 0.15s ease;
+  color: var(--fv-offwhite) !important;
+  background-color: var(--fv-vinrod) !important;
+  border-color: var(--fv-vinrod) !important;
 }
 
 .filter-knapp:hover {
   transform: translateY(-2px);
+  background-color: var(--fv-vinrod-hover) !important;
+  border-color: var(--fv-vinrod-hover) !important;
 }
 
 .filter-knapp.active {
-  color: var(--fv-midnatt);
-  background-color: var(--fv-guldgul);
-  border-color: var(--fv-guldgul);
+  color: var(--fv-midnatt) !important;
+  background-color: var(--fv-guldgul) !important;
+  border-color: var(--fv-guldgul) !important;
 }
 
 /* Kalenderfältet som fälls ut */
@@ -188,12 +179,6 @@
 }
 
 .boka-knapp {
-  --bs-btn-color: var(--fv-offwhite);
-  --bs-btn-bg: var(--fv-vinrod);
-  --bs-btn-border-color: var(--fv-vinrod);
-  --bs-btn-hover-color: var(--fv-offwhite);
-  --bs-btn-hover-bg: var(--fv-vinrod-hover);
-  --bs-btn-hover-border-color: var(--fv-vinrod-hover);
   font-family: "Oswald", sans-serif;
   font-weight: 500;
   text-transform: uppercase;
@@ -201,6 +186,14 @@
   font-size: 0.85rem;
   width: 100%;
   border-radius: 0.3rem;
+  color: var(--fv-offwhite) !important;
+  background-color: var(--fv-vinrod) !important;
+  border-color: var(--fv-vinrod) !important;
+}
+
+.boka-knapp:hover {
+  background-color: var(--fv-vinrod-hover) !important;
+  border-color: var(--fv-vinrod-hover) !important;
 }
 
 /* ==========================================================
