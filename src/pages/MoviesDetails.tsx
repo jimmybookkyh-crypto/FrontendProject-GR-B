@@ -102,9 +102,9 @@ function FilmInfo() {
 }
 function ThisDate() {
   return (
-    <Card className="mb-4 shadow-lg border-0 bg-dark text-white bg-opacity-75 text-center">
+    <Card className="mb-4 shadow-lg border-0 bg-dark text-white bg-opacity-75">
       <Card.Body className="py-3">
-        <Card.Subtitle className="text-white-50 small text-uppercase mb-1">
+        <Card.Subtitle className="text-white-50 small text-uppercase mb-1 d-flex justify-content-center">
           Valt datum
         </Card.Subtitle>
         <Card.Title as="h3" className="mb-0 fw-bold fs-4">
@@ -121,7 +121,7 @@ function SlotSelection() {
   return (
     <Card className="shadow-lg border-0 bg-dark text-white bg-opacity-75">
       <Card.Body className="p-4">
-        <Card.Title as="h3" className="mb-4 text-center fs-5 text-white-50">
+        <Card.Title as="h3" className="mb-4 fs-5 text-white-50">
           Välj visningstid
         </Card.Title>
 
