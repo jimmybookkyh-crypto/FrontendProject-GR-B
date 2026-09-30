@@ -1,15 +1,62 @@
-import { Row, Container, Col, Card } from "react-bootstrap";
+import { Row, Container, Col, Card, InputGroup, Form} from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router"
 import "../Booking.css"
 
 export default function BookingPage() {
-  const rows = [
-    ["A1", "A2", "A3", "A4", "A5"],
-    ["B1", "B2", "B3", "B4", "B5"],
-    ["C1", "C2", "C3", "C4", "C5"],
-    ["D1", "D2", "D3", "D4", "D5"],
-  ];
+
+  const auditoriums = [
+    {
+      name: "Stora Salongen",
+      seatsPerRow: [
+      8,
+      9,
+      10,
+      10,
+      10,
+      10,
+      12,
+      12
+    ]
+    },
+  {
+    "name": "Lilla Salongen",
+    "seatsPerRow": [
+      6,
+      8,
+      9,
+      10,
+      10,
+      12
+    ]
+  }
+]
+
+  const currentSalon = auditoriums[0]; //hämta salong från databas
+
+  const buildRows = (seatsPerRow: number[]) => {
+    let seatNumber = 1;
+    return seatsPerRow.map((count) =>
+      Array.from({ length: count }, () => {
+        const id = String(seatNumber).padStart(2, "0");
+        seatNumber += 1;
+        return id;
+      })
+    );
+  };
+  
+  const rows = buildRows(currentSalon.seatsPerRow);
+
+/* const rows = [
+    ["01", "02", "03", "04", "05", "06", "07", "08"], 
+    ["09", "10", "11", "12", "13", "14", "15", "16", "17"],
+    ["18", "19", "20", "21", "22", "23", "24", "25", "26", "27"],
+    ["28", "29", "30", "31", "32", "33", "34", "35", "36", "37"],
+    ["38", "39", "40", "41", "42", "43", "44", "45", "46", "47"],
+    ["48", "49", "50", "51", "52", "53", "54", "55", "56", "57"],
+    ["58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69"], 
+    ["70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81"],
+  ]; */
   const navigate = useNavigate();
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
@@ -33,6 +80,23 @@ export default function BookingPage() {
         : [...current, seat])
   }
 
+  const handleInputChange = (value: string, setter: (val: number) => void, currentTicketTypeVal: number) => {
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed < 0) {
+      setter(0);
+      return;
+    }
+
+    const otherTicketsCount = totaltTickets - currentTicketTypeVal;
+    const maxAllowed = selectedSeats.length - otherTicketsCount;
+
+    if (parsed > maxAllowed) {
+      setter(Math.max(0, maxAllowed));
+    } else {
+      setter(parsed);
+    }
+  };
+
   const handleCheckout = () => {
     navigate("/bookingconfirmation", {
       state: {
@@ -45,26 +109,27 @@ export default function BookingPage() {
     });
   }
   // hårdkodad del för mockup
-  const occupiedSeats = ["C2", "C3"];  // bokar stolar för att visa i mockup
+  const occupiedSeats = ["12", "35", "36"];  // bokar stolar för att visa i mockup
 
   return <>
     <button onClick={() => navigate("/moviedetails")} className="btn btn-secondary">
   ← Tillbaka
-</button>
-    <Container className="py-4">
+    </button>
+    <h1>Boka biljetter</h1>
+    <Container className="justify-content-between">
       <Row className="mb-4">
       <Col>
         <Card>
           <Card.Body>
-            <Row>
-              <Col md={4}>
+              <Row className="top-col-row">
+                <Col md={6}>
                 <img
-                  src=""
+                    src="src/assets/img/ph.png"
                   alt="Film"
-                  className="img-fluid"
+                    className="colsize-40 img-fluid"
                   />
                   </Col>
-                  <Col md={8}>
+                  <Col md={6} className="colsize-40 info-box">
                     <h2>Filmnamn</h2>
                     <p>Datum: 2026-10-01</p>
                     <p>Tid: 19:00</p>
@@ -75,21 +140,25 @@ export default function BookingPage() {
           </Card>
         </Col>
       </Row>
-      <Row className="mb-4">
-        <Col>
-          <Card>
+      <Row className="booking-main-row g-4">
+        <Col xs={12} lg={7} className="booking-duk-col">
+          <Card className="seatchart-card">
             <Card.Body>
               <h3 className="text-center mb-4">
-                Salong 1
+                Salong 1 {/*Hämta salong från databas och namn*/}
               </h3>
-              <div className="bg-dark text-white text-center py-3 mb-5 rounded">
-                FILMDUK
+              <div className="screen-icon-wrap">
+                <img
+                  src="src/assets/img/screenIco.png"
+                  alt="Bioduk"
+                  className="screen-icon"
+                />
               </div>
-              <div>
+              <div className= "seat-map">
                 {rows.map((row) => (
-                  <div
+                  <div 
                     key={row[0]}
-                    className="d-flex justify-content-center gap-2 mb-2"
+                    className="seat-row d-flex justify-content-center gap-2 mb-2"
                   >
                     {row.map((seat) => {
                       const isOccupied = occupiedSeats.includes(seat);
@@ -115,94 +184,96 @@ export default function BookingPage() {
                 ))}
                 </div>
                 <div className="d-flex justify-content-center gap-3 mt-4 flex-wrap">
-                  <span>🟢 Ledig</span>
-                  <span>🔴 Upptagen</span>
-                  <span>🔵 Vald</span>
+                  <span>⚪ Ledig</span>
+                  <span>⚫ Upptagen</span>
+                  <span>🟡 Vald</span>
                 </div>
             </Card.Body>
           </Card>
 
         </Col>
-      </Row>
-      <Row>
-        <Col md={6} className="mb-3">
-          <Card>
+        <Col xs={12} lg={5} className="booking-val-col">
+          <Card className="ticket-card">
             <Card.Body>
               <h3>Biljetter</h3>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Vuxen : 140 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setAdultTickets(Math.max(0, adultTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setAdultTickets(Math.max(0, adultTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={adultTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setAdultTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setAdultTickets(adultTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setAdultTickets(adultTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{adultTickets}</p>
-                </div>
+                </InputGroup>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Barn : 80 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setChildTickets(Math.max(0, childTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setChildTickets(Math.max(0, childTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={childTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setChildTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setChildTickets(childTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setChildTickets(childTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{childTickets}</p>
-                </div>
+                </InputGroup>
               </div>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>Pensionär : 120 kr</span>
-                <div className="btn-group">
+                <InputGroup style={{ maxWidth: "140px" }}>
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setSeniorTickets(Math.max(0, seniorTickets - 1))
-                    }
+                    type="button"
+                    onClick={() => setSeniorTickets(Math.max(0, seniorTickets - 1))}
                   >
                     −
                   </button>
+                  <Form.Control
+                    type="number"
+                    className="text-center"
+                    value={seniorTickets}
+                    onChange={(e) => handleInputChange(e.target.value, setSeniorTickets)}
+                    min="0"
+                  />
                   <button
                     className="btn btn-outline-secondary"
-                    onClick={() =>
-                      setSeniorTickets(seniorTickets + 1)
-                    }
+                    type="button"
+                    onClick={() => setSeniorTickets(seniorTickets + 1)}
                   >
                     +
                   </button>
-                  <p>{seniorTickets}</p>
-                </div>
+                </InputGroup>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      
-        <Col md={6} className="mb-3">
-          <Card>
-            <Card.Body>
-              <h3>Sammanfattning</h3>
               <p>Valda platser:{" "}
                 {selectedSeats.length > 0
                   ? selectedSeats.join(", ")
@@ -223,7 +294,8 @@ export default function BookingPage() {
             </Card.Body>
           </Card>
         </Col>
-
+      
+        
       </Row>
     </Container>
   </>;

@@ -1,21 +1,186 @@
+:root {
+  --gold: #DFA213;
+  --red: #8E1733;
+  --blue-dark: #100E1C;
+  --off-white: #F5F7FA;
+}
+
+body {
+background:
+    linear-gradient(to bottom,
+      #100E1C 50%,
+      #8E1733 100%
+    ),
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(0, 0, 0, 0.25) 20px,
+      rgba(255, 255, 255, 0.05) 40px);
+
+  background-blend-mode: multiply;
+  min-height: 100vh;
+  color: var(--off-white);
+}
+
+
+.top-col-row {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  gap: clamp(3px, 6vw, 120px);
+  background: rgba(16, 14, 28, 0.65);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    margin:0.5rem 0.5rem 1rem;
+}
+
+/* .info-box {
+  border: 1px solid rgba(253, 252, 250, 0.4);
+  border-radius: 1rem;
+  padding: 10px;
+  max-width: 100%;
+} */
+
+.colsize-40 {
+  width: 90% !important;
+    max-width: 400px;
+    box-sizing: border-box;
+    margin: 10px;
+    height: auto;
+}
+
+.booking-val-col{
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.ticket-card {
+  background: rgba(16, 14, 28, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.35);
+  border-radius: 1rem;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  margin:0 0.25rem 0;
+}
+.btn-outline-secondary{
+  background: rgba(16, 14, 28, 0.65);
+  border: 1px solid rgba(253, 252, 250, 0.4);
+  color: var(--off-white);
+}
+
+.text-center{
+  max-width: 1.5rem;
+  margin: 0.2rem;
+}
+
+ h1, h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--gold);
+  text-align: center;
+}
+
+.seatchart-card {
+  overflow-x: auto;
+    background: rgba(16, 14, 28, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(253, 252, 250, 0.35);
+    border-radius: 1rem;
+    padding: 24px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    margin:0 0.25rem 0.5rem;
+}
 .seat {
-  width: 45px;
-  height: 40px;
-  border: none;
+  flex: 0 0 auto;
+  width: clamp(18px, 3.2vw, 42px);
+  height: clamp(18px, 3.2vw, 42px);
   border-radius: 8px;
+  border: none;
+  font-size: clamp(8px, 1.4vw, 12px);
+  font-weight: 600;
+  transition: 0.2s;
+  transform: perspective(80px) rotateX(10deg);
+  margin: clamp(2px, 0.4vw, 5px);
+}
+@media (max-width: 991.98px) {
+  .seat {
+    width: clamp(25px, 4.3vw, 55px);
+    height: clamp(25px, 4.3vw, 55px);
+    font-size: clamp(10px, 1.8vw, 15px);
+    margin: clamp(2px, 0.5vw, 7px);
+  }
+}
+.seat-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.seat-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
 .seat-available {
-  background-color: #198754;
-  color: white;
-}
-
-.seat-selected {
-  background-color: #0d6efd;
-  color: white;
+  background: linear-gradient(#f5f7fa, #dcdfe3);
+  color: #100E1C;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .seat-occupied {
-  background-color: #dc3545;
-  color: white;
+  background: linear-gradient(#3a3a3a, #1f1f1f);
+  color: #777;
+  cursor: not-allowed;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.seat-selected {
+  background: linear-gradient(#DFA213, #b98a0f);
+  color: #100E1C;
+  transform: perspective(80px) rotateX(10deg) scale(1.05);
+  box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
+}
+.screen-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  width: 100%;
+}
+
+.screen-icon {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(245, 247, 250, 0.25));
+}
+
+
+.booking-main-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.booking-duk-col,
+.booking-val-col {
+  width: 100%;
+  max-width: 640px;
+}
+
+@media (min-width: 992px) {
+  .booking-main-row {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .booking-duk-col,
+  .booking-val-col {
+    max-width: 640px;
+  }
 }
