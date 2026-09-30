@@ -22,6 +22,23 @@ export default function Header() {
       </Navbar.Brand>
 
       <Navbar.Toggle aria-controls="fv-navbar-nav" />
+      <Link to="/login" className="fv-login" aria-label="Logga in">
+        <svg
+          className="fv-login-icon"
+          viewBox="0 0 48 48"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="24" cy="24" r="21" />
+          <circle cx="24" cy="18" r="7" />
+          <path d="M9 38c3-7 8-10 15-10s12 3 15 10" />
+        </svg>
+        <span className="d-none d-lg-inline">Logga in</span>
+      </Link>
+
       <Navbar.Collapse id="fv-navbar-nav">
         <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
           <Nav.Link as={NavLink} to="/" end className="fv-link">
@@ -52,23 +69,6 @@ export default function Header() {
             </NavDropdown.Item>
           </NavDropdown>
         </Nav>
-
-        <Link to="/login" className="fv-login">
-          <svg
-            className="fv-login-icon"
-            viewBox="0 0 48 48"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <circle cx="24" cy="24" r="21" />
-            <circle cx="24" cy="18" r="7" />
-            <path d="M9 38c3-7 8-10 15-10s12 3 15 10" />
-          </svg>
-          <span>Logga in</span>
-        </Link>
       </Navbar.Collapse>
     </Navbar>
   );
