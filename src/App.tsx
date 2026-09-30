@@ -1,6 +1,8 @@
 import { Outlet } from "react-router";
 import Header from "./Partials/Header.tsx";
 
+import Footer from "./partials/Footer.tsx"
+
 export default function App() {
   return (
     <>
@@ -8,7 +10,7 @@ export default function App() {
       <main>
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }
