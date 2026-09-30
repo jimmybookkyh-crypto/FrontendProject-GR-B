@@ -59,9 +59,17 @@
   z-index: -1;
 }
 
-.fv-navbar .nav-link:hover::before,
-.fv-navbar .nav-link:focus-visible::before {
+/* Ljusare grå ruta: vid tryck/tangentbordsfokus (funkar även på touch/mobil) ... */
+.fv-navbar .nav-link:focus-visible::before,
+.fv-navbar .nav-link:active::before {
   background: #2e2e34;
+}
+
+/* ... och vid hover med mus. Mobiler har ingen riktig hover, därför bara när den finns */
+@media (hover: hover) {
+  .fv-navbar .nav-link:hover::before {
+    background: #2e2e34;
+  }
 }
 
 /* Vald flik: fylld gul */
@@ -164,6 +172,15 @@
 
 /* 992-1199 px: minst plats, flikarna centreras mellan logga och Logga in */
 @media (min-width: 992px) {
+  /* Logga in ligger i koden före menyn (för mobil), så vi sorterar om på desktop */
+  .fv-navbar .navbar-collapse {
+    order: 1;
+  }
+
+  .fv-navbar .fv-login {
+    order: 2;
+  }
+
   .fv-navbar .fv-nav {
     margin: 0 auto;
     gap: 2.2rem;
@@ -214,35 +231,53 @@
 }
 
 /* ---------- Mobil (hopfälld meny) ---------- */
+/* Översta raden: logga | hamburgare (mitten) | Logga in-ikon. Menyn fälls ut under. */
 
 @media (max-width: 991.98px) {
   .fv-logo {
     height: 56px;
   }
 
-  .fv-navbar {
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+  /* Samma sidmarginal som filterknapparnas Container (0.75rem) så kanterna linjerar */
+  .navbar.fv-navbar {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
+  /* Hamburgaren ligger precis till vänster om Logga in-ikonen (ändra mellanrummet här) */
+  .fv-navbar .navbar-toggler {
+    margin: 0 0.75rem 0 auto;
+  }
+
+  /* Bara ikonen, ingen text. Länken ligger utanför den nerfällda menyn */
+  .fv-navbar .fv-login {
+    margin: 0;
+  }
+
+  .fv-login-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  /* Mindre flikar i den nerfällda menyn */
   .fv-navbar .fv-nav {
     align-items: stretch;
-    gap: 0.75rem;
-    padding-top: 0.75rem;
+    gap: 0.4rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    /* Skevningen sticker ut ca 0.4rem på varje sida (+ gula linjen 3px till höger),
+       så vi drar in flikarna lika mycket. !important slår Bootstraps me-auto */
+    margin: 0 0.6rem 0 0.4rem !important;
   }
 
   .fv-navbar .nav-link,
   .fv-navbar .dropdown-toggle {
     width: 100%;
-    padding: 0.6rem 1rem;
-    font-size: 1.6rem;
+    padding: 0.4rem 1rem;
+    font-size: 1.25rem;
   }
 
-  .fv-navbar .nav-link::before {
-    transform: none;
-  }
-
-  .fv-login {
-    margin: 1rem 0 0.5rem;
+  .fv-navbar .dropdown-item {
+    font-size: 1.2rem;
   }
 }
