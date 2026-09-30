@@ -1,7 +1,7 @@
 import { Row, Container, Col, Card, InputGroup, Form } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import "../Booking.css";
+import "../styles/Booking.css";
 
 export default function BookingPage() {
   const auditoriums = [
@@ -107,20 +107,20 @@ export default function BookingPage() {
     <div className="booking-page min-vh-100 text-light">
       <button
         type="button"
-        onClick={() => navigate("/moviedetails")}
-        className="btn btn-light btn-sm m-3"
+        onClick={() => navigate("/moviedetails/moviecatalog/thor")}
+        className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
       >
         ← Tillbaka
       </button>
 
       <h1 className="h4 fw-bold text-center mb-4 heading-gold">
-        Boka biljetter
+        BOKA BILJETTER
       </h1>
 
       <Container className="pb-5">
         <Row className="justify-content-center mb-4">
           <Col xs={12} lg={8} xl={7}>
-            <Card>
+            <Card className="glass-card">
               <Card.Body className="p-3 p-md-4">
                 <Row className="align-items-center g-3 g-md-4">
                   <Col xs={5} md={4} className="text-center">
@@ -131,10 +131,10 @@ export default function BookingPage() {
                     />
                   </Col>
                   <Col xs={7} md={8}>
-                    <h2 className="h5 fw-bold mb-3">Filmnamn</h2>
+                    <h2 className="h5 fw-bold mb-3">Thor: Love and Thunder</h2>
                     <p className="mb-1">Datum: 2026-10-01</p>
                     <p className="mb-1">Tid: 19:00</p>
-                    <p className="mb-0">Salong: Salong 1</p>
+                    <p className="mb-0">Salong: Stora Salongen</p>
                   </Col>
                 </Row>
               </Card.Body>
@@ -144,9 +144,9 @@ export default function BookingPage() {
 
         <Row className="g-4 justify-content-center align-items-start">
           <Col xs={12} lg={7}>
-            <Card className="overflow-x-auto">
+            <Card className="glass-card overflow-x-auto">
               <Card.Body className="p-3 p-md-4">
-                <h3 className="h5 fw-bold heading-gold mb-3">Salong 1</h3>
+                <h3 className="h5 fw-bold heading-gold mb-3 text-center">STORA SALONGEN</h3>
 
                 <div className="d-flex justify-content-center w-100 mb-3">
                   <img
@@ -187,7 +187,7 @@ export default function BookingPage() {
                   ))}
                 </div>
 
-                <div className="d-flex justify-content-center gap-3 mt-3 flex-wrap small">
+                <div className="d-flex justify-content-center gap-3 mt-3 flex-wrap fs-5">
                   <span>⚪ Ledig</span>
                   <span>⚫ Upptagen</span>
                   <span>🟡 Vald</span>
@@ -197,10 +197,10 @@ export default function BookingPage() {
           </Col>
 
           <Col xs={12} lg={5}>
-            <Card>
+            <Card className="glass-card">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
-                  Biljetter
+                  BILJETTER
                 </h3>
 
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -323,17 +323,17 @@ export default function BookingPage() {
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
                 <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
-                <button
-                  type="button"
-                  className="btn btn-primary w-100"
-                  disabled={
-                    selectedSeats.length === 0 ||
-                    totaltTickets !== selectedSeats.length
-                  }
-                  onClick={handleCheckout}
-                >
-                  Gå vidare till betalning
-                </button>
+                  <button
+                    type="button"
+                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold"
+                    disabled={
+                      selectedSeats.length === 0 ||
+                      totaltTickets !== selectedSeats.length
+                    }
+                    onClick={handleCheckout}
+                  >
+                    Till betalning
+                  </button>
               </Card.Body>
             </Card>
           </Col>
