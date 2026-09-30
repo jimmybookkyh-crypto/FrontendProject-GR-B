@@ -1,0 +1,132 @@
+.booking-page {
+  background:
+    linear-gradient(to bottom, #100E1C 50%, #8E1733 100%),
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(0, 0, 0, 0.25) 20px,
+      rgba(255, 255, 255, 0.05) 40px);
+  background-blend-mode: multiply;
+  min-height: 100vh;
+  color: #f5f7fa;
+}
+
+.heading-gold {
+  color: #dfa213;
+}
+.booking-page h1,
+.booking-page h3 {
+  color: #dfa213 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+.booking-page .glass-card.card,
+.booking-page .card.glass-card {
+  --bs-card-bg: transparent !important;
+  --bs-card-cap-bg: transparent !important;
+  --bs-card-border-color: rgba(253, 252, 250, 0.28);
+  --bs-card-color: #f5f7fa;
+
+  background-color: rgba(16, 14, 28, 0.65) !important;
+  background-image: none !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.28) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  color: #f5f7fa !important;
+}
+
+.booking-page .glass-card .card-body {
+  background-color: transparent !important;
+  color: #f5f7fa !important;
+  font-weight: 600;
+}
+
+.booking-page .glass-card hr {
+  border-color: rgba(255, 255, 255, 0.25);
+  opacity: 1;
+}
+
+.booking-page .glass-card .form-control {
+  background-color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #100e1c !important;
+  font-weight: 700;
+}
+
+.booking-page .glass-card .form-control:focus {
+  background-color: #fff !important;
+  color: #100e1c !important;
+  box-shadow: none;
+}
+
+.booking-page .checkout-btn {
+  background-color: #8E1733;
+  border-color: #8E1733;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.25rem;
+  min-height: 52px;
+  border-radius: 50rem;
+}
+
+.booking-page .checkout-btn:hover:not(:disabled),
+.booking-page .checkout-btn:focus:not(:disabled) {
+  background-color: #8E1733;
+  border-color: #8E1733;
+  color: #000;
+}
+
+.booking-page .checkout-btn:disabled {
+  background-color: #6b4a53;
+  border-color: #6b4a53;
+  color: rgba(255, 255, 255, 0.7);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.screen-icon {
+  width: min(100%, 420px);
+  filter: drop-shadow(0 8px 16px rgba(245, 247, 250, 0.25));
+}
+
+.seat {
+  flex: 0 0 auto;
+  width: clamp(22px, 3.2vw, 40px);
+  height: clamp(22px, 3.2vw, 40px);
+  margin: clamp(2px, 0.35vw, 5px);
+  border: none;
+  border-radius: 8px;
+  font-size: clamp(8px, 1.3vw, 12px);
+  font-weight: 700;
+  transition: 0.2s;
+  transform: perspective(80px) rotateX(10deg);
+}
+
+.seat-available {
+  background: linear-gradient(#f5f7fa, #dcdfe3);
+  color: #100e1c;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.seat-occupied {
+  background: linear-gradient(#3a3a3a, #1f1f1f);
+  color: #777;
+  cursor: not-allowed;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.seat-selected {
+  background: linear-gradient(#dfa213, #b98a0f);
+  color: #100e1c;
+  transform: perspective(80px) rotateX(10deg) scale(1.05);
+  box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
+}
+
+@media (max-width: 991.98px) {
+  .seat {
+    width: clamp(24px, 6.5vw, 42px);
+    height: clamp(24px, 6.5vw, 42px);
+    font-size: clamp(9px, 2.4vw, 13px);
+  }
+}
