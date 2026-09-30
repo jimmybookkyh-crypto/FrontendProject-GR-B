@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,28 +8,27 @@ import "../styles/About.css";
 const KONTAKT = {
   gata: "Exempelgatan 1",
   postadress: "123 45 Småstad",
-  epost: "info@filmvisarna.example",
+  epost: "info@filmvisarna.bio",
 };
 
 const OPPETTIDER = [
-  { dagar: "Måndag–torsdag", tid: "10–21", veckodagar: [1, 2, 3, 4] },
-  { dagar: "Fredag–lördag", tid: "10–23", veckodagar: [5, 6] },
-  { dagar: "Söndag", tid: "14–21", veckodagar: [0] },
+  { dagar: "Måndag–torsdag", tid: "10–21" },
+  { dagar: "Fredag–lördag", tid: "10–23" },
+  { dagar: "Söndag", tid: "14–21" },
 ];
-
 
 /* TODO: kolla punkterna, särskilt Salong 2 */
 const SALONGER = [
   {
     id: "salong-1",
-    namn: "Salong 1",
-    platser: 88,
+    namn: "Salong 1 - Stora salongen",
+    platser: 81,
     punkter: ["Stor bioduk", "Laserprojektion", "Infinity Vision"],
   },
   {
     id: "salong-2",
-    namn: "Salong 2",
-    platser: 48,
+    namn: "Salong 2 - Lilla salongen",
+    platser: 55,
     punkter: ["Mindre salong", "Intim och bekväm", "Modernt ljud"],
   },
 ];
@@ -151,6 +148,11 @@ function Huvudkort() {
           bioupplevelse med imponerande bild och mäktigt ljud.
         </p>
         <p>
+          Salong 2 är vår mindre salong, med en intim och bekväm känsla och modernt ljud. Här sitter
+          du nära filmen, perfekt för dig som vill se en film i lugn och ro tillsammans med färre
+          människor.
+        </p>
+        <p>
           Våra salonger har sin egen stil och tillsammans skapar de en personlig och bekväm
           bioupplevelse. På sitt invigningsår 2020 fick Biostaden utmärkelsen Boxoffice Blue Ribbon
           Cinema, som uppmärksammar biografer som erbjuder en särskilt enastående bioupplevelse.
@@ -167,7 +169,7 @@ function Huvudkort() {
         </ul>
       </section>
 
-      <section id="salonger" className="om-delsektion om-anker" aria-labelledby="salonger-rubrik">
+      <section id="salonger" className="om-delsektion" aria-labelledby="salonger-rubrik">
         <h2 id="salonger-rubrik" className="om-rubrik">Salonger</h2>
         <Row className="g-3">
           {SALONGER.map((salong) => (
@@ -192,39 +194,18 @@ function Huvudkort() {
 }
 
 function Oppettider() {
-  const idag = new Date().getDay();
-
   return (
     <section className="om-kort" aria-labelledby="tider-rubrik">
       <h2 id="tider-rubrik" className="om-rubrik">Öppettider</h2>
       <ul className="om-tider">
-        {OPPETTIDER.map((rad) => {
-          const arIdag = rad.veckodagar.includes(idag);
-          return (
-            <li key={rad.dagar} className={arIdag ? "idag" : undefined}>
-              <span>
-                {rad.dagar}
-                {arIdag && <span className="visually-hidden"> (idag)</span>}
-              </span>
-              <span>{rad.tid}</span>
-            </li>
-          );
-        })}
+        {OPPETTIDER.map((rad) => (
+          <li key={rad.dagar}>
+            <span>{rad.dagar}</span>
+            <span>{rad.tid}</span>
+          </li>
+        ))}
       </ul>
       <p className="om-not">Biografen öppnar 60 minuter före dagens första föreställning.</p>
-    </section>
-  );
-}
-
-function Lankar() {
-  return (
-    <section className="om-kort" aria-labelledby="lankar-rubrik">
-      <h2 id="lankar-rubrik" className="om-rubrik">Länkar</h2>
-      <ul className="om-lankar">
-        <li>
-          <Link to="/moviecatalog">Se vad som visas just nu</Link>
-        </li>
-      </ul>
     </section>
   );
 }
@@ -234,7 +215,7 @@ function HittaTillOss() {
   const karta = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(adress)}`;
 
   return (
-    <section id="hitta-till-oss" className="om-kort om-hitta om-anker" aria-labelledby="hitta-rubrik">
+    <section id="hitta-till-oss" className="om-kort om-hitta" aria-labelledby="hitta-rubrik">
       <img className="om-hitta-bild" src={entre} alt="Biografens entré en vinterkväll, med upplyst FV-skylt" />
       <div className="om-hitta-info">
         <h2 id="hitta-rubrik">Hitta hit</h2>
@@ -258,7 +239,7 @@ function HittaTillOss() {
 
 function SnacksMeny() {
   return (
-    <section id="snacks-meny" className="om-sektion om-anker" aria-labelledby="snacks-rubrik">
+    <section id="snacks-meny" className="om-sektion" aria-labelledby="snacks-rubrik">
       <div className="om-kort">
         <h2 id="snacks-rubrik" className="om-rubrik">Snacks meny</h2>
         <Row className="g-4">
@@ -284,17 +265,6 @@ function SnacksMeny() {
 }
 
 export default function About() {
-  const { hash, key } = useLocation();
-
-  /* Scrollar till rätt avsnitt när headern länkar hit med #hitta-till-oss, #salonger eller #snacks-meny */
-  useEffect(() => {
-    if (!hash) return;
-    const minskadRorelse = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document
-      .getElementById(hash.slice(1))
-      ?.scrollIntoView({ behavior: minskadRorelse ? "auto" : "smooth", block: "start" });
-  }, [hash, key]);
-
   return (
     <div className="om-sida">
       <Hero />
@@ -306,7 +276,6 @@ export default function About() {
           <Col lg={4}>
             <div className="om-sidokolumn">
               <Oppettider />
-              <Lankar />
               <HittaTillOss />
             </div>
           </Col>

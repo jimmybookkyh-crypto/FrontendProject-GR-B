@@ -94,15 +94,6 @@
   margin: 0 0 1.1rem;
 }
 
-.om-rubrik::before {
-  content: "";
-  flex: none;
-  width: 0.8rem;
-  height: 1.5rem;
-  background: var(--om-guld);
-  transform: skewX(-20deg);
-}
-
 .om-kort {
   background-color: var(--om-kort);
   border: 1px solid rgba(223, 162, 19, 0.2);
@@ -229,14 +220,6 @@
 
 .om-tider li:last-child {
   border-bottom: 0;
-}
-
-.om-tider li.idag {
-  background-color: var(--om-guld);
-  color: var(--om-midnatt);
-  font-weight: 500;
-  border-bottom-color: transparent;
-  clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%);
 }
 
 .om-kort .om-not {
