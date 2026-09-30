@@ -8,9 +8,9 @@ export default function footer(){
   return (
     <footer className="border-secondary py-4 mt-auto" style = {{backgroundColor: "#100E1C"}}>
       <Container fluid className="px-md-5">
-        <Row className="align-items-center text-center text-md-start">
+        <Row className="align-items-center">
           {/* Vänster spalt: Cookies & Om oss */}
-          <Col md={4} className="mb-3 mb-md-0">
+          <Col md={4} className= "d-flex justify-content-center align-items-center">
             <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
               <li>
                 <span  style={{ color: '#f5f7fa' }} 
@@ -51,7 +51,7 @@ export default function footer(){
           </Col>
 
           {/* Höger spalt: Event och Filmer */}
-          <Col md={4} className="text-md-end">
+          <Col md={4} className= "d-flex justify-content-center align-items-center">
             <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
               <li>
                 <span  style={{ color: '#f5f7fa' }} 
