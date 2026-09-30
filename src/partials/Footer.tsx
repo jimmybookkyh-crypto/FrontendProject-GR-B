@@ -39,8 +39,15 @@ export default function footer(){
                 width={120}
                 height={100}
                 alt= "företags logga"
+                role="button"
+                onClick={() => navigate("/")}
                 />
             </Figure>
+            <h3 style ={{color:'#f5f7fa'}}
+              role="button"
+              onClick={() => navigate("/")}>
+              FilmVisarna AB
+            </h3>
           </Col>
 
           {/* Höger spalt: Event och Filmer */}
@@ -49,17 +56,17 @@ export default function footer(){
               <li>
                 <span  style={{ color: '#f5f7fa' }} 
                   role="button"
-                  onClick={() => navigate("/moviecatalog")}
+                  onClick={() => navigate("/about")}
                 >
-                  Filmer
+                  Villkor & policies
                 </span>
               </li>
               <li>
                 <span  style={{ color: '#f5f7fa' }} 
                   role="button"
-                  onClick={() => navigate("/event")}
+                  onClick={() => navigate("/about")}
                 >
-                  Händelser
+                  Kontakta oss
                 </span>
               </li>
             </ul>
