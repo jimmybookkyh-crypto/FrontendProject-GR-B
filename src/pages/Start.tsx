@@ -2,9 +2,7 @@ import { useState } from "react";
 import "../styles/Start.css";
 import { Link } from "react-router";
 import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -74,7 +72,6 @@ export default function Start() {
 
   return (
     <>
-      <NavBar />
       <div className="sida-innehall">
         <HeroCarousel />
         <FilterKnappar
@@ -92,31 +89,6 @@ export default function Start() {
     </>
   );
 }
-/*Placeholder NAVBAR – stylas inte i Start.css*/
-function NavBar() {
-  return (
-    <Navbar expand="lg" className="bg-body-tertiary">
-      <Container>
-        <Navbar.Brand href="#home">FYLLNADS NAVBAR</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="#home">test</Nav.Link>
-            <Nav.Link href="#link">test</Nav.Link>
-            <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">test</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">Mer test</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">test</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">test</NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
-
 /* Hero-section med slides */
 
 function HeroCarousel() {
