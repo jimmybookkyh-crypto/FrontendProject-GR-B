@@ -10,10 +10,6 @@
   --om-linje: rgba(245, 247, 250, 0.12);
 
   background-color: var(--om-midnatt);
-  background-image: url("../assets/img/biodukbg.png");
-  background-repeat: repeat-x;
-  background-position: top;
-  background-size: auto 100%;
   color: var(--om-text);
   padding-bottom: 3rem;
 }

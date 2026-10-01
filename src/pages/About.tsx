@@ -4,6 +4,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import entre from "../assets/filmvisarna-entre.jpg";
+import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/About.css";
 
 
@@ -288,7 +289,14 @@ export default function About() {
   }, [hash, key]);
 
   return (
-    <div className="om-sida">
+    <div
+      className="om-sida min-vh-100 w-100"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <Hero />
       <Container className="om-innehall">
         <Row className="g-3 g-lg-4">
