@@ -7,6 +7,15 @@
   padding-bottom: 3rem;
 }
 
+.event-page {
+  background-color: var(--fv-midnatt);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100vw auto;
+  background-attachment: fixed;
+  padding-bottom: 2.5rem;
+}
+
 /* Sidrubrik */
 .event-sidhuvud {
   text-align: center;

@@ -203,7 +203,7 @@ export default function EventPage() {
 
   return (
     <div
-      className="min-vh-100 w-100"
+      className="event-page min-vh-100 w-100"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",

@@ -8,10 +8,14 @@
   --om-kort: rgba(16, 14, 28, 0.65);
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
-
-  background-color: var(--om-midnatt);
   color: var(--om-text);
-  padding-bottom: 3rem;
+
+  background-color: var(--fv-midnatt);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100vw auto;
+  background-attachment: fixed;
+  padding-bottom: 2.5rem;
 }
 
 /* Ingen egen bakgrund: masken tonar ut bilden så att sidans bakgrund syns igenom */
