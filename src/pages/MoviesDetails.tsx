@@ -146,6 +146,7 @@ function SlotSelection() {
           <Button
             size="lg"
             className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+            onClick={() => navigate('/booking2')}
           >
             <span>Salong 2</span>
             <span>kl 16:00</span>
