@@ -1,6 +1,7 @@
 import { Row, Container, Col, Card, InputGroup, Form } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
 
 export default function BookingPage() {
@@ -104,7 +105,14 @@ export default function BookingPage() {
   const occupiedSeats = ["12", "35", "36"];
 
   return (
-    <div className="booking-page min-vh-100 text-light">
+    <div
+        className="booking-page min-vh-100 text-light"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
       <button
         type="button"
         onClick={() => navigate("/moviedetails/moviecatalog/thor")}
