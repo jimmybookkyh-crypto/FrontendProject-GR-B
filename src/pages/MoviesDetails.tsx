@@ -74,7 +74,6 @@ function FilmInfo() {
 
         <hr className="border-secondary my-3" />
 
-        {/* Handling */}
         <p className="fs-6 lh-base mb-4">
           Thor ger sig ut på en resa olik något han någonsin ställts inför, en jakt på inre frid. 
           Men hans pensionering avbryts av en galaktisk mördare känd som Gorr the God Butcher, 
@@ -127,7 +126,7 @@ function SlotSelection() {
 
         <div className="d-grid gap-3 w-75 mx-auto">
           <Button
-            variant="outline-light"
+            variant="outline-light" //skiftar färg
             size="lg"
             className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
             onClick={() => navigate('/booking')}
