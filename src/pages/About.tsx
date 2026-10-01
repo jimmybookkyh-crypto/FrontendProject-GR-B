@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import entre from "../assets/filmvisarna-entre.jpg";
 import backgroundImage from "../assets/img/biodukbg.png";
+import "../styles/buttons.css";
 import "../styles/About.css";
 
 
@@ -232,7 +233,12 @@ function HittaTillOss() {
             <a href={`mailto:${KONTAKT.epost}`}>{KONTAKT.epost}</a>
           </li>
         </ul>
-        <a className="btn btn-danger om-knapp" href={karta} target="_blank" rel="noopener noreferrer">
+        <a
+          className="cta-btn om-knapp rounded-pill py-2 px-4 fw-bold d-inline-block text-decoration-none align-self-start"
+          href={karta}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Vägbeskrivning
         </a>
       </div>
