@@ -72,10 +72,10 @@ export default function Start() {
 
   return (
     <>
-      <div
-        className="sida-innehall"
-        style={{ backgroundImage: `url(${Biodukbg})` }}
-      >
+<div
+  className="sida-innehall min-vh-100"
+  style={{ backgroundImage: `url(${Biodukbg})` }}
+>
         <HeroCarousel />
         <FilterKnappar
           aktivtFilter={aktivtFilter}

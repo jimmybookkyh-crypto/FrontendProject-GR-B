@@ -11,9 +11,10 @@
 /* ---------- Innehållsyta (allt utom NavBar/Footer) ---------- */
 .sida-innehall {
   background-color: var(--fv-midnatt);
-  background-repeat: repeat-x;
-  background-position: top;
-  background-size: auto 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
   padding-bottom: 2.5rem;
 }
 
