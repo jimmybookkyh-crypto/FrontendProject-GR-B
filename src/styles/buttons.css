@@ -1,0 +1,32 @@
+.cta-btn {
+  background: #8e1733;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.cta-btn:hover {
+  color: #fff !important;
+  transform: translateY(-5px);
+  box-shadow: 0 0 10px rgba(142, 23, 51, 0.6);
+}
+
+.button-cancel {
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.button-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  color: #fff !important;
+  transform: translateY(-2px);
+}
