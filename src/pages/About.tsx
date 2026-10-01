@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -264,7 +266,27 @@ function SnacksMeny() {
   );
 }
 
+/* Var i fönstret avsnittet ska hamna när man kommer från dropdownen */
+const SCROLL_LAGE: Record<string, ScrollLogicalPosition> = {
+  salonger: "end",
+  "hitta-till-oss": "center",
+  "snacks-meny": "start",
+};
+
 export default function About() {
+  const { hash, key } = useLocation();
+
+  useEffect(() => {
+    const mjukt = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    const id = hash.slice(1);
+    const mal = id ? document.getElementById(id) : null;
+    if (mal) {
+      mal.scrollIntoView({ behavior: mjukt, block: SCROLL_LAGE[id] ?? "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: mjukt });
+    }
+  }, [hash, key]);
+
   return (
     <div className="om-sida">
       <Hero />

@@ -5,7 +5,7 @@
   --om-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
   --om-midnatt: var(--fv-midnatt, #100e1c);
   --om-text: var(--fv-offwhite, #f5f7fa);
-  --om-kort: rgba(16, 14, 28, 0.85);
+  --om-kort: rgba(16, 14, 28, 0.65);
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
 
@@ -97,9 +97,17 @@
 
 .om-kort {
   background-color: var(--om-kort);
-  border: 1px solid rgba(223, 162, 19, 0.2);
-  border-radius: 0.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.28);
+  border-radius: 1rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   padding: 1.5rem;
+}
+
+/* Vid hopp från dropdownen: Salonger-rutans nedre kant mot fönstrets botten */
+.om-sida #salonger {
+  scroll-margin-bottom: 2rem;
 }
 
 .om-kort p {
@@ -394,3 +402,11 @@
     padding: 0;
   }
 }
+
+/* TEST-1.5X-START (tas bort om testet inte blir bra) */
+@media (min-width: 1200px) {
+  .om-sida .om-innehall {
+    zoom: 1.5;
+  }
+}
+/* TEST-1.5X-SLUT */
