@@ -1,5 +1,6 @@
 import { Row, Container, Col, Card,  } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
+import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/buttons.css";
 
 export default function BookingConfirmation() {
@@ -8,7 +9,13 @@ export default function BookingConfirmation() {
 
 
   return <> 
-    <div className="booking-page min-vh-100 text-light">
+    <div className="booking-page min-vh-100 text-light"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
       <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
         BOKNINGSBEKRÄFTELSE
       </h1>
