@@ -5,7 +5,7 @@
   --om-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
   --om-midnatt: var(--fv-midnatt, #100e1c);
   --om-text: var(--fv-offwhite, #f5f7fa);
-  --om-kort: var(--fv-kort-bg, #1a1830);
+  --om-kort: rgba(16, 14, 28, 0.85);
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
 
@@ -91,6 +91,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--om-guld);
   margin: 0 0 1.1rem;
 }
 
@@ -228,21 +229,6 @@
   font-size: 0.95rem;
 }
 
-.om-lankar {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.om-lankar a {
-  color: var(--om-guld);
-  text-underline-offset: 0.2em;
-}
-
-.om-lankar a:hover {
-  color: var(--om-guld-hover);
-}
-
 .om-hitta {
   padding: 0;
   overflow: hidden;
@@ -267,6 +253,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 1.5rem;
+  color: var(--om-guld);
   margin: 0;
 }
 
