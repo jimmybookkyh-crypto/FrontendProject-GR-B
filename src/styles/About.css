@@ -292,25 +292,6 @@
   color: var(--om-guld-hover);
 }
 
-/* Samma knapp som på startsidan, !important för att slå Bootstrap */
-.om-knapp {
-  align-self: flex-start;
-  font-family: "Oswald", sans-serif;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.6rem 1.75rem;
-  border-radius: 0.3rem;
-  color: var(--om-text) !important;
-  background-color: var(--om-vinrod) !important;
-  border-color: var(--om-vinrod) !important;
-}
-
-.om-knapp:hover {
-  background-color: var(--om-vinrod-hover) !important;
-  border-color: var(--om-vinrod-hover) !important;
-}
-
 .om-knapp:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
