@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router";
 import { Container,Col,Row,Ratio,Card,Button,Badge, } from 'react-bootstrap';
 import backgroundImage from "../assets/img/biodukbg.png";
-import "../styles/Start.css";
 import "../styles/MoviesDetails.css";
 
 
@@ -10,7 +9,7 @@ export default function MovieDetails() {
 
   return ( 
     <div
-      className="sida-innehall film-sida min-vh-100 w-100"
+      className="film-sida min-vh-100 w-100"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
