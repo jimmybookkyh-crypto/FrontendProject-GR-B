@@ -2,13 +2,19 @@ import { useState } from "react";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import { Link, NavLink, useLocation } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 
 export default function Header() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [omOssOpen, setOmOssOpen] = useState(false);
+
+  /* Dator med mus: menyn öppnas vid hover och klick på Om oss går till sidan.
+     Mobil/touch: klick öppnar menyn som vanligt. */
+  const harHover = () =>
+    window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
   return (
     <Navbar
@@ -56,15 +62,25 @@ export default function Header() {
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
             active={pathname.startsWith("/about")}
-            onToggle={(isOpen) => setOmOssOpen(isOpen)}
+            show={omOssOpen}
+            onMouseEnter={() => harHover() && setOmOssOpen(true)}
+            onMouseLeave={() => harHover() && setOmOssOpen(false)}
+            onToggle={(isOpen, meta) => {
+              if (meta.source === "click" && harHover()) {
+                setOmOssOpen(false);
+                navigate("/about");
+                return;
+              }
+              setOmOssOpen(isOpen);
+            }}
           >
-            <NavDropdown.Item as={Link} to="/about">
+            <NavDropdown.Item as={Link} to="/about#hitta-till-oss">
               Hitta till oss
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about">
+            <NavDropdown.Item as={Link} to="/about#salonger">
               Salonger
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about">
+            <NavDropdown.Item as={Link} to="/about#snacks-meny">
               Snacks meny
             </NavDropdown.Item>
           </NavDropdown>
