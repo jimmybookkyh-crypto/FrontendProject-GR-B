@@ -1,0 +1,88 @@
+.film-sida h1,
+.film-sida h2,
+.film-sida h3 {
+  color: #dfa213;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* Samma glasskort som på bokningssidan (Booking.css) */
+.film-sida .glass-card.card {
+  --bs-card-bg: transparent;
+  --bs-card-cap-bg: transparent;
+  --bs-card-border-color: rgba(253, 252, 250, 0.28);
+  --bs-card-color: #f5f7fa;
+
+  background-color: rgba(16, 14, 28, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.28);
+  border-radius: 1rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  color: #f5f7fa;
+}
+
+/* Vinröda knappar utan hover-effekt. Bootstrap-variablerna sätts om så att
+   samma färg gäller i alla lägen (hover, tryck och fokus). */
+.film-sida .tid-knapp,
+.film-sida .tillbaka-knapp {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #8e1733;
+  --bs-btn-border-color: #8e1733;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #8e1733;
+  --bs-btn-hover-border-color: #8e1733;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #8e1733;
+  --bs-btn-active-border-color: #8e1733;
+  --bs-btn-focus-shadow-rgb: 142, 23, 51;
+}
+
+.film-sida .tillbaka-knapp {
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.25rem;
+  min-height: 52px;
+}
+
+/* Filminformation: större ruta och text, ljusare färg så den syns mot bakgrunden */
+.film-sida .film-info h1,
+.film-sida .film-info h2 {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+}
+
+.film-sida .film-info .badge {
+  font-size: 1rem;
+}
+
+.film-sida .film-original {
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
+  color: rgba(245, 247, 250, 0.9);
+}
+
+.film-sida .film-beskrivning {
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+
+.film-sida .film-krediter {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: rgba(245, 247, 250, 0.9);
+}
+
+.film-sida .film-krediter strong {
+  font-weight: 700;
+  color: #dfa213;
+}
+
+/* Valt datum: etiketten i guld, själva datumet i vitt */
+.film-sida .valt-datum {
+  color: #dfa213;
+}
+
+.film-sida .datum-vit {
+  color: #fff;
+}
