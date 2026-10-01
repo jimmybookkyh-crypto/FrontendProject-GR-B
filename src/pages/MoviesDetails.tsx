@@ -1,21 +1,30 @@
 import { useNavigate } from "react-router";
 import { Container,Col,Row,Ratio,Card,Button,Badge, } from 'react-bootstrap';
 import backgroundImage from "../assets/img/biodukbg.png";
+import "../styles/MoviesDetails.css";
 
 
 export default function MovieDetails() {
+  const navigate = useNavigate();
 
-   
   return ( 
     <div
-      className="min-vh-100 w-100"
+      className="film-sida min-vh-100 w-100"
       style={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <Container className="py-5">
+      <button
+        type="button"
+        onClick={() => navigate("/moviecatalog")}
+        className="btn tillbaka-knapp rounded-pill py-2 px-4 fw-bold m-3"
+      >
+        ← Tillbaka
+      </button>
+
+      <Container className="pb-5">
         <Row className="g-4 justify-content-center">
           <Col lg={7} md={12}>
             <Trailer />
@@ -33,9 +42,9 @@ export default function MovieDetails() {
 
 function Trailer() {
   return (
-    <Card className="mb-4 shadow-lg border-0 bg-dark text-white bg-opacity-75">
+    <Card className="mb-4 glass-card">
       <Card.Body className="p-3">
-        <Card.Title as="h3" className="mb-3 fs-4">Trailer</Card.Title>
+        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">Trailer</Card.Title>
         <Ratio aspectRatio="16x9">
           <iframe
             src="https://www.youtube.com/embed/Go8nTmfrQd8"
@@ -51,12 +60,12 @@ function Trailer() {
 
 function FilmInfo() {
   return (
-    <Card className="mb-0 shadow-lg border-0 bg-dark text-white bg-opacity-75">
-      <Card.Body className="p-4">
+    <Card className="mb-0 glass-card film-info">
+      <Card.Body className="p-4 p-xl-5">
 
         {/* Badges */}
-            <Card.Title as="h2" className="mb-1">Thor: Love and Thunder</Card.Title>
-            <Card.Subtitle className="text-white-50 fs-6 mb-2">
+            <Card.Title as="h1" className="mb-2">Thor: Love and Thunder</Card.Title>
+            <Card.Subtitle className="film-original mb-3">
               Originaltitel: Thor: Love and Thunder (2022)
             </Card.Subtitle>
           
@@ -74,7 +83,7 @@ function FilmInfo() {
 
         <hr className="border-secondary my-3" />
 
-        <p className="fs-6 lh-base mb-4">
+        <p className="film-beskrivning mb-4">
           Thor ger sig ut på en resa olik något han någonsin ställts inför, en jakt på inre frid. 
           Men hans pensionering avbryts av en galaktisk mördare känd som Gorr the God Butcher, 
           som vill utrota alla gudar. För att bekämpa hotet tar Thor hjälp av King Valkyrie, 
@@ -84,7 +93,7 @@ function FilmInfo() {
         <hr className="border-secondary my-3" />
 
         {/* Filminformation */}
-        <div className="small text-white-50 mt-1">
+        <div className="film-krediter mt-1">
           <div className="mb-1">
             <strong className="text-white">Regissör:</strong> Taika Waititi
           </div>
@@ -101,12 +110,12 @@ function FilmInfo() {
 }
 function ThisDate() {
   return (
-    <Card className="mb-4 shadow-lg border-0 bg-dark text-white bg-opacity-75">
+    <Card className="mb-4 glass-card">
       <Card.Body className="py-3">
-        <Card.Subtitle className="text-white-50 small text-uppercase mb-1 d-flex justify-content-center">
+        <Card.Subtitle className="valt-datum small text-uppercase mb-1 d-flex justify-content-center">
           Valt datum
         </Card.Subtitle>
-        <Card.Title as="h3" className="mb-0 fw-bold fs-4">
+        <Card.Title as="h3" className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center">
           Fredag 02-10-2026
         </Card.Title>
       </Card.Body>
@@ -118,49 +127,41 @@ function SlotSelection() {
   const navigate = useNavigate();
 
   return (
-    <Card className="shadow-lg border-0 bg-dark text-white bg-opacity-75">
+    <Card className="glass-card">
       <Card.Body className="p-4">
-        <Card.Title as="h3" className="mb-4 fs-5 text-white-50">
+        <Card.Title as="h3" className="mb-4 fs-5 d-flex justify-content-center">
           Välj visningstid
         </Card.Title>
 
         <div className="d-grid gap-3 w-75 mx-auto">
           <Button
-            variant="outline-light" //skiftar färg
             size="lg"
-            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
             onClick={() => navigate('/booking')}
-             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
           >
             <span>Salong 1</span>
             <span>kl 16:00</span>
           </Button>
 
           <Button
-            variant="outline-light"
             size="lg"
-            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
           >
             <span>Salong 2</span>
             <span>kl 16:00</span>
           </Button>
 
           <Button
-            variant="outline-light"
             size="lg"
-            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
           >
             <span>Salong 1</span>
             <span>kl 20:00</span>
           </Button>
 
           <Button
-            variant="outline-light"
             size="lg"
-            className="rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-             style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
           >
             <span>Salong 2</span>
             <span>kl 20:00</span>
