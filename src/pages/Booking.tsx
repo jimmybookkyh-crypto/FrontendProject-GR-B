@@ -1,8 +1,9 @@
-import { Row, Container, Col, Card, InputGroup, Form } from "react-bootstrap";
+import { Row, Container, Col, Card, InputGroup, Form, Modal } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
+import "../styles/buttons.css";
 
 export default function BookingPage() {
   const auditoriums = [
@@ -98,11 +99,15 @@ export default function BookingPage() {
         childTickets,
         seniorTickets,
         totalPrice,
+        email: email,
       },
     });
   };
 
   const occupiedSeats = ["12", "35", "36"];
+
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [email, setEmail] = useState("");
 
   return (
     <div
@@ -116,7 +121,7 @@ export default function BookingPage() {
       <button
         type="button"
         onClick={() => navigate("/moviedetails/moviecatalog/thor")}
-        className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
+        className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
       >
         ← Tillbaka
       </button>
@@ -333,15 +338,45 @@ export default function BookingPage() {
                 <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
                   <button
                     type="button"
-                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold"
+                    className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold"
                     disabled={
                       selectedSeats.length === 0 ||
                       totaltTickets !== selectedSeats.length
                     }
-                    onClick={handleCheckout}
+                  onClick={() => setShowEmailModal(true)}
                   >
                     Till betalning
-                  </button>
+                </button>
+                
+                <Modal
+                  show={showEmailModal}
+                  onHide={() => setShowEmailModal(false)}
+                  centered
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title>Ange din e‑post</Modal.Title>
+                  </Modal.Header>
+
+                  <Modal.Body>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="din@email.se"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Modal.Body>
+
+                  <Modal.Footer>
+                    <button
+                      className="cta-btn checkout-btn"
+                      onClick={handleCheckout}
+                    >
+                      Boka
+                    </button>
+                  </Modal.Footer>
+                </Modal>
+
               </Card.Body>
             </Card>
           </Col>
