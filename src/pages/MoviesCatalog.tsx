@@ -131,14 +131,16 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
 
 function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
   return (
-    //<Row xs={2} md={3} className="g-3 g-md-5">
-    <Row xs={2} sm={2} md={3} lg={4} className="g-4 justify-content-center">
+<Row xs={2} sm={2} md={3} lg={4} className="g-4 justify-content-center">
       {filmer.map((film) => (
         <Col key={film.id}>
           <Card className="filmkort">
-            <Card.Img variant="top" src={film.bild} alt={film.titel} />
+            <Link to={`/moviedetails/moviecatalog/${film.id}`}>
+              <Card.Img variant="top" src={film.bild} alt={film.titel} />
+            </Link>
             <Card.Body className="filmkort-body">
-              <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+              <Button
+                style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
                 variant="outline-light"
                 as={Link as any}
                 to={`/moviedetails/moviecatalog/${film.id}`}

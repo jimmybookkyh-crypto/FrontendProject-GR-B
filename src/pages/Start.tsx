@@ -103,7 +103,7 @@ function HeroCarousel() {
           alt="Första bilden"
         />
         <Carousel.Caption>
-          <h3>Teen Age Mutant Ninja Turtles</h3>
+          <h3>Teenage Mutant Ninja Turtles</h3>
         </Carousel.Caption>
       </Carousel.Item>
       <Carousel.Item>
@@ -205,11 +205,13 @@ function FilterKnappar({
 
 function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
   return (
-    <Row xs={2} md={3} className="g-3 g-md-5">
+<Row xs={2} md={3} className="g-3 g-md-5">
       {filmer.map((film) => (
         <Col key={film.id}>
           <Card className="filmkort">
-            <Card.Img variant="top" src={film.bild} alt={film.titel} />
+            <Link to={`/moviedetails/moviecatalog/${film.id}`}>
+              <Card.Img variant="top" src={film.bild} alt={film.titel} />
+            </Link>
             <Card.Body className="filmkort-body">
               <Button
                 as={Link as any}
