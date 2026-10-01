@@ -16,6 +16,7 @@
 .event-sidhuvud h1 {
   font-family: "Antonio", sans-serif;
   text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   letter-spacing: 0.12em;
   color: #dfa213;
   font-size: clamp(2rem, 6vw, 3.25rem);
@@ -47,9 +48,12 @@
 
 /* Eventkort */
 .event-kort {
-  background-color: #100e1c;
-  border: 1px solid rgba(223, 162, 19, 0.45);
-  border-radius: 0.75rem;
+  background-color: rgba(16, 14, 28, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 252, 250, 0.28);
+  border-radius: 1rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   color: #f5f7fa;
 }
@@ -99,6 +103,7 @@
 .event-titel {
   font-family: "Antonio", sans-serif;
   text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   letter-spacing: 0.1em;
   color: #dfa213;
   font-size: clamp(1.75rem, 4vw, 2.5rem);

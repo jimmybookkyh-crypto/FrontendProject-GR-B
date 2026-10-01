@@ -5,8 +5,8 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import backgroundImage from "../assets/img/biodukbg.png";
-import Spiderman from "../assets/Spiderman.jpeg";
-import Batman from "../assets/Batman.jpg";
+import Spindel from "../assets/Spindel.jpg";
+import Batman1 from "../assets/Batman1.jpg";
 import Doomsday from "../assets/Doomsday.jpg";
 import "../styles/Event.css";
 
@@ -55,7 +55,7 @@ const EVENT: EventData[] = [
     tagline: "Din vänliga hjälte i grannskapet",
     start: "2026-10-26",
     slut: "2026-10-30",
-    bild: Spiderman,
+    bild: Spindel,
     bildAlt: "Spider-Man hänger i sitt nät",
     text: [
       "Höstlovet är perfekt för en spindelvecka. Vi visar tio Spider-Man-filmer på fem dagar, från Sam Raimis klassiker till de animerade Spider-Verse-filmerna. Peter Parker, Miles Morales och hela spindelfamiljen i samma vecka.",
@@ -80,8 +80,8 @@ const EVENT: EventData[] = [
     tagline: "Gotham glömmer aldrig",
     start: "2026-11-02",
     slut: "2026-11-08",
-    bild: Batman,
-    bildAlt: "Batman på ett tak i Gotham",
+    bild: Batman1,
+    bildAlt: "Batman1",
     text: [
       "Veckan efter Halloween tar mörkret över duken. Vi visar åtta Batman-filmer, från Tim Burtons gotiska Gotham till Christopher Nolans trilogi och Matt Reeves senaste. Mellan de mörka filmerna finns Lego Batman: Filmen för de yngre.",
       "Flera av filmerna har högre åldersgräns, så kolla varje films sida innan ni bokar.",
