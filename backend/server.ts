@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import { moviesRouter } from './routes/movies.js';
 
 dotenv.config();
 
@@ -8,7 +9,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => { res.json({ data: 'data received' }); });
 
-/*app.use('', x);*/
+app.use('/movies', moviesRouter);
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
