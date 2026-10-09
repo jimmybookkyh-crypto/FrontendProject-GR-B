@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/movies", moviesRouter);
-/* app.use('/bookings', bookingRouter); */
+app.use("/bookings", bookingRouter);
 /* app.use('/auditorium', auditoriumRouter); */
 /* app.use('/events', eventsRouter); */
 app.use("/seats", seatsRouter);
