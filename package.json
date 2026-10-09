@@ -21,6 +21,7 @@
     "react-router": "^8.4.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^24.13.3",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.2.18",

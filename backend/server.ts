@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { moviesRouter } from './routes/movies.js';
+import moviesRouter from './routes/movies.js';
 
 dotenv.config();
 
