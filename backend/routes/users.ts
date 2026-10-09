@@ -125,8 +125,11 @@ usersRouter.patch("/:Id", async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `update users
-        set username = $2, password = $3, email = $4, role = $5
+       `update users
+        set username = coalesce($2, username),
+       password = coalesce($3, password),
+       email = coalesce($4, email),
+       role = coalesce($5, role)
         where "userId" = $1
         returning "userId", username, email, role, "created_At"`,
       [userId, username, password, email, role]);
