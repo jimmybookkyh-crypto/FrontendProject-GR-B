@@ -31,6 +31,7 @@ function parseMovieId(value: string): number | null {
   return id;
 }
 
+//hämtar alla filmer
 moviesRouter.get("/", async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 50, 100);
   const offset = Math.max(Number(req.query.offset) || 0, 0);
@@ -58,6 +59,49 @@ moviesRouter.get("/", async (req, res) => {
 }
 })
 
+//hämtar all filmer som är current = true
+moviesRouter.get("/current", async (req, res) => {
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT "movieId", title, current
+       FROM movies
+       WHERE current = TRUE
+       ORDER BY "movieId"`);
+
+    return res.status(200).json({ data: rows });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /movies/current failed", { message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av aktuella filmer" },
+      });
+}
+})
+
+//hämtar all filmer som är current = false
+moviesRouter.get("/not-current", async (req, res) => {
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT "movieId", title, current
+       FROM movies
+       WHERE current = FALSE
+       ORDER BY "movieId"`);
+
+    return res.status(200).json({ data: rows });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /movies/not-current failed", { message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av icke-aktuella filmer" },
+      });
+}
+})
+
+//hämtar en film
 moviesRouter.get("/:id", async (req, res) => {
 
   const id = parseMovieId(req.params.id);
@@ -90,5 +134,6 @@ moviesRouter.get("/:id", async (req, res) => {
       });
 }
 })
+
 
 export default moviesRouter;
