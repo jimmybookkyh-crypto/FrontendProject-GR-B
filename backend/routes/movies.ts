@@ -168,5 +168,74 @@ moviesRouter.post("/", async (req,res) => {
   }
 })
 
+//uppdaterar en film
+moviesRouter.patch("/:id", async (req, res) => {
+  const id = parseMovieId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt film-id" },
+    });
+  }
+
+  const allowedFields = ["title", "productionYear", "genre", "current"] as const;
+  const updates: string[] = [];
+  const values: unknown[] = [];
+
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) {
+      const value: unknown = req.body[field];
+
+      if (
+        (field === "title" && (typeof value !== "string" || value.trim() === "")) ||
+        (field === "genre" && typeof value !== "string") ||
+        (field === "productionYear" && !Number.isInteger(value)) ||
+        (field === "current" && typeof value !== "boolean")
+      ) {
+        return res.status(400).json({
+          error: { message: `Ogiltigt värde för ${field}` },
+        });
+      }
+
+      values.push(field === "title" ? (value as string).trim() : value);
+
+      updates.push(`"${field}" = $${values.length}`);
+    }
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({
+      error: { message: "Inga giltiga fält att uppdatera" },
+    });
+  }
+
+  try {
+    values.push(id);
+
+    const { rows } = await pool.query<Movie>(
+      `UPDATE movies
+       SET ${updates.join(", ")}
+       WHERE "movieId" = $${values.length}
+       RETURNING "movieId", title, productionYear, genre, current`,
+      values
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Filmen finns inte" },
+      });
+    }
+
+    return res.status(200).json({ data: rows[0] });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("PATCH /movies/:id failed", { movieId: id, message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid uppdatering av film" },
+    });
+  }
+});
+
 
 export default moviesRouter;
