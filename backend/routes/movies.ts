@@ -216,9 +216,9 @@ moviesRouter.post("/", async (req,res) => {
 
   try {
     const { rows } = await pool.query<Movie>(
-      `INSERT INTO movies (title, productionyear, genre, current, ageRating)
+      `INSERT INTO movies (title, productionyear, genre, current, "ageRating")
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING "movieId", title, productionyear, genre, current, ageRating`,
+      RETURNING "movieId", title, productionyear, genre, current, "ageRating"`,
       [title.trim(), productionyear, genre, current, ageRating]
     );
     return res.status(201).json({data: rows[0]});
@@ -284,7 +284,7 @@ moviesRouter.patch("/:id", async (req, res) => {
       `UPDATE movies
        SET ${updates.join(", ")}
        WHERE "movieId" = $${values.length}
-       RETURNING "movieId", title, productionyear, genre, current, ageRating`,
+       RETURNING "movieId", title, productionyear, genre, current, "ageRating"`,
       values
     );
 
