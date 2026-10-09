@@ -7,7 +7,7 @@ const moviesRouter = Router();
 const MOVIE_COLUMNS = `
   movieId,
   title,
-  year,
+  productionYear,
   genre,
   current
 `;
@@ -16,7 +16,7 @@ const MOVIE_COLUMNS = `
 type Movie = {
   movieId: number;
   title: string;
-  year: number;
+  productionYear: number;
   genre: string;
   current: boolean;
 };
@@ -133,6 +133,39 @@ moviesRouter.get("/:id", async (req, res) => {
       error: { message: "Fel vid hämtning av vald data" },
       });
 }
+})
+
+moviesRouter.post("/", async (req,res) => {
+  const {title, productionYear, genre, current} = req.body;
+
+  if (
+    typeof title !== "string" ||
+    title.trim() === "" ||
+    !Number.isInteger(productionYear) ||
+    typeof genre !== "string" ||
+    typeof current !== "boolean"
+  ) {
+    return res.status(400).json({
+      error: { message: "Ogitlig filinformation"},
+    });
+  }
+
+  try {
+    const { rows } = await pool.query<Movie>(
+      `INSERT INTO movies (title, productionYear, genre, current)
+      VALUES ($1, $2, $3, $4)
+      RETURNING "movieId", title, productionYear, genre, current`,
+      [title.trim(), productionYear, genre, current]
+    );
+    return res.status(201).json({data: rows[0]});
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "okänt fel";
+    console.error("POST /movies failed", { message });
+    
+      return res.status(500).json({
+        error: { message: "Fel vid skapande av film"},
+      });
+  }
 })
 
 
