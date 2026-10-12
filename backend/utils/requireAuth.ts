@@ -1,7 +1,12 @@
 
+import dotenv from 'dotenv';
 
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+
+
+dotenv.config();
+
 
 export interface AuthUser {
   userId: string;
@@ -25,6 +30,8 @@ export function requireAuth(
   //plockar token från header och tar bord "Bearer "
   const token = authHeader.split(" ")[1];
 
+  console.log("Token:", token); // Logga token för felsökning
+
   if (!token) {
     return res.status(401).json({
       message: "Token saknas",
@@ -34,6 +41,8 @@ export function requireAuth(
   //nyckel för att verifiera token, måste finnas i .env filen
   const secret = process.env.JWT_SECRET;
 
+  console.log("JWT_SECRET:", secret); // Logga JWT_SECRET för felsökning
+
   if (!secret) {
     return res.status(500).json({
       message: "Server autentisering är inte konfigurad",
@@ -42,6 +51,8 @@ export function requireAuth(
 
   try {
     const decoded = jwt.verify(token, secret);
+
+    console.log("Decoded token:", decoded); // Logga dekodad token för felsökning
 
     // Kontrollera att token innehåller den data vi behöver
     if (
@@ -63,7 +74,8 @@ export function requireAuth(
     res.locals.user = user;
 
     next();
-  } catch {
+  } catch(error) {
+    console.error("JWT verification error:", error);
     return res.status(401).json({
       message: "Invalid eller utgånget token",
     });
