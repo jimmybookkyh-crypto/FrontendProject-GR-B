@@ -3,27 +3,12 @@ import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
 import { parseId, isPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js"
+import { validateEmail } from "../utils/validateEmail.js";
+import { Booking, CreateBookingInput, TicketInput } from "../interface/types.js";
 
 const bookingsRouter = Router();
 
-type Booking = {
-  bookingId: number;
-  created_at: Date;
-  bookingNumber: string;
-  email: string;
-  showingId: number;
-  userId: number | null;
-};
-
-function isValidEmail(value: unknown): value is string {
-  return (
-    typeof value === "string" &&
-    value.length <= 255 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-  );
-}
-
-// ADMIN: GET /bookings
+// GET /bookings
 // TODO: skydda med requireAdmin när inloggning finns
 bookingsRouter.get("/", async (req, res) => {
   const pagination = parsePagination(req.query);
@@ -107,10 +92,11 @@ bookingsRouter.get("/:id", async (req, res) => {
 
 // POST /bookings
 bookingsRouter.post("/", async (req, res) => {
-  const { email, showingId, userId, tickets } = req.body ?? {};
+  const body = (req.body ?? {}) as Partial<CreateBookingInput>;
+  const { email, showingId, userId, tickets } = body;
 
   if (
-    !isValidEmail(email) ||
+    !validateEmail(email) ||
     !isPositiveInt(showingId) ||
     (userId !== undefined && userId !== null && !isPositiveInt(userId))
   ) {
@@ -128,7 +114,7 @@ bookingsRouter.post("/", async (req, res) => {
   const seatIds: number[] = [];
   const ticketTypeIds: number[] = [];
 
-  for (const ticket of tickets) {
+  for (const ticket of tickets as TicketInput[]) {
     if (
       !ticket ||
       !isPositiveInt(ticket.seatId) ||
@@ -140,12 +126,6 @@ bookingsRouter.post("/", async (req, res) => {
     }
     seatIds.push(ticket.seatId);
     ticketTypeIds.push(ticket.ticketTypeId);
-  }
-
-  if (new Set(seatIds).size !== seatIds.length) {
-    return res.status(400).json({
-      error: { message: "Samma säte kan inte bokas två gånger" },
-    });
   }
 
   const client = await pool.connect();
@@ -269,7 +249,7 @@ bookingsRouter.patch("/:id", async (req, res) => {
 
   const { email } = req.body ?? {};
 
-  if (!isValidEmail(email)) {
+  if (!validateEmail(email)) {
     return res.status(400).json({
       error: { message: "Ogiltig e-postadress" },
     });
