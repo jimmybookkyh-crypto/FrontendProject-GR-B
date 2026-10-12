@@ -1,44 +1,25 @@
 import { Router } from 'express';
 import { pool } from '../db/pool.js';
+import { signToken } from "../utils/jwt.js"; 
+import { parseId } from "../utils/parseId.js";
+import { hashPassword } from "../utils/hashPassword.ts";
+import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
+import { parsePagination } from '../utils/parsePagination.js';
+import { validateEmail } from "../utils/validateEmail.js";
+import bcrypt from 'bcryptjs';
 
 const usersRouter = Router();
 
-type User = {
-  userId: number;
-  username: string;
-  password: string;
-  email: string;
-  role: string;
-  created_At: Date;  
-};
+/* GET /users ONLY ADMIN */
+usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => { 
+  const pagination = parsePagination(req.query);
 
-function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({
-      error: { message: "Endast admin har behörighet" },
-    });
-  }
-  next();
-}
-
-function parseUserId(value: string): number | null {
-  if (!/^[1-9]\d*$/.test(value)) return null;
-
-  const id = Number(value);
-  if (!Number.isSafeInteger(id)) return null;
-
-  return id;
-}
-/* get USERS */
-usersRouter.get("/", async (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 50, 100);
-  const offset = Math.max(Number(req.query.offset) || 0, 0);
-
-  if (!Number.isInteger(limit) || !Number.isInteger(offset)) {
+  if (!pagination) {
     return res.status(400).json({
-      error: { message: "Ogilitg limit eller offset" },
+      error: { message: "Ogiltig limit eller offset" },
     });
   }
+  const { limit, offset } = pagination;
 
   try {
     const { rows } = await pool.query(
@@ -54,12 +35,18 @@ usersRouter.get("/", async (req, res) => {
     });
   }
 });
-/* get -  User ID */
-usersRouter.get("/:Id", async (req, res) => {
-  const userId = parseUserId(req.params.Id);
+/* GET /users/:Id  (SELF OR ADMIN) */
+usersRouter.get("/:Id", requireAuth, async (req, res) => { 
+  const userId = parseId(req.params.Id as string);
   if (!userId) {
     return res.status(400).json({
       error: { message: "Ogiltigt användar-ID" },
+    });
+  }
+
+  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId) {
+    return res.status(403).json({
+      error: { message: "Du får inte se andra användare" }
     });
   }
 
@@ -84,55 +71,41 @@ usersRouter.get("/:Id", async (req, res) => {
     });
   }
 });
-
-/* POST /users - Create User */
-usersRouter.post("/", async (req, res) => {
-  const { username, password, email, role } = req.body;
-
-  if (!username || !password || !email || !role) {
-    return res.status(400).json({
-      error: { message: "Alla fält måste fyllas i" },
-    });
-  }
-
-  try {
-    const { rows } = await pool.query(
-      `insert into users (username, password, email, role)
-        values ($1, $2, $3, $4)
-        returning "userId", username, email, role, "created_At"`,
-      [username, password, email, role]);
-
-    return res.status(201).json({ data: rows[0] });
-  } catch (error) {
-    console.error("POST /users failed", error);
-
-    return res.status(500).json({
-      error: { message: "Fel vid skapande av användare" },
-    });
-  }
-}); 
-
-/* PATCH /users/:Id - Update User */
-usersRouter.patch("/:Id", async (req, res) => {
-  const userId = parseUserId(req.params.Id);
+/* PATCH /users/:Id  (SELF OR ADMIN) */
+usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => { 
+  const userId = parseId(req.params.Id as string);
   if (!userId) {
     return res.status(400).json({
       error: { message: "Ogiltigt användar-ID" },
     });
   }
 
-  const { username, password, email, role } = req.body;
+  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId)
+ {
+    return res.status(403).json({
+      error: { message: "Du får inte uppdatera andra användare" }
+    });
+  }
+
+  const { username, email, role } = req.body;
+  const hashedPassword = req.body.passwordHash;
+
+  if (email !== undefined && !validateEmail(email)) {
+    return res.status(400).json({
+      error: { message: "Ogiltig email" },
+    });
+  }
 
   try {
     const { rows } = await pool.query(
-       `update users
+      `update users
         set username = coalesce($2, username),
        password = coalesce($3, password),
        email = coalesce($4, email),
        role = coalesce($5, role)
         where "userId" = $1
         returning "userId", username, email, role, "created_At"`,
-      [userId, username, password, email, role]);
+      [userId, username, hashedPassword, email, role]);
 
     if (rows.length === 0) {
       return res.status(404).json({
@@ -141,21 +114,28 @@ usersRouter.patch("/:Id", async (req, res) => {
     }
 
     return res.status(200).json({ data: rows[0] });
-  } catch (error) {
+  }
+  catch (error) {
     console.error("PATCH /users/:Id failed", error);
-
     return res.status(500).json({
       error: { message: "Fel vid uppdatering av användare" },
     });
   }
 });
 
-/* DELETE /users/:Id - Delete User */
-usersRouter.delete("/:Id", async (req, res) => {
-  const userId = parseUserId(req.params.Id);
+/* DELETE /users/:Id  (SELF OR ADMIN) */
+usersRouter.delete("/:Id", requireAuth, async (req, res) => { 
+  const userId = parseId(req.params.Id as string);
+
   if (!userId) {
     return res.status(400).json({
       error: { message: "Ogiltigt användar-ID" },
+    });
+  }
+
+  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId) {
+    return res.status(403).json({
+      error: { message: "Du får inte ta bort andra användare" }
     });
   }
 
@@ -180,6 +160,99 @@ usersRouter.delete("/:Id", async (req, res) => {
       error: { message: "Fel vid borttagning av användare" },
     });
   }
-}); 
+});
+/* AUTH register*/ /*istället för post*/
+usersRouter.post("/auth/register", hashPassword, async (req, res) => {
+  const { username, email } = req.body;
+  const hashedPassword = req.body.passwordHash; 
+
+  if (!username || !hashedPassword || !email) {
+    return res.status(400).json({
+      error: { message: "Alla fält måste fyllas i" },
+    });
+  }
+
+  try {
+    // kontrollerar email
+    const emailCheck = await pool.query(
+      'select "userId" from users where email = $1', [email]);
+
+    if (emailCheck.rows.length > 0) {
+      return res.status(409).json({
+        error: { message: "Email redan registrerad" },
+      });
+    }
+
+    // skapa användare
+    const { rows } = await pool.query(
+      `insert into users (username, password, email, role)
+        values ($1, $2, $3, $4)
+        returning "userId", username, email, role, "created_At"`,
+      [username, hashedPassword, email, 'user']
+    );
+    return res.status(201).json({ data: rows[0] });
+  } catch (error) {
+    console.error("POST /users/auth/register failed", error);
+
+    return res.status(500).json({
+      error: { message: "fel vid registrering" },
+    });
+  }
+
+});
+
+/* AUTH login */
+usersRouter.post("/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      error: { message: "Email och lösenord krävs" },
+    });
+  }
+  try {
+    // hämta användare baserat på email
+    const { rows } = await pool.query(
+      'select "userId", username, password, email, role from users where email = $1', [email]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        error: { message: "Ogiltig email eller lösenord" },
+      });
+    }
+
+    const user = rows[0];
+
+    // jämför lösenord
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({
+        error: { message: "Ogiltig email eller lösenord" },
+      });
+    }
+    
+    const token = signToken({
+      id: user.userId,
+      email: user.email,
+      role: user.role
+    });
+
+    return res.status(200).json({
+      token,
+      user: {
+        userId: user.userId,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error("POST /users/auth/login failed", error);
+    return res.status(500).json({
+      error: { message: "Fel vid inloggning" },
+    });
+  }
+});
 
 export default usersRouter;
