@@ -3,9 +3,7 @@ import { pool } from '../db/pool.js';
 
 const eventsRouter = Router();
 
-/* Kolumnerna vi skickar tillbaka.
-   date::text ger "2026-10-26" som text. Utan det gör pg om datumet till ett
-   JS-datum och det kan hamna en dag fel på grund av tidszon. */
+
 const EVENT_COLUMNS = `"eventId", created_at, name, date::text as date, current, info`;
 
 type EventRow = {
