@@ -16,13 +16,13 @@ app.use(express.json());
 app.get('/', (req, res) => { res.json({ data: 'data received' }); });
 
 app.use('/movies', moviesRouter);
-/* app.use('/bookings', bookingRouter); */
-/* app.use('/auditorium', auditoriumRouter); */
- /* app.use('/events', eventsRouter); */
-/* app.use('/seats', seatsRouter); */
-/* app.use('/showings', showingsRouter); */
-/* app.use('/tickets', ticketsRouter); */
-/* app.use('/users', usersRouter); */
+app.use('/bookings', bookingRouter);
+app.use('/auditorium', auditoriumRouter);
+app.use('/events', eventsRouter);
+app.use('/seats', seatsRouter);
+app.use('/showings', showingsRouter);
+app.use('/tickets', ticketsRouter);
+app.use('/users', usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });

@@ -89,7 +89,7 @@ bookingsRouter.get("/:id", async (req, res) => {
           t."ticketTypeId", tt.name as "ticketType", tt.price
         from tickets t
         join seats s on s."seatId" = t."seatId"
-        join "ticketTypes" tt on tt."ticketTypeid" = t."ticketTypeId"
+        join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
         where t."bookingId" = $1
         order by s."seatsRow", s."seatsNumber"`,
       [id],
@@ -194,8 +194,8 @@ bookingsRouter.post("/", async (req, res) => {
 
     // Alla biljettyper måste finnas
     const types = await client.query(
-      `select "ticketTypeid" from "ticketTypes"
-        where "ticketTypeid" = any($1::bigint[])`,
+      `select "ticketTypeId" from "ticketTypes"
+        where "ticketTypeId" = any($1::bigint[])`,
       [ticketTypeIds],
     );
 
