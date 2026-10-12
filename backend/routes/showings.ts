@@ -1,19 +1,60 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
+import { parseId } from "../utils/parseId.js";
+import { parsePagination } from "../utils/parsePagination.js";
 
 const showingsRouter: Router = Router();
 
 showingsRouter.get("/", async (req, res) => {
-  const { rows } = await pool.query("SELECT * FROM showings");
-  res.json(rows);
+  const pagination = parsePagination(req.query);
+
+  if (pagination === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltig limit eller offset" },
+    });
+  }
+
+  const { limit, offset } = pagination;
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM showings
+       ORDER BY "showingId"
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    return res.status(200).json({ data: rows });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /showings failed", { message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av visningar" },
+    });
+  }
 });
 
 showingsRouter.get("/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = parseId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt showing id" },
+    });
+  }
+
   const { rows } = await pool.query(
     `SELECT * FROM showings WHERE "showingId" = $1`,
     [id]
   );
+
+  if (rows.length === 0) {
+    return res.status(404).json({
+      error: { message: "Visningen finns inte" },
+    });
+  }
+
   res.json(rows[0]);
 });
 
@@ -33,7 +74,14 @@ showingsRouter.post("/", async (req, res) => {
 });
 
 showingsRouter.patch("/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = parseId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt showing id" },
+    });
+  }
+
   const { movieId, auditoriumId, date, time, eventId } = req.body;
   try {
     const { rows } = await pool.query(
@@ -47,6 +95,13 @@ showingsRouter.patch("/:id", async (req, res) => {
        RETURNING *`,
       [id, movieId, auditoriumId, date, time, eventId]
     );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Visningen finns inte" },
+      });
+    }
+
     res.json(rows[0]);
   } catch (error) {
     console.error("PATCH /showings/:id failed", error);
@@ -54,15 +109,32 @@ showingsRouter.patch("/:id", async (req, res) => {
   }
 });
 
-  showingsRouter.delete("/:id", async (req, res) => {
-    const { id } = req.params;
-    try { 
-      await pool.query(`DELETE FROM showings WHERE "showingId" = $1`, [id]);
-      res.json({ message: "Visning borttagen" });
-    } catch (error) {
-      console.error("DELETE /showings/:id failed", error);
-      res.status(500).json({ error: { message: "Fel vid borttagning av visning" } });
+showingsRouter.delete("/:id", async (req, res) => {
+  const id = parseId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt showing id" },
+    });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `DELETE FROM showings WHERE "showingId" = $1 RETURNING "showingId"`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Visningen finns inte" },
+      });
     }
-  });
+
+    res.json({ message: "Visning borttagen" });
+  } catch (error) {
+    console.error("DELETE /showings/:id failed", error);
+    res.status(500).json({ error: { message: "Fel vid borttagning av visning" } });
+  }
+});
 
 export default showingsRouter;
