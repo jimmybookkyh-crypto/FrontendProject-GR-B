@@ -2,6 +2,7 @@ import { Router } from "express";
 import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
 import { parseId, isPositiveInt } from "../utils/parseId.js";
+import { parsePagination } from "../utils/parsePagination.js"
 
 const bookingsRouter = Router();
 
@@ -22,22 +23,18 @@ function isValidEmail(value: unknown): value is string {
   );
 }
 
-// ADMIN: GET /bookings  |  ?limit=50&offset=0
+// ADMIN: GET /bookings
 // TODO: skydda med requireAdmin när inloggning finns
 bookingsRouter.get("/", async (req, res) => {
-  const limit = req.query.limit === undefined ? 50 : Number(req.query.limit);
-  const offset = req.query.offset === undefined ? 0 : Number(req.query.offset);
+  const pagination = parsePagination(req.query);
 
-  if (
-    !Number.isInteger(limit) ||
-    limit < 1 ||
-    !Number.isInteger(offset) ||
-    offset < 0
-  ) {
+  if (pagination === null) {
     return res.status(400).json({
-      error: { message: "Ogiltigt limit eller offset" },
+      error: { message: "Ogiltig limit eller offset" },
     });
   }
+
+  const { limit, offset } = pagination;
 
   try {
     const { rows } = await pool.query(
@@ -46,7 +43,7 @@ bookingsRouter.get("/", async (req, res) => {
         from bookings b
         order by b."bookingId" desc
         limit $1 offset $2`,
-      [Math.min(limit, 100), offset],
+      [limit, offset],
     );
 
     return res.status(200).json({ data: rows });
@@ -109,8 +106,6 @@ bookingsRouter.get("/:id", async (req, res) => {
 });
 
 // POST /bookings
-// body: { "email": "a@b.se", "showingId": 1, "userId": 3 (valfri),
-//         "tickets": [{ "seatId": 10, "ticketTypeId": 1 }, ...] }
 bookingsRouter.post("/", async (req, res) => {
   const { email, showingId, userId, tickets } = req.body ?? {};
 
@@ -157,7 +152,6 @@ bookingsRouter.post("/", async (req, res) => {
 
   try {
     await client.query("BEGIN");
-
     // Lås visningen, så att två bokningar för samma visning körs efter varandra
     const showing = await client.query(
       `select "showingId", "auditoriumId"
@@ -175,7 +169,6 @@ bookingsRouter.post("/", async (req, res) => {
     }
 
     const auditoriumId = showing.rows[0].auditoriumId;
-
     // Alla säten måste finnas i visningens salong
     const seats = await client.query(
       `select "seatId" from seats
@@ -322,7 +315,6 @@ bookingsRouter.delete("/:id", async (req, res) => {
 
   try {
     await client.query("BEGIN");
-
     await client.query(`delete from tickets where "bookingId" = $1`, [id]);
 
     const result = await client.query(
