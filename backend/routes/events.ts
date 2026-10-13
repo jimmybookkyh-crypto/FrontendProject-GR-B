@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { pool } from '../db/pool.js';
 import { parseId } from '../utils/parseId.js';
 import { parsePagination } from '../utils/parsePagination.js';
+import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
 
 const eventsRouter = Router();
 
@@ -111,7 +112,7 @@ eventsRouter.get('/:id', async (req, res) => {
 });
 
 /* POST /events  –  body: { name, date?, current?, info? } */
-eventsRouter.post('/', async (req, res) => {
+eventsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
   const body = req.body ?? {};
 
   const validationError = validateEventBody(body, false);
@@ -140,8 +141,8 @@ eventsRouter.post('/', async (req, res) => {
 });
 
 /* PATCH /events/:id  –  body: valfria fält av { name, date, current, info } */
-eventsRouter.patch('/:id', async (req, res) => {
-  const id = parseId(req.params.id);
+eventsRouter.patch('/:id', requireAuth, requireAdmin, async (req, res) => {
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
@@ -209,8 +210,8 @@ eventsRouter.patch('/:id', async (req, res) => {
 });
 
 /* DELETE /events/:id */
-eventsRouter.delete('/:id', async (req, res) => {
-  const id = parseId(req.params.id);
+eventsRouter.delete('/:id', requireAuth , requireAdmin, async (req, res) => {
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
