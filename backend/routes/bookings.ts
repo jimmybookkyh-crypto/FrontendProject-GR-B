@@ -6,13 +6,13 @@ import { parsePagination } from "../utils/parsePagination.js"
 import { validateEmail } from "../utils/validateEmail.js";
 import { Booking, CreateBookingInput, TicketInput } from "../interface/types.js";
 import { createBooking } from "../services/createBooking.js";
-import { requireAuth, requireAdmin } from "../utils/requireAuth";
+import { requireAuth, requireAdmin } from "../utils/requireAuth.js";
 
 const bookingsRouter = Router();
 
 // GET /bookings
-// TODO: skydda med requireAdmin när inloggning finns
-bookingsRouter.get("/", requireAuth , requireAdmin, async (req, res) => {
+// ADMIN: se alla bokningar
+bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   const pagination = parsePagination(req.query);
 
   if (pagination === null) {
@@ -153,8 +153,7 @@ bookingsRouter.post("/", async (req, res) => {
   }
 });
 // ADMIN: PATCH /bookings/:id   body: { "email": "ny@adress.se" }
-// TODO: skydda med requireAdmin när inloggning finns
-bookingsRouter.patch("/:id", requireAuth, requireAdmin , async (req, res) => {
+bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
 
   if (id === null) {
@@ -198,7 +197,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin , async (req, res) => {
 });
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
-bookingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
+bookingsRouter.delete("/:id", async (req, res) => {
   const id = parseId(req.params.id as string );
 
   if (id === null) {
