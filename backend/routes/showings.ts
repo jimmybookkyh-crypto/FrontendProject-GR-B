@@ -2,6 +2,7 @@ import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
+import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
 
 const showingsRouter: Router = Router();
 
@@ -58,7 +59,7 @@ showingsRouter.get("/:id", async (req, res) => {
   res.json(rows[0]);
 });
 
-showingsRouter.post("/", async (req, res) => {
+showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const { movieId, auditoriumId, date, time, eventId } = req.body;
   try {
     const { rows } = await pool.query(
@@ -73,7 +74,7 @@ showingsRouter.post("/", async (req, res) => {
   }
 });
 
-showingsRouter.patch("/:id", async (req, res) => {
+showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id);
 
   if (id === null) {
@@ -109,7 +110,7 @@ showingsRouter.patch("/:id", async (req, res) => {
   }
 });
 
-showingsRouter.delete("/:id", async (req, res) => {
+showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id);
 
   if (id === null) {
