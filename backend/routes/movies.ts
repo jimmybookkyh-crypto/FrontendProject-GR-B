@@ -1,297 +1,223 @@
-import { Router } from 'express';
-import { pool } from '../db/pool.js';
+import { Router } from "express";
+import type { Response } from "express";
+import { pool } from "../db/pool.js";
+import { parseId } from "../utils/parseId.js";
+import { parsePagination } from "../utils/parsePagination.js";
+import { readMovieFields, toDbValue } from "../utils/validateMovie.js";
+import { pgErrorCode } from "../utils/pgError.js";
+import type { Movie } from "../interface/types.js";
 
 const moviesRouter = Router();
 
-/*
-const MOVIE_COLUMNS = `
-  movieId,
-  title,
-  productionyear,
-  genre,
-  current
-`;
-*/
+/* Alla kolumner i tabellen movies */
+const MOVIE_COLUMNS = `"movieId", title, productioncountries, productionyear, "length", genre,
+  distributor, language, subtitles, director, actors, description, images,
+  youtubetrailers, current, "ageRating"`;
 
-type Movie = {
-  movieId: number;
-  title: string;
-  productionyear: number;
-  genre: string;
-  current: boolean;
-  ageRating: number;
-};
+/* "11" -> 11. Åldersgräns är ett heltal 0-99. */
+function parseAgeRating(value: string): number | null {
+  return /^\d{1,2}$/.test(value) ? Number(value) : null;
+}
 
+/* Hämtar en lista med filmer och skickar svaret.
+   where/params = valfritt filter, page = valfri limit/offset. */
+async function sendMovies(
+  res: Response,
+  label: string,
+  errorMessage: string,
+  where = "",
+  params: unknown[] = [],
+  page?: { limit: number; offset: number },
+) {
+  const paging = page ? `limit $${params.length + 1} offset $${params.length + 2}` : "";
+  const values = page ? [...params, page.limit, page.offset] : params;
 
-function parseMovieId(value: string): number | null {
-  if (!/^[1-9]\d*$/.test(value)) return null;
+  try {
+    const { rows } = await pool.query<Movie>(
+      `select ${MOVIE_COLUMNS}
+        from movies
+        ${where}
+        order by "movieId"
+        ${paging}`,
+      values,
+    );
 
-  const id = Number(value);
-  if (!Number.isSafeInteger(id)) return null;
+    return res.status(200).json({ data: rows });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error(`${label} failed`, { message });
 
-  return id;
+    return res.status(500).json({ error: { message: errorMessage } });
+  }
 }
 
 //GET------------------------------------------------------------------------------------------------------
 
-//hämtar alla filmer
-moviesRouter.get("/", async (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 50, 100);
-  const offset = Math.max(Number(req.query.offset) || 0, 0);
+// GET /movies  (alla filmer)
+moviesRouter.get("/", (req, res) => {
+  const pagination = parsePagination(req.query);
 
-  if (!Number.isInteger(limit) || !Number.isInteger(offset)) {
-    return res.status(400).json({
-      error: { message: "Ogilitg limit eller offset" },
-    });
+  if (pagination === null) {
+    return res.status(400).json({ error: { message: "Ogiltig limit eller offset" } });
   }
 
-  try {
-    const { rows } = await pool.query(
-      `select "movieId", title, current
-        from movies
-        order by "movieId" limit $1 offset $2`, [limit, offset]);
+  return sendMovies(res, "GET /movies", "Fel vid hämtning av filmer", "", [], pagination);
+});
 
-    return res.status(200).json({ data: rows });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /movies failed", { message });
+// GET /movies/current  (current = true)
+moviesRouter.get("/current", (_req, res) =>
+  sendMovies(res, "GET /movies/current", "Fel vid hämtning av aktuella filmer", "where current = true"),
+);
 
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av data" },
-      });
-}
-})
+// GET /movies/not-current  (current = false)
+moviesRouter.get("/not-current", (_req, res) =>
+  sendMovies(res, "GET /movies/not-current", "Fel vid hämtning av icke-aktuella filmer", "where current = false"),
+);
 
-//hämtar all filmer som är current = true
-moviesRouter.get("/current", async (req, res) => {
+// GET /movies/age-rating/:ageRating  (filmer med en viss åldersgräns)
+moviesRouter.get("/age-rating/:ageRating", (req, res) => {
+  const ageRating = parseAgeRating(req.params.ageRating);
 
-  try {
-    const { rows } = await pool.query(
-      `SELECT "movieId", title, current
-       FROM movies
-       WHERE current = TRUE
-       ORDER BY "movieId"`);
+  if (ageRating === null) {
+    return res.status(400).json({ error: { message: "Ogiltig åldersgräns" } });
+  }
 
-    return res.status(200).json({ data: rows });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /movies/current failed", { message });
+  return sendMovies(
+    res,
+    "GET /movies/age-rating/:ageRating",
+    "Fel vid hämtning av filmer efter åldersgräns",
+    `where "ageRating" = $1`,
+    [ageRating],
+  );
+});
 
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av aktuella filmer" },
-      });
-}
-})
+// GET /movies/age-rating/:ageRating/current  (aktuella filmer med en viss åldersgräns)
+moviesRouter.get("/age-rating/:ageRating/current", (req, res) => {
+  const ageRating = parseAgeRating(req.params.ageRating);
 
-//hämtar all filmer som är current = false
-moviesRouter.get("/not-current", async (req, res) => {
+  if (ageRating === null) {
+    return res.status(400).json({ error: { message: "Ogiltig åldersgräns" } });
+  }
 
-  try {
-    const { rows } = await pool.query(
-      `SELECT "movieId", title, current
-       FROM movies
-       WHERE current = FALSE
-       ORDER BY "movieId"`);
+  return sendMovies(
+    res,
+    "GET /movies/age-rating/:ageRating/current",
+    "Fel vid hämtning av aktuella filmer efter åldersgräns",
+    `where "ageRating" = $1 and current = true`,
+    [ageRating],
+  );
+});
 
-    return res.status(200).json({ data: rows });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /movies/not-current failed", { message });
-
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av icke-aktuella filmer" },
-      });
-}
-})
-
-//hämtar en film
+// GET /movies/:id  (en film)
 moviesRouter.get("/:id", async (req, res) => {
-
-  const id = parseMovieId(req.params.id);
+  const id = parseId(req.params.id);
 
   if (id === null) {
-    return res.status(400).json({
-      error: { message: "Ogilitg film id" },
-    });
+    return res.status(400).json({ error: { message: "Ogiltigt film-id" } });
   }
 
   try {
     const { rows } = await pool.query<Movie>(
-      `select "movieId", title, current
+      `select ${MOVIE_COLUMNS}
         from movies
-        where "movieId" = $1`, [id]);
+        where "movieId" = $1`,
+      [id],
+    );
+
     if (rows.length === 0) {
-      return res.status(400).json({
-      error: { message: "Filmen finns ej" },
-    });
+      return res.status(404).json({ error: { message: "Filmen finns inte" } });
     }
 
-    return res.status(200).json({ data: rows });
-
+    return res.status(200).json({ data: rows[0] });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /movies/:id failed", { movieId: id, message});
+    console.error("GET /movies/:id failed", { movieId: id, message });
 
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av vald data" },
+    return res.status(500).json({ error: { message: "Fel vid hämtning av vald film" } });
+  }
+});
+
+//POST------------------------------------------------------------------------------------------------------
+
+// POST /movies  (title krävs, övriga fält är valfria)
+moviesRouter.post("/", async (req, res) => {
+  const result = readMovieFields(req.body ?? {}, true);
+
+  if ("error" in result) {
+    return res.status(400).json({ error: { message: result.error } });
+  }
+
+  const { entries } = result;
+  const columns = entries.map((e) => `"${e.column}"`).join(", ");
+  const placeholders = entries
+    .map((e, i) => (e.json ? `$${i + 1}::json` : `$${i + 1}`))
+    .join(", ");
+
+  try {
+    const { rows } = await pool.query<Movie>(
+      `insert into movies (${columns})
+        values (${placeholders})
+        returning ${MOVIE_COLUMNS}`,
+      entries.map(toDbValue),
+    );
+
+    return res.status(201).json({ data: rows[0] });
+  } catch (error) {
+    const code = pgErrorCode(error);
+
+    if (code === "23505") {
+      return res.status(409).json({ error: { message: "En film med det movieId finns redan" } });
+    }
+
+    if (code === "23502") {
+      return res.status(400).json({
+        error: { message: "Databasen skapar inget movieId automatiskt. Skicka med movieId" },
       });
-}
-})
+    }
 
-// Hämtar filmer med en viss åldersgräns
-moviesRouter.get("/age-rating/:ageRating", async (req, res) => {
-  const { ageRating } = req.params;
-
-  try {
-    const { rows } = await pool.query<Movie>(
-      `SELECT "movieId", title, "productionyear", genre, "ageRating", current
-       FROM movies
-       WHERE "ageRating" = $1
-       ORDER BY title`,
-      [ageRating]
-    );
-
-    return res.status(200).json({ data: rows });
-  } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
-
-    console.error("GET /movies/age-rating/:ageRating failed", {
-      ageRating,
-      message,
-    });
-
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av filmer efter åldersgräns" },
-    });
-  }
-});
-
-// Hämtar aktuella filmer med en viss åldersgräns
-moviesRouter.get("/age-rating/:ageRating/current", async (req, res) => {
-  const { ageRating } = req.params;
-
-  try {
-    const { rows } = await pool.query<Movie>(
-      `SELECT "movieId", title, "productionyear", genre, "ageRating", current
-       FROM movies
-       WHERE "ageRating" = $1
-         AND current = TRUE
-       ORDER BY title`,
-      [ageRating]
-    );
-
-    return res.status(200).json({ data: rows });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-
-    console.error("GET /movies/age-rating/:ageRating/current failed", {
-      ageRating,
-      message,
-    });
-
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av aktuella filmer efter åldersgräns" },
-    });
-  }
-});
-
-//POST------------------------------------------------------------------------------------------------------ 
-
-//skapar en film
-moviesRouter.post("/", async (req,res) => {
-  const {title, productionyear, genre, current, ageRating} = req.body;
-
-  if (
-    typeof title !== "string" ||
-    title.trim() === "" ||
-    !Number.isInteger(productionyear) ||
-    typeof genre !== "string" ||
-    typeof current !== "boolean" ||
-    !Number.isInteger(ageRating)
-  ) {
-    return res.status(400).json({
-      error: { message: "Ogitlig filinformation"},
-    });
-  }
-
-  try {
-    const { rows } = await pool.query<Movie>(
-      `INSERT INTO movies (title, productionyear, genre, current, "ageRating")
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING "movieId", title, productionyear, genre, current, "ageRating"`,
-      [title.trim(), productionyear, genre, current, ageRating]
-    );
-    return res.status(201).json({data: rows[0]});
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "okänt fel";
     console.error("POST /movies failed", { message });
-    
-      return res.status(500).json({
-        error: { message: "Fel vid skapande av film"},
-      });
-  }
-})
 
+    return res.status(500).json({ error: { message: "Fel vid skapande av film" } });
+  }
+});
 
 //PATCH------------------------------------------------------------------------------------------------------
 
-//uppdaterar en film
+// PATCH /movies/:id  (bara de fält som skickas med ändras)
 moviesRouter.patch("/:id", async (req, res) => {
-  const id = parseMovieId(req.params.id);
+  const id = parseId(req.params.id);
 
   if (id === null) {
-    return res.status(400).json({
-      error: { message: "Ogiltigt film-id" },
-    });
+    return res.status(400).json({ error: { message: "Ogiltigt film-id" } });
   }
 
-  const allowedFields = ["title", "productionyear", "genre", "current", "ageRating"] as const;
-  const updates: string[] = [];
-  const values: unknown[] = [];
+  const result = readMovieFields(req.body ?? {}, false);
 
-  for (const field of allowedFields) {
-    if (req.body[field] !== undefined) {
-      const value: unknown = req.body[field];
-
-      if (
-        (field === "title" && (typeof value !== "string" || value.trim() === "")) ||
-        (field === "genre" && typeof value !== "string") ||
-        (field === "productionyear" && !Number.isInteger(value)) ||
-        (field === "current" && typeof value !== "boolean") ||
-        (field === "ageRating" && !Number.isInteger(value))
-      ) {
-        return res.status(400).json({
-          error: { message: `Ogiltigt värde för ${field}` },
-        });
-      }
-
-      values.push(field === "title" ? (value as string).trim() : value);
-
-      updates.push(`"${field}" = $${values.length}`);
-    }
+  if ("error" in result) {
+    return res.status(400).json({ error: { message: result.error } });
   }
 
-  if (updates.length === 0) {
-    return res.status(400).json({
-      error: { message: "Inga giltiga fält att uppdatera" },
-    });
+  const { entries } = result;
+
+  if (entries.length === 0) {
+    return res.status(400).json({ error: { message: "Inga giltiga fält att uppdatera" } });
   }
+
+  const updates = entries.map((e, i) => `"${e.column}" = $${i + 1}${e.json ? "::json" : ""}`);
+  const values = [...entries.map(toDbValue), id];
 
   try {
-    values.push(id);
-
     const { rows } = await pool.query<Movie>(
-      `UPDATE movies
-       SET ${updates.join(", ")}
-       WHERE "movieId" = $${values.length}
-       RETURNING "movieId", title, productionyear, genre, current, "ageRating"`,
-      values
+      `update movies
+        set ${updates.join(", ")}
+        where "movieId" = $${values.length}
+        returning ${MOVIE_COLUMNS}`,
+      values,
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({
-        error: { message: "Filmen finns inte" },
-      });
+      return res.status(404).json({ error: { message: "Filmen finns inte" } });
     }
 
     return res.status(200).json({ data: rows[0] });
@@ -299,48 +225,46 @@ moviesRouter.patch("/:id", async (req, res) => {
     const message = error instanceof Error ? error.message : "Okänt fel";
     console.error("PATCH /movies/:id failed", { movieId: id, message });
 
-    return res.status(500).json({
-      error: { message: "Fel vid uppdatering av film" },
-    });
+    return res.status(500).json({ error: { message: "Fel vid uppdatering av film" } });
   }
 });
 
 //DELETE------------------------------------------------------------------------------------------------------
 
-//ta bort en film
+// DELETE /movies/:id
 moviesRouter.delete("/:id", async (req, res) => {
-  const id = parseMovieId(req.params.id);
+  const id = parseId(req.params.id);
 
   if (id === null) {
-    return res.status(400).json({
-      error: { message: "Ogiltigt film-id" },
-    });
+    return res.status(400).json({ error: { message: "Ogiltigt film-id" } });
   }
 
   try {
-    const { rows } = await pool.query<{ movieId: number }>(
-      `DELETE FROM movies
-       WHERE "movieId" = $1
-       RETURNING "movieId"`,
-      [id]
+    const { rows } = await pool.query<{ movieId: string }>(
+      `delete from movies
+        where "movieId" = $1
+        returning "movieId"`,
+      [id],
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({
-        error: { message: "Filmen finns inte" },
+      return res.status(404).json({ error: { message: "Filmen finns inte" } });
+    }
+
+    return res.status(200).json({ data: rows[0] });
+  } catch (error) {
+    // 23503 = foreign key: filmen används av visningar
+    if (pgErrorCode(error) === "23503") {
+      return res.status(409).json({
+        error: { message: "Filmen används av visningar och kan inte tas bort" },
       });
     }
 
-    return res.status(204).send();
-  } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
     console.error("DELETE /movies/:id failed", { movieId: id, message });
 
-    return res.status(500).json({
-      error: { message: "Fel vid borttagning av film" },
-    });
+    return res.status(500).json({ error: { message: "Fel vid borttagning av film" } });
   }
 });
-
 
 export default moviesRouter;
