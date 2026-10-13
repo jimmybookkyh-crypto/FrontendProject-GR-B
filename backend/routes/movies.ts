@@ -1,18 +1,14 @@
 import { Router } from "express";
-import type { Response } from "express";
 import { pool } from "../db/pool.js";
 import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import type { Movie } from "../interface/types.js";
 import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
+import { sendMovies, MOVIE_COLUMNS } from "../services/sendMovies.js";
 
 const moviesRouter = Router();
 
-/* Alla kolumner i tabellen movies */
-const MOVIE_COLUMNS = `"movieId", title, productioncountries, productionyear, "length", genre,
-  distributor, language, subtitles, director, actors, description, images,
-  youtubetrailers, current, "ageRating"`;
 
 /* "11" -> 11. Åldersgräns är ett heltal 0-99. */
 function parseAgeRating(value: string): number | null {
@@ -42,38 +38,6 @@ function pickMovieFields(body: Record<string, unknown>): FieldEntry[] {
 
 function toDbValue(entry: FieldEntry): unknown {
   return entry.json && entry.value !== null ? JSON.stringify(entry.value) : entry.value;
-}
-
-/* Hämtar en lista med filmer och skickar svaret.
-   where/params = valfritt filter, page = valfri limit/offset. */
-async function sendMovies(
-  res: Response,
-  label: string,
-  errorMessage: string,
-  where = "",
-  params: unknown[] = [],
-  page?: { limit: number; offset: number },
-) {
-  const paging = page ? `limit $${params.length + 1} offset $${params.length + 2}` : "";
-  const values = page ? [...params, page.limit, page.offset] : params;
-
-  try {
-    const { rows } = await pool.query<Movie>(
-      `select ${MOVIE_COLUMNS}
-        from movies
-        ${where}
-        order by "movieId"
-        ${paging}`,
-      values,
-    );
-
-    return res.status(200).json({ data: rows });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error(`${label} failed`, { message });
-
-    return res.status(500).json({ error: { message: errorMessage } });
-  }
 }
 
 //GET------------------------------------------------------------------------------------------------------
