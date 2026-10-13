@@ -96,6 +96,12 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
+  if (res.locals.user.role !== "admin" && role !== undefined) {
+    return res.status(403).json({
+      error: { message: "Endast admin får ändra roll" }
+    });
+  }
+
   try {
     const { rows } = await pool.query(
       `update users
