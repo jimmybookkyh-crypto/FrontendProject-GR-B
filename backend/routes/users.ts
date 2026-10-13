@@ -44,7 +44,7 @@ usersRouter.get("/:Id", requireAuth, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId) {
+  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId) {
     return res.status(403).json({
       error: { message: "Du får inte se andra användare" }
     });
@@ -232,7 +232,7 @@ usersRouter.post("/auth/login", async (req, res) => {
     }
     
     const token = signToken({
-      id: user.userId,
+      sub: user.userId,
       email: user.email,
       role: user.role
     });
