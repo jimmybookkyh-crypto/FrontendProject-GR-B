@@ -6,12 +6,13 @@ import { parsePagination } from "../utils/parsePagination.js"
 import { validateEmail } from "../utils/validateEmail.js";
 import { Booking, CreateBookingInput, TicketInput } from "../interface/types.js";
 import { createBooking } from "../services/createBooking.js";
+import { requireAuth, requireAdmin } from "../utils/requireAuth";
 
 const bookingsRouter = Router();
 
 // GET /bookings
 // TODO: skydda med requireAdmin när inloggning finns
-bookingsRouter.get("/", async (req, res) => {
+bookingsRouter.get("/", requireAuth , requireAdmin, async (req, res) => {
   const pagination = parsePagination(req.query);
 
   if (pagination === null) {
@@ -45,7 +46,7 @@ bookingsRouter.get("/", async (req, res) => {
 
 // GET /bookings/:id  (bokningen + dess biljetter)
 bookingsRouter.get("/:id", async (req, res) => {
-  const id = parseId(req.params.id);
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
@@ -153,8 +154,8 @@ bookingsRouter.post("/", async (req, res) => {
 });
 // ADMIN: PATCH /bookings/:id   body: { "email": "ny@adress.se" }
 // TODO: skydda med requireAdmin när inloggning finns
-bookingsRouter.patch("/:id", async (req, res) => {
-  const id = parseId(req.params.id);
+bookingsRouter.patch("/:id", requireAuth, requireAdmin , async (req, res) => {
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
@@ -197,8 +198,8 @@ bookingsRouter.patch("/:id", async (req, res) => {
 });
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
-bookingsRouter.delete("/:id", async (req, res) => {
-  const id = parseId(req.params.id);
+bookingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
+  const id = parseId(req.params.id as string );
 
   if (id === null) {
     return res.status(400).json({
