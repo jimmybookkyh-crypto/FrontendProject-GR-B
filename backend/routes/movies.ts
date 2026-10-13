@@ -3,8 +3,7 @@ import type { Response } from "express";
 import { pool } from "../db/pool.js";
 import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
-import { readMovieFields, toDbValue } from "../utils/validateMovie.js";
-import { pgErrorCode } from "../utils/pgError.js";
+import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import type { Movie } from "../interface/types.js";
 
 const moviesRouter = Router();
@@ -17,6 +16,31 @@ const MOVIE_COLUMNS = `"movieId", title, productioncountries, productionyear, "l
 /* "11" -> 11. Åldersgräns är ett heltal 0-99. */
 function parseAgeRating(value: string): number | null {
   return /^\d{1,2}$/.test(value) ? Number(value) : null;
+}
+
+/* Fälten i movies som får skickas in vid POST/PATCH.
+   Kolumnnamnen kommer härifrån, aldrig direkt från användaren.
+   Typer, längder och not null kontrolleras av databasen. */
+const MOVIE_FIELDS = [
+  "title", "productioncountries", "productionyear", "length", "genre", "distributor",
+  "language", "subtitles", "director", "actors", "description", "images",
+  "youtubetrailers", "current", "ageRating",
+];
+
+/* json-kolumner måste skickas som JSON-text, annars gör pg om en array till en Postgres-array */
+const JSON_FIELDS = ["productioncountries", "actors", "images", "youtubetrailers"];
+
+type FieldEntry = { column: string; value: unknown; json: boolean };
+
+/* Plockar ut fälten som finns i body. movieId skapas av databasen och kan inte skickas in. */
+function pickMovieFields(body: Record<string, unknown>): FieldEntry[] {
+  return MOVIE_FIELDS
+    .filter((column) => body[column] !== undefined)
+    .map((column) => ({ column, value: body[column], json: JSON_FIELDS.includes(column) }));
+}
+
+function toDbValue(entry: FieldEntry): unknown {
+  return entry.json && entry.value !== null ? JSON.stringify(entry.value) : entry.value;
 }
 
 /* Hämtar en lista med filmer och skickar svaret.
@@ -139,15 +163,14 @@ moviesRouter.get("/:id", async (req, res) => {
 
 //POST------------------------------------------------------------------------------------------------------
 
-// POST /movies  (title krävs, övriga fält är valfria)
+// POST /movies  (movieId skapas av databasen; fält som inte får vara null kontrolleras av databasen)
 moviesRouter.post("/", async (req, res) => {
-  const result = readMovieFields(req.body ?? {}, true);
+  const entries = pickMovieFields(req.body ?? {});
 
-  if ("error" in result) {
-    return res.status(400).json({ error: { message: result.error } });
+  if (entries.length === 0) {
+    return res.status(400).json({ error: { message: "Skicka minst title" } });
   }
 
-  const { entries } = result;
   const columns = entries.map((e) => `"${e.column}"`).join(", ");
   const placeholders = entries
     .map((e, i) => (e.json ? `$${i + 1}::json` : `$${i + 1}`))
@@ -163,16 +186,10 @@ moviesRouter.post("/", async (req, res) => {
 
     return res.status(201).json({ data: rows[0] });
   } catch (error) {
-    const code = pgErrorCode(error);
+    const badInput = pgInputErrorMessage(error);
 
-    if (code === "23505") {
-      return res.status(409).json({ error: { message: "En film med det movieId finns redan" } });
-    }
-
-    if (code === "23502") {
-      return res.status(400).json({
-        error: { message: "Databasen skapar inget movieId automatiskt. Skicka med movieId" },
-      });
+    if (badInput) {
+      return res.status(400).json({ error: { message: badInput } });
     }
 
     const message = error instanceof Error ? error.message : "Okänt fel";
@@ -192,13 +209,7 @@ moviesRouter.patch("/:id", async (req, res) => {
     return res.status(400).json({ error: { message: "Ogiltigt film-id" } });
   }
 
-  const result = readMovieFields(req.body ?? {}, false);
-
-  if ("error" in result) {
-    return res.status(400).json({ error: { message: result.error } });
-  }
-
-  const { entries } = result;
+  const entries = pickMovieFields(req.body ?? {});
 
   if (entries.length === 0) {
     return res.status(400).json({ error: { message: "Inga giltiga fält att uppdatera" } });
@@ -222,6 +233,12 @@ moviesRouter.patch("/:id", async (req, res) => {
 
     return res.status(200).json({ data: rows[0] });
   } catch (error) {
+    const badInput = pgInputErrorMessage(error);
+
+    if (badInput) {
+      return res.status(400).json({ error: { message: badInput } });
+    }
+
     const message = error instanceof Error ? error.message : "Okänt fel";
     console.error("PATCH /movies/:id failed", { movieId: id, message });
 
