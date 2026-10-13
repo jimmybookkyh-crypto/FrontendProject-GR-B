@@ -80,7 +80,7 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId)
+  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId)
  {
     return res.status(403).json({
       error: { message: "Du får inte uppdatera andra användare" }
@@ -133,7 +133,7 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && res.locals.user.userId !== userId) {
+  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId) {
     return res.status(403).json({
       error: { message: "Du får inte ta bort andra användare" }
     });
