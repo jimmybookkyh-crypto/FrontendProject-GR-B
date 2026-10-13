@@ -5,6 +5,7 @@ import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import type { Movie } from "../interface/types.js";
+import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
 
 const moviesRouter = Router();
 
@@ -164,7 +165,7 @@ moviesRouter.get("/:id", async (req, res) => {
 //POST------------------------------------------------------------------------------------------------------
 
 // POST /movies  (movieId skapas av databasen; fält som inte får vara null kontrolleras av databasen)
-moviesRouter.post("/", async (req, res) => {
+moviesRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const entries = pickMovieFields(req.body ?? {});
 
   if (entries.length === 0) {
@@ -188,6 +189,15 @@ moviesRouter.post("/", async (req, res) => {
   } catch (error) {
     const badInput = pgInputErrorMessage(error);
 
+    if (error && typeof error === "object" && "detail" in error) {
+    console.error("POST /movies failed:", {
+      message: "message" in error ? error.message : undefined,
+      detail: error.detail,
+      code: "code" in error ? error.code : undefined,
+      constraint: "constraint" in error ? error.constraint : undefined,
+    });
+  }
+
     if (badInput) {
       return res.status(400).json({ error: { message: badInput } });
     }
@@ -202,7 +212,7 @@ moviesRouter.post("/", async (req, res) => {
 //PATCH------------------------------------------------------------------------------------------------------
 
 // PATCH /movies/:id  (bara de fält som skickas med ändras)
-moviesRouter.patch("/:id", async (req, res) => {
+moviesRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id);
 
   if (id === null) {
@@ -249,7 +259,7 @@ moviesRouter.patch("/:id", async (req, res) => {
 //DELETE------------------------------------------------------------------------------------------------------
 
 // DELETE /movies/:id
-moviesRouter.delete("/:id", async (req, res) => {
+moviesRouter.delete("/:id", requireAuth, requireAdmin,async (req, res) => {
   const id = parseId(req.params.id);
 
   if (id === null) {
