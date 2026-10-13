@@ -45,7 +45,7 @@ bookingsRouter.get("/", requireAuth , requireAdmin, async (req, res) => {
 });
 
 // GET /bookings/:id  (bokningen + dess biljetter)
-bookingsRouter.get("/:id", requireAuth , async (req, res) => {
+bookingsRouter.get("/:id", async (req, res) => {
   const id = parseId(req.params.id as string);
 
   if (id === null) {
