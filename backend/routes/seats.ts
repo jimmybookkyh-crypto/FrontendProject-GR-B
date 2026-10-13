@@ -28,7 +28,6 @@ seatsRouter.get("/", async (req, res) => {
     }
   }
 
-  // where......betyder: om inget filter skickas visas alla säten, annars bara den salongens.
   try {
     const { rows } = await pool.query<Seat>(
       `select "seatId", "seatsRow", "seatsNumber", "auditoriumId"

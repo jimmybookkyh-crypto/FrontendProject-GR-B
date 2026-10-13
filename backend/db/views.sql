@@ -27,7 +27,7 @@ CREATE OR REPLACE VIEW public.booking_tickets_view AS
 SELECT
     t."ticketId",
     t."bookingId",
-    tt."ticketTypeid",
+    tt."ticketTypeId",
     tt.name AS "ticketType",
     tt.price,
     s."seatId",
@@ -35,7 +35,7 @@ SELECT
     s."seatsNumber"
 FROM public.tickets t
 JOIN public."ticketTypes" tt
-    ON t."ticketTypeId" = tt."ticketTypeid"
+    ON t."ticketTypeId" = tt."ticketTypeId"
 JOIN public.seats s
     ON t."seatId" = s."seatId";
 
