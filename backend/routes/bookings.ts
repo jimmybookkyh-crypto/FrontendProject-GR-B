@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
 import { parseId, isPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js"
@@ -45,7 +44,7 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // GET /bookings/:id  (bokningen + dess biljetter)
-bookingsRouter.get("/:id", async (req, res) => {
+bookingsRouter.get("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
   if (id === null) {
@@ -197,7 +196,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
-bookingsRouter.delete("/:id", async (req, res) => {
+bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string );
 
   if (id === null) {
