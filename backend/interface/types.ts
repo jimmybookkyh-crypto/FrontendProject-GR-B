@@ -37,3 +37,8 @@ export interface Movie {
   current: boolean;
   ageRating: number | null;
 }
+
+export interface Auditorium {
+  auditoriumId: string; // bigint kommer som text från pg
+  name: string;
+}
