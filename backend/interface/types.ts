@@ -37,3 +37,10 @@ export interface Movie {
   current: boolean;
   ageRating: number | null;
 }
+
+export interface Seat  {
+  seatId: number;
+  seatsRow: number;
+  seatsNumber: number;
+  auditoriumId: number;
+}

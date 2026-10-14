@@ -1,15 +1,9 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { parseId } from "../utils/parseId.js";
+import { Seat } from "../interface/types.js";
 
 const seatsRouter = Router();
-
-type Seat = {
-  seatId: number;
-  seatsRow: number;
-  seatsNumber: number;
-  auditoriumId: number;
-};
 
 // GET /seats  |  ?auditoriumId=1
 seatsRouter.get("/", async (req, res) => {
@@ -32,7 +26,7 @@ seatsRouter.get("/", async (req, res) => {
     const { rows } = await pool.query<Seat>(
       `select "seatId", "seatsRow", "seatsNumber", "auditoriumId"
         from seats
-        where ($1::bigint is null or "auditoriumId" = $1::bigint) 
+        where ($1::bigint is null or "auditoriumId" = $1::bigint)
         order by "auditoriumId", "seatsRow", "seatsNumber"`,
       [auditoriumId],
     );
