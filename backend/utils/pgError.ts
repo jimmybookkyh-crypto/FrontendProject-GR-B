@@ -25,3 +25,8 @@ export function pgInputErrorMessage(error: unknown): string | null {
       return null;
   }
 }
+
+   /* 23503 = foreign key violation i Postgres */
+   export function isForeignKeyError(error: unknown): boolean {
+     return pgErrorCode(error) === "23503";
+   }

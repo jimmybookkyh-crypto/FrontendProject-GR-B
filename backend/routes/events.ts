@@ -3,31 +3,14 @@ import { pool } from '../db/pool.js';
 import { parseId } from '../utils/parseId.js';
 import { parsePagination } from '../utils/parsePagination.js';
 import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
+import type { EventRow } from '../interface/types.js';
+import { isForeignKeyError } from '../utils/pgError.js';
+import { validateDate } from '../utils/validateDate.js';
 
 const eventsRouter = Router();
 
 const EVENT_COLUMNS = `"eventId", created_at, name, date::text as date, current, info`;
 
-type EventRow = {
-  eventId: string;
-  created_at: string;
-  name: string;
-  date: string | null;
-  current: boolean;
-  info: string | null;
-};
-
-function isValidDate(value: unknown): value is string {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const d = new Date(`${value}T00:00:00Z`);
-  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
-}
-
-/* 23503 = foreign key violation i Postgres */
-function isForeignKeyError(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === '23503';
-}
 
 /* Kollar fälten i en POST/PATCH. Returnerar felmeddelande eller null.
    partial = true (PATCH): fält som saknas är okej. */
@@ -37,7 +20,7 @@ function validateEventBody(body: Record<string, unknown>, partial: boolean): str
       return 'name måste vara en text (1-255 tecken)';
     }
   }
-  if ('date' in body && body.date !== null && !isValidDate(body.date)) {
+  if ('date' in body && body.date !== null && !validateDate(body.date)) {
     return 'date måste vara ett datum på formen YYYY-MM-DD, eller null';
   }
   if ('current' in body && typeof body.current !== 'boolean') {

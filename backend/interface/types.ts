@@ -37,3 +37,12 @@ export interface Movie {
   current: boolean;
   ageRating: number | null;
 }
+
+export interface EventRow  {
+  eventId: string;
+  created_at: string;
+  name: string;
+  date: string | null;
+  current: boolean;
+  info: string | null;
+}
