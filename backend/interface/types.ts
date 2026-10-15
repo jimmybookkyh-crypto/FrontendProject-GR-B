@@ -38,6 +38,15 @@ export interface Movie {
   ageRating: number | null;
 }
 
+export interface EventRow  {
+  eventId: string;
+  created_at: string;
+  name: string;
+  date: string | null;
+  current: boolean;
+  info: string | null;
+}
+
 export interface Auditorium {
   auditoriumId: string; // bigint kommer som text från pg
   name: string;
