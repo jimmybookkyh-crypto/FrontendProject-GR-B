@@ -2,7 +2,9 @@ import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
-import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
+import { requireAuth, requireAdmin } from '../utils/requireAuth.js';
+import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
+import { validateShowingInput } from "../utils/validateShowing.js";
 
 const showingsRouter: Router = Router();
 
@@ -36,54 +38,84 @@ showingsRouter.get("/", async (req, res) => {
   }
 });
 
-showingsRouter.get("/:id", async (req, res) => {
-  const id = parseId(req.params.id);
+showingsRouter.get("/:id", async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id as string);
 
-  if (id === null) {
-    return res.status(400).json({
-      error: { message: "Ogiltigt showing id" },
+
+    if (id === null) {
+      return res.status(400).json({
+        error: { message: "Ogiltigt showing id" },
+      });
+    }
+
+    const { rows } = await pool.query(
+      `SELECT * FROM showings WHERE "showingId" = $1`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Visningen finns inte" },
+      });
+    }
+
+    return res.status(200).json({ data: rows[0] });
+  } catch (error) {
+    console.error("GET /showings/:id failed", error);
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av visning" },
     });
   }
-
-  const { rows } = await pool.query(
-    `SELECT * FROM showings WHERE "showingId" = $1`,
-    [id]
-  );
-
-  if (rows.length === 0) {
-    return res.status(404).json({
-      error: { message: "Visningen finns inte" },
-    });
-  }
-
-  res.json(rows[0]);
 });
 
 showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
-  const { movieId, auditoriumId, date, time, eventId } = req.body;
+  const body = req.body ?? {};
+
+  const errorMessage = validateShowingInput(body);
+  if (errorMessage) {
+    return res.status(400).json({ error: { message: errorMessage } });
+  }
+
+  const { movieId, auditoriumId, date, time, eventId } = body;
+
   try {
     const { rows } = await pool.query(
       `INSERT INTO showings ("movieId", "auditoriumId", date, "time", "eventId") VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [movieId, auditoriumId, date, time, eventId]
     );
-    res.status(201).json(rows[0]);
 
+    return res.status(201).json(rows[0]);
   } catch (error) {
-    console.error("Error vid skapande av visning:", error);
-    res.status(500).json({ error: "fel vid skapande av visning" });
+    console.error("POST /showings failed", error);
+
+    const inputMessage = pgInputErrorMessage(error);
+    if (inputMessage !== null) {
+      return res.status(400).json({ error: { message: inputMessage } });
+    }
+
+    if (pgErrorCode(error) === "23503") {
+      return res.status(404).json({ error: { message: "Resursen finns inte" } });
+    }
+
+    return res.status(500).json({ error: { message: "Internt serverfel" } });
   }
 });
 
 showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
-  const id = parseId(req.params.id);
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
-    return res.status(400).json({
-      error: { message: "Ogiltigt showing id" },
-    });
+    return res.status(400).json({ error: { message: "Ogiltigt showing id" } });
   }
+  const body = req.body ?? {};
 
-  const { movieId, auditoriumId, date, time, eventId } = req.body;
+  const errorMessage = validateShowingInput(body);
+  if (errorMessage) {
+    return res.status(400).json({ error: { message: errorMessage } });
+  }
+  const { movieId, auditoriumId, date, time, eventId } = body;
+
   try {
     const { rows } = await pool.query(
       `UPDATE showings
@@ -103,15 +135,25 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
       });
     }
 
-    res.json(rows[0]);
+    return res.status(200).json({ data: rows[0] });
   } catch (error) {
     console.error("PATCH /showings/:id failed", error);
-    res.status(500).json({ error: { message: "Fel vid uppdatering av visning" } });
+
+    const inputMessage = pgInputErrorMessage(error);
+    if (inputMessage !== null) {
+      return res.status(400).json({ error: { message: inputMessage } });
+    }
+
+    if (pgErrorCode(error) === "23503") {
+      return res.status(404).json({ error: { message: "Resursen finns inte" } });
+    }
+
+    return res.status(500).json({ error: { message: "Internt serverfel" } });
   }
 });
 
 showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
-  const id = parseId(req.params.id);
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
@@ -131,11 +173,24 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
       });
     }
 
-    res.json({ message: "Visning borttagen" });
+    return res.status(200).json({
+      message: "Visningen är borttagen",
+      data: rows[0]
+    });
+
   } catch (error) {
     console.error("DELETE /showings/:id failed", error);
-    res.status(500).json({ error: { message: "Fel vid borttagning av visning" } });
+
+    const inputMessage = pgInputErrorMessage(error);
+    if (inputMessage !== null) {
+      return res.status(400).json({ error: { message: inputMessage } });
+    }
+
+    if (pgErrorCode(error) === "23503") {
+      return res.status(404).json({ error: { message: "Resursen finns inte" } });
+    }
+
+    return res.status(500).json({ error: { message: "Internt serverfel" } });
   }
 });
-
 export default showingsRouter;
