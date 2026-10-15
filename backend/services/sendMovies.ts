@@ -1,3 +1,4 @@
+import { Response } from "express";
 import { Movie } from "../interface/types.js";
 import { pool } from "../db/pool.js";
 
