@@ -1,16 +1,13 @@
 import { Router } from 'express';
 import { pool } from '../db/pool.js';
 import { parseId } from '../utils/parseId.js';
+import type { Auditorium } from "../interface/types.js";
 
 const auditoriumRouter: Router = Router();
 
 /* Kolumnerna vi skickar tillbaka (tabellen auditoriums har bara dessa två) */
 const AUDITORIUM_COLUMNS = `"auditoriumId", name`;
 
-type Auditorium = {
-  auditoriumId: string; // bigint kommer som text från pg
-  name: string;
-};
 
 //GET------------------------------------------------------------------------------------------------------
 
