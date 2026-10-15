@@ -87,8 +87,27 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
-  const { username, email, role } = req.body;
+  const { username, role } = req.body;
   const hashedPassword = req.body.passwordHash;
+
+  //uppstår problem om email inte är en sträng vid .toLowerCase(), t.ex. om det är null eller undefined
+  const email = typeof req.body.email === "string"
+  ? req.body.email.toLowerCase()
+  : req.body.email;
+
+  // Validera endast fält som skickats med
+  if (
+    (username !== undefined &&
+      (typeof username !== "string" || username.trim() === "")) ||
+    (hashedPassword !== undefined &&
+      (typeof hashedPassword !== "string" || hashedPassword.trim() === "")) ||
+    (email !== undefined &&
+      (typeof email !== "string" || email.trim() === ""))
+    ) {
+      return res.status(400).json({
+        error: { message: "Fälten måste vara strängar och får inte vara tomma" },
+      });
+  }
 
   if (email !== undefined && !validateEmail(email)) {
     return res.status(400).json({
@@ -169,12 +188,42 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
 });
 /* AUTH register*/ /*istället för post*/
 usersRouter.post("/auth/register", hashPassword, async (req, res) => {
-  const { username, email } = req.body;
+  
+  const username = req.body.username;
+
+  //uppstår problem om email inte är en sträng vid .toLowerCase()
+  const email = typeof req.body.email === "string"
+  ? req.body.email.toLowerCase()
+  : req.body.email;
+
   const hashedPassword = req.body.passwordHash; 
 
-  if (!username || !hashedPassword || !email) {
+  //ser om fälten är strängar
+  if (
+  typeof username !== "string" ||
+  typeof hashedPassword !== "string" ||
+  typeof email !== "string"
+  ) {
+    return res.status(400).json({
+      error: { message: "Alla fält måste finnas och vara strängar" },
+    });
+  }
+
+  //ser om fälten är tomma eller är bara mellanslag
+  if (
+    username.trim() === "" ||
+    hashedPassword.trim() === "" ||
+    email.trim() === ""
+  ) {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
+    });
+  }
+
+  //validera email
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      error: { message: "Ogiltig email" },
     });
   }
 
@@ -209,13 +258,40 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
 
 /* AUTH login */
 usersRouter.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
+  //uppstår problem om email inte är en sträng vid .toLowerCase()
+  const email = typeof req.body.email === "string"
+  ? req.body.email.toLowerCase()
+  : req.body.email;
 
-  if (!email || !password) {
+  const password = req.body.password;
+
+  //ser om fälten finns och är strängar
+  if (
+  typeof password !== "string" ||
+  typeof email !== "string"
+  ) {
     return res.status(400).json({
-      error: { message: "Email och lösenord krävs" },
+      error: { message: "Email och lösenord krävs och måste vara strängar" },
     });
   }
+
+  //ser om fälten är tomma eller är bara mellanslag
+  if (
+    password.trim() === "" ||
+    email.trim() === ""
+  ) {
+    return res.status(400).json({
+      error: { message: "Alla fält måste fyllas i" },
+    });
+  }
+
+  //validera email
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      error: { message: "Ogiltig email" },
+    });
+  }
+
   try {
     // hämta användare baserat på email
     const { rows } = await pool.query(
