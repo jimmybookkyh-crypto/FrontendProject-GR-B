@@ -1,0 +1,78 @@
+import { Container, Row, Col, Figure,} from "react-bootstrap"
+import { useNavigate } from "react-router";
+
+import logo from "../assets/img/logo.png"
+export default function footer(){
+  const navigate = useNavigate();
+
+  return (
+    <footer className="border-secondary py-4 mt-auto" style = {{backgroundColor: "#100E1C"}}>
+      <Container fluid className="px-md-5">
+        <Row className="align-items-center">
+          {/* Vänster spalt: Cookies & Om oss */}
+          <Col md={4} className= "d-flex justify-content-center align-items-center">
+            <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
+              <li>
+                <span  style={{ color: '#f5f7fa' }} 
+                  role="button"
+                  onClick={() => alert("Cookies-information")}
+                >
+                  Cookies
+                </span>
+              </li>
+              <li>
+                <span  style={{ color: '#f5f7fa' }} 
+                  role="button"
+                  onClick={() => navigate("/about")}
+                >
+                  Om oss
+                </span>
+              </li>
+            </ul>
+          </Col>
+
+          {/* Mitt spalt: Logga */}
+          <Col className= "d-flex justify-content-center align-items-center">
+            <Figure className="mb-0">
+                <Figure.Image className="mb-0"
+                src={logo}
+                width={120}
+                height={100}
+                alt= "företags logga"
+                role="button"
+                onClick={() => navigate("/")}
+                />
+            </Figure>
+            <h3 style ={{color:'#f5f7fa'}}
+              role="button"
+              onClick={() => navigate("/")}>
+              FilmVisarna AB
+            </h3>
+          </Col>
+
+          {/* Höger spalt: Event och Filmer */}
+          <Col md={4} className= "d-flex justify-content-center align-items-center">
+            <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
+              <li>
+                <span  style={{ color: '#f5f7fa' }} 
+                  role="button"
+                  onClick={() => navigate("/about")}
+                >
+                  Villkor & policies
+                </span>
+              </li>
+              <li>
+                <span  style={{ color: '#f5f7fa' }} 
+                  role="button"
+                  onClick={() => navigate("/about")}
+                >
+                  Kontakta oss
+                </span>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+      </Container>
+    </footer>
+  );
+}
