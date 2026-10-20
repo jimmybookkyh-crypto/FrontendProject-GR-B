@@ -1,5 +1,6 @@
 // är en .tsx fil då filen innehåller JSX syntax men är ingen react komponent
-
+// createContext skapar en context som kan dela data mellan komponenter 
+// useContext hämtar värdet från en context 
 import {
     createContext,
     useContext,
@@ -8,14 +9,19 @@ import {
     type ReactNode,
 } from "react";
 
+//ansvarar för kommunikationen med backend genom useFetch för att skicka eller hämta inloggningsuppgifter
 import { authService } from "./authService.ts";
 
 import { AuthUser, AuthContextType } from "../interface/types.ts";
 
+//skapar contexten
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+//children är det innehål som placeras i AuthProvider, ReactNode anger vilken typ av innehåll som är tillåtet
 interface AuthProviderProps {
     children: ReactNode;
 }
+
 
 export function AuthProvider({children}: AuthProviderProps) {
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -50,7 +56,7 @@ export function AuthProvider({children}: AuthProviderProps) {
     async function login(email: string, password: string) {
         const response = await authService.login(email, password);
 
-        localStorage.setItem("tokeen", response.token);
+        localStorage.setItem("token", response.token);
         setUser(response.user);
     }
 
