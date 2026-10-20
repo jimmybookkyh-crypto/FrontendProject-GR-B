@@ -18,8 +18,8 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <BackButton /> // component/backButton.tsx
-
+      <BackButton to="/" /> // component/backButton.tsx
+      
       <Container className="pb-5">
         <Row className="g-4 justify-content-center">
           <Col lg={7} md={12}>
