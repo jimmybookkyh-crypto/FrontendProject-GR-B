@@ -2,12 +2,14 @@ import { useNavigate } from "react-router";
 import { Container,Col,Row,Ratio,Card,Button,Badge, } from 'react-bootstrap';
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/MoviesDetails.css";
+import BackButton from "../components/backButton";
+
 
 
 export default function MovieDetails() {
   const navigate = useNavigate();
 
-  return ( 
+  return (
     <div
       className="film-sida min-vh-100 w-100"
       style={{
@@ -16,13 +18,7 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <button
-        type="button"
-        onClick={() => navigate("/moviecatalog")}
-        className="btn tillbaka-knapp rounded-pill py-2 px-4 fw-bold m-3"
-      >
-        ← Tillbaka
-      </button>
+      <BackButton /> // component/backButton.tsx
 
       <Container className="pb-5">
         <Row className="g-4 justify-content-center">
