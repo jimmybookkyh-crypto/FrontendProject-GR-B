@@ -8,6 +8,8 @@ interface ApiErrorResponse {
 }
 
 //RequestInit är en inbyggd Typescript typ för options som method, headers och body
+
+// RequestInit = {} innehåller inställningar för HTTP-anropet och har ett tomt objekt som standardvärde
 export default async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem("token");
     const headers = new Headers(options.headers);
@@ -21,6 +23,7 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
         headers.set("Authorization", `Bearer ${token}`);
     }
 
+    //skickar http anropet
     const response = await fetch(
         `${BASE_URL}/${path.replace(/^\+/, "")}`,
         {
@@ -34,11 +37,14 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
         return undefined as T;
     }
 
+    //TypeScript låter inte använda innehållet som om det hade en bestämd struktur 
+    //  innan man kontrollerat eller typat det
     let body: unknown;
 
     try {
-        body = await response.json();
+        body = await response.json(); //läser svaret
     } catch {
+        //om JSON inte går att läsa
         if(!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
         }
@@ -48,6 +54,7 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
 
     const errorBody = body as ApiErrorResponse;
 
+    //vid HTTP-fel vid giltig JSON
     if (!response.ok) {
         throw new Error( errorBody.error?.message ?? `Förfrågning misslyckades: ${response.status}`);
     }

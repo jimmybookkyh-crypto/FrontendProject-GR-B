@@ -9,7 +9,7 @@ import {
     type ReactNode,
 } from "react";
 
-//ansvarar för kommunikationen med backend genom useFetch för att skicka eller hämta inloggningsuppgifter
+//ansvarar för kommunikationen med backend genom apiRequest för att skicka eller hämta inloggningsuppgifter
 import { authService } from "./authService.ts";
 
 import { AuthUser, AuthContextType } from "../interface/types.ts";
@@ -38,6 +38,7 @@ export function AuthProvider({children}: AuthProviderProps) {
             }
 
             try {
+                //hämtar användaren
                 const currentUser = await authService.me();
                 setUser(currentUser);
             } catch(error) {
@@ -48,6 +49,8 @@ export function AuthProvider({children}: AuthProviderProps) {
                 setLoading(false);
             }
         }
+
+        //void uttryckligen ignorerar det Promise-värde som funktionen returnerar
 
         void restoreSession();
     }, []);
@@ -71,6 +74,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         setUser(null);
     }
 
+    //gör att autentiseringsinformationen blir tillgänglig för andra komponenter
     return (
         <AuthContext.Provider
         value= {{
@@ -91,7 +95,7 @@ export function useAuth() {
 
     if (context === undefined) {
         throw new Error(
-            "useAuth måste användas utan en AuthProvider"
+            "useAuth måste användas inuti en AuthProvider"
         );
     }
 
