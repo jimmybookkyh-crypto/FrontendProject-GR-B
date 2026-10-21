@@ -7,6 +7,7 @@ import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import backgroundImage from "../assets/img/biodukbg.png";
+import TicketButton from "../components/ticketButton";
 
 import TMNT from "../assets/TMNT.jpg";
 import Superman from "../assets/Superman.jpg";
@@ -139,15 +140,7 @@ function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
               <Card.Img variant="top" src={film.bild} alt={film.titel} />
             </Link>
             <Card.Body className="filmkort-body">
-              <Button
-                style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
-                variant="outline-light"
-                as={Link as any}
-                to={`/moviedetails/moviecatalog/${film.id}`}
-                className="boka-knapp"
-              >
-                Biljetter →
-              </Button>
+              <TicketButton to={`/moviedetails/moviecatalog/${film.id}`} />
             </Card.Body>
           </Card>
         </Col>
