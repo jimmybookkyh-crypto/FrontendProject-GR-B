@@ -12,9 +12,9 @@ export default function BackButton({
 
   const handleClick = () => {
     if (onClick) {
-      onClick(); // Om en klick lagts till
+      onClick(); // Om klick lagts till
     } else if (to) {
-      navigate(to); // Om en adress lagts till
+      navigate(to); // Om adress lagts till
     } else {
       navigate(-1); // Annars bakåt i historiken
     }
