@@ -9,6 +9,7 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
+import TicketButton from "../components/ticketButton";
 import Biodukbg from "../assets/img/biodukbg.png";
 import TMNT from "../assets/TMNT.jpg";
 import Spiderman from "../assets/Spiderman.jpeg";
@@ -201,8 +202,9 @@ function FilterKnappar({
     </Container>
   );
 }
-/*6 st filmer cards med knapp till biljetter.*/
 
+
+/*6 st filmer cards med knapp till biljetter.*/
 function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
   return (
 <Row xs={2} md={3} className="g-3 g-md-5">
@@ -213,14 +215,7 @@ function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
               <Card.Img variant="top" src={film.bild} alt={film.titel} />
             </Link>
             <Card.Body className="filmkort-body">
-              <Button
-                as={Link as any}
-                to={`/moviedetails/moviecatalog/${film.id}`}
-                variant="normal"
-                className="boka-knapp"
-              >
-                Biljetter →
-              </Button>
+              <TicketButton to={`/moviedetails/moviecatalog/${film.id}`} />
             </Card.Body>
           </Card>
         </Col>

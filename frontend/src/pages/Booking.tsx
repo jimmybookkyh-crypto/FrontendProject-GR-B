@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
 import "../styles/buttons.css";
+import BackButton from "../components/backButton";
 
 export default function BookingPage() {
   const auditoriums = [
@@ -118,13 +119,8 @@ export default function BookingPage() {
           backgroundPosition: "center",
         }}
       >
-      <button
-        type="button"
-        onClick={() => navigate("/moviedetails/moviecatalog/thor")}
-        className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
-      >
-        ← Tillbaka
-      </button>
+     
+     <BackButton />
 
       <h1 className="h4 fw-bold text-center mb-4 heading-gold">
         BOKA BILJETTER
@@ -336,6 +332,8 @@ export default function BookingPage() {
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
                 <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
+
+                
                   <button
                     type="button"
                     className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold"
