@@ -1,18 +1,11 @@
 import { useNavigate, useParams } from "react-router";
-import {
-  Container,
-  Col,
-  Row,
-  Ratio,
-  Card,
-  Button,
-  Badge,
-} from "react-bootstrap";
+import { Container, Col, Row, Card, Button, Badge } from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import Trailer from "../components/Trailer";
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts och databasen).
@@ -26,7 +19,12 @@ type Movie = {
   director: string | null;
   actors: string[] | null;
   description: string | null;
+  youtubetrailers: string[] | null; // YouTube-id,
   ageRating: number | null;
+  language: string | null; // t.ex. "Engelska"
+  subtitles: string | null; // t.ex. "Svenska"
+  productioncountries: string[] | null; // t.ex. ["USA", "Storbritannien"]
+  distributor: string | null; // t.ex. "Disney"
 };
 
 type Showing = {
@@ -44,7 +42,7 @@ type Auditorium = {
 
 export default function MovieDetails() {
   const navigate = useNavigate();
-  const { id } = useParams(); // id från adressen, t.ex. /moviedetails/moviecatalog/3
+  const { id } = useParams(); // id från adressen, t.ex. /movies/3
 
   // hämtar filmen. null = vänta tills id finns i adressen
   const {
@@ -64,7 +62,12 @@ export default function MovieDetails() {
     >
       <button
         type="button"
-        onClick={() => navigate("/moviecatalog")}
+        onClick={() =>
+          // Finns en tidigare sida i appen: gå tillbaka. Annars: gå till filmkatalogen.
+          window.history.state?.idx > 0
+            ? navigate(-1)
+            : navigate("/moviecatalog")
+        }
         className="btn tillbaka-knapp rounded-pill py-2 px-4 fw-bold m-3"
       >
         ← Tillbaka
@@ -78,7 +81,10 @@ export default function MovieDetails() {
         {film && (
           <Row className="g-4 justify-content-center">
             <Col lg={7} md={12}>
-              <Trailer />
+              <Trailer
+                youtubeId={film.youtubetrailers?.[0]}
+                title={film.title}
+              />
               <FilmInfo film={film} />
             </Col>
             <Col lg={5} md={12}>
@@ -88,27 +94,6 @@ export default function MovieDetails() {
         )}
       </Container>
     </div>
-  );
-}
-
-/* TODO - Trailern kopplas mot databasen i trailer-tasken – */
-function Trailer() {
-  return (
-    <Card className="mb-4 glass-card">
-      <Card.Body className="p-3">
-        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">
-          Trailer
-        </Card.Title>
-        <Ratio aspectRatio="16x9">
-          <iframe
-            src="https://www.youtube.com/embed/Go8nTmfrQd8"
-            title="Movie trailer"
-            allowFullScreen
-            className="rounded"
-          />
-        </Ratio>
-      </Card.Body>
-    </Card>
   );
 }
 
@@ -172,9 +157,35 @@ function FilmInfo({ film }: { film: Movie }) {
             </div>
           )}
           {film.actors && film.actors.length > 0 && (
-            <div>
+            <div className="mb-1">
               <strong className="text-white">Skådespelare:</strong>{" "}
               {film.actors.join(", ")}
+            </div>
+          )}
+          //film.language && visar raden bara om fältet har ett värde. Saknas
+          språk för en film syns ingen tom “Språk:”-rad.//
+          {film.language && (
+            <div className="mb-1">
+              <strong className="text-white">Språk:</strong> {film.language}
+            </div>
+          )}
+          {film.subtitles && (
+            <div className="mb-1">
+              <strong className="text-white">Undertext:</strong>{" "}
+              {film.subtitles}
+            </div>
+          )}
+          {Array.isArray(film.productioncountries) &&
+            film.productioncountries.length > 0 && (
+              <div className="mb-1">
+                <strong className="text-white">Land:</strong>{" "}
+                {film.productioncountries.join(", ")}
+              </div>
+            )}
+          {film.distributor && (
+            <div>
+              <strong className="text-white">Distributör:</strong>{" "}
+              {film.distributor}
             </div>
           )}
         </div>
@@ -269,7 +280,7 @@ function SlotSelection({ movieId }: { movieId: string }) {
 }
 
 MovieDetails.route = {
-  path: "/moviedetails/moviecatalog/:id",
+  path: "/movies/:id",
   order: 1,
   label: "Film detaljer",
 };
