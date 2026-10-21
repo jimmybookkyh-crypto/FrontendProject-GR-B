@@ -6,7 +6,7 @@ type TrailerProps = {
   title: string; // filmens titel, läses upp av skärmläsare
 };
 
-/* Gemensam trailerspelare.
+/* #339: Gemensam trailerspelare.
    Användning: <Trailer youtubeId={film.youtubetrailers?.[0]} title={film.title} />
    Saknas trailer visas ingenting. */
 export default function Trailer({ youtubeId, title }: TrailerProps) {
@@ -22,12 +22,10 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
           <iframe
             // youtube-nocookie.com sätter inga spårningscookies förrän man trycker play
             src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-            //title={Trailer: ${title}}: en skärmläsare säger “Trailer: The Batman” i stället för “Movie trailer”.
             title={`Trailer: ${title}`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
-            //loading="lazy": videon laddas först när den syns på skärmen, så sidan går snabbare.
             loading="lazy"
             className="rounded"
           />
