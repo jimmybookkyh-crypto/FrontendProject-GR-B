@@ -145,7 +145,7 @@ function FilmerStart({ filmer }: { filmer: Movie[] }) {
 }
 
 MovieCatalog.route = {
-  path: "/filmkatalog",
+  path: "/moviecatalog",
   order: 1,
   label: "Filmkatalog",
 };
