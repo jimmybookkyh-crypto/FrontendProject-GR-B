@@ -1,13 +1,59 @@
-import { useNavigate } from "react-router";
-import { Container,Col,Row,Ratio,Card,Button,Badge, } from 'react-bootstrap';
+import { useNavigate, useParams } from "react-router";
+import {
+  Container,
+  Col,
+  Row,
+  Ratio,
+  Card,
+  Button,
+  Badge,
+} from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/MoviesDetails.css";
+import useFetch from "../hooks/useFetch";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
+/* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
+   Fälten heter som i backend (backend/interface/types.ts och databasen).
+   Ersätt med: import type { Movie, Showing, Auditorium } from "../interface/types"; */
+type Movie = {
+  movieId: string;
+  title: string;
+  productionyear: number | null;
+  length: number | null; // minuter
+  genre: string | null;
+  director: string | null;
+  actors: string[] | null;
+  description: string | null;
+  ageRating: number | null;
+};
+
+type Showing = {
+  showingId: string;
+  movieId: number;
+  auditoriumId: string;
+  date: string; // t.ex. "2026-10-22T22:00:00.000Z"
+  time: string; // t.ex. "16:00:00+00"
+};
+
+type Auditorium = {
+  auditoriumId: string;
+  name: string;
+};
 
 export default function MovieDetails() {
   const navigate = useNavigate();
+  const { id } = useParams(); // id från adressen, t.ex. /moviedetails/moviecatalog/3
 
-  return ( 
+  // hämtar filmen. null = vänta tills id finns i adressen
+  const {
+    data: film,
+    loading,
+    error,
+  } = useFetch<Movie>(id ? `/movies/${id}` : null);
+
+  return (
     <div
       className="film-sida min-vh-100 w-100"
       style={{
@@ -25,26 +71,34 @@ export default function MovieDetails() {
       </button>
 
       <Container className="pb-5">
-        <Row className="g-4 justify-content-center">
-          <Col lg={7} md={12}>
-            <Trailer />
-            <FilmInfo />
-          </Col>
-          <Col lg={5} md={12}>
-            <ThisDate />
-            <SlotSelection />
-          </Col>
-        </Row>
+        {/* gemensam laddning och felruta */}
+        {loading && <LoadingSpinner text="Hämtar film…" />}
+        {error && <ErrorMessage message={error} />}
+
+        {film && (
+          <Row className="g-4 justify-content-center">
+            <Col lg={7} md={12}>
+              <Trailer />
+              <FilmInfo film={film} />
+            </Col>
+            <Col lg={5} md={12}>
+              <SlotSelection movieId={film.movieId} />
+            </Col>
+          </Row>
+        )}
       </Container>
     </div>
   );
 }
 
+/* TODO - Trailern kopplas mot databasen i trailer-tasken – */
 function Trailer() {
   return (
     <Card className="mb-4 glass-card">
       <Card.Body className="p-3">
-        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">Trailer</Card.Title>
+        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">
+          Trailer
+        </Card.Title>
         <Ratio aspectRatio="16x9">
           <iframe
             src="https://www.youtube.com/embed/Go8nTmfrQd8"
@@ -58,73 +112,116 @@ function Trailer() {
   );
 }
 
-function FilmInfo() {
+/* 119 -> "1 tim 59 min" */
+function formateraLangd(minuter: number): string {
+  const tim = Math.floor(minuter / 60);
+  const min = minuter % 60;
+  return tim > 0 ? `${tim} tim ${min} min` : `${min} min`;
+}
+
+/* visar filmens information från databasen */
+function FilmInfo({ film }: { film: Movie }) {
   return (
     <Card className="mb-0 glass-card film-info">
       <Card.Body className="p-4 p-xl-5">
+        <Card.Title as="h1" className="mb-2">
+          {film.title}
+        </Card.Title>
+        {film.productionyear !== null && (
+          <Card.Subtitle className="film-original mb-3">
+            {film.productionyear}
+          </Card.Subtitle>
+        )}
 
-        {/* Badges */}
-            <Card.Title as="h1" className="mb-2">Thor: Love and Thunder</Card.Title>
-            <Card.Subtitle className="film-original mb-3">
-              Originaltitel: Thor: Love and Thunder (2022)
-            </Card.Subtitle>
-          
+        {/* Åldersgräns och längd */}
         <div className="d-flex gap-2 mb-2">
-            <Badge bg="danger" className="p-2">11 år</Badge>
-            <Badge bg="secondary" className="p-2">1 tim 59 min</Badge>
+          {film.ageRating !== null && (
+            <Badge bg="danger" className="p-2">
+              {film.ageRating === 0 ? "Barntillåten" : `${film.ageRating} år`}
+            </Badge>
+          )}
+          {film.length !== null && (
+            <Badge bg="secondary" className="p-2">
+              {formateraLangd(film.length)}
+            </Badge>
+          )}
         </div>
-        
-        {/* Genrer */}
-        <div className="mb-3">
-          <Badge bg="outline-light" className="border text-white me-1">Action</Badge>
-          <Badge bg="outline-light" className="border text-white me-1">Äventyr</Badge>
-          <Badge bg="outline-light" className="border text-white">Komedi</Badge>
-        </div>
+
+        {/* Genre */}
+        {film.genre && (
+          <div className="mb-3">
+            <Badge bg="outline-light" className="border text-white me-1">
+              {film.genre}
+            </Badge>
+          </div>
+        )}
 
         <hr className="border-secondary my-3" />
 
-        <p className="film-beskrivning mb-4">
-          Thor ger sig ut på en resa olik något han någonsin ställts inför, en jakt på inre frid. 
-          Men hans pensionering avbryts av en galaktisk mördare känd som Gorr the God Butcher, 
-          som vill utrota alla gudar. För att bekämpa hotet tar Thor hjälp av King Valkyrie, 
-          Korg och sin före detta flickvän Jane Foster.
-        </p>
+        {film.description && (
+          <p className="film-beskrivning mb-4">{film.description}</p>
+        )}
 
         <hr className="border-secondary my-3" />
 
         {/* Filminformation */}
         <div className="film-krediter mt-1">
-          <div className="mb-1">
-            <strong className="text-white">Regissör:</strong> Taika Waititi
-          </div>
-          <div className="mb-1">
-            <strong className="text-white">Manusförfattare:</strong> Taika Waititi, Jennifer Kaytin Robinson
-          </div>
-          <div>
-            <strong className="text-white">Skådespelare:</strong> Chris Hemsworth, Natalie Portman, Christian Bale, Tessa Thompson, Russell Crowe
-          </div>
+          {film.director && (
+            <div className="mb-1">
+              <strong className="text-white">Regissör:</strong> {film.director}
+            </div>
+          )}
+          {film.actors && film.actors.length > 0 && (
+            <div>
+              <strong className="text-white">Skådespelare:</strong>{" "}
+              {film.actors.join(", ")}
+            </div>
+          )}
         </div>
       </Card.Body>
     </Card>
   );
 }
-function ThisDate() {
-  return (
-    <Card className="mb-4 glass-card">
-      <Card.Body className="py-3">
-        <Card.Subtitle className="valt-datum small text-uppercase mb-1 d-flex justify-content-center">
-          Valt datum
-        </Card.Subtitle>
-        <Card.Title as="h3" className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center">
-          Fredag 02-10-2026
-        </Card.Title>
-      </Card.Body>
-    </Card>
-  );
+
+/* "2026-10-22T22:00:00.000Z" -> "torsdag 23 oktober" (svensk tid) */
+function formateraDatum(datum: string): string {
+  return new Date(datum).toLocaleDateString("sv-SE", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 }
 
-function SlotSelection() {
+/* visningar för filmen, grupperade per datum */
+function SlotSelection({ movieId }: { movieId: string }) {
   const navigate = useNavigate();
+
+  // /showings kan inte filtrera på film än, så vi hämtar max (100) och filtrerar här
+  const {
+    data: visningar,
+    loading,
+    error,
+  } = useFetch<Showing[]>("/showings?limit=100");
+  // Salongernas namn, så att det står "Stora Salongen" i stället för ett id
+  const { data: salonger } = useFetch<Auditorium[]>("/auditorium");
+
+  const filmensVisningar = (visningar ?? [])
+    .filter((v) => String(v.movieId) === movieId)
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+  // Grupperar visningarna per datum: { "torsdag 23 oktober": [visning, visning] }
+  const perDatum = new Map<string, Showing[]>();
+  for (const visning of filmensVisningar) {
+    const datum = formateraDatum(visning.date);
+    perDatum.set(datum, [...(perDatum.get(datum) ?? []), visning]);
+  }
+
+  function salongsNamn(auditoriumId: string): string {
+    return (
+      salonger?.find((s) => s.auditoriumId === auditoriumId)?.name ??
+      `Salong ${auditoriumId}`
+    );
+  }
 
   return (
     <Card className="glass-card">
@@ -133,41 +230,39 @@ function SlotSelection() {
           Välj visningstid
         </Card.Title>
 
-        <div className="d-grid gap-3 w-75 mx-auto">
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-            onClick={() => navigate('/booking')}
-          >
-            <span>Salong 1</span>
-            <span>kl 16:00</span>
-          </Button>
+        {loading && <LoadingSpinner text="Hämtar visningar…" />}
+        {error && <ErrorMessage message={error} />}
 
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-            onClick={() => navigate('/booking2')}
-          >
-            <span>Salong 2</span>
-            <span>kl 16:00</span>
-          </Button>
+        {visningar && filmensVisningar.length === 0 && (
+          <p className="text-center">Inga visningar inlagda för filmen ännu.</p>
+        )}
 
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-          >
-            <span>Salong 1</span>
-            <span>kl 20:00</span>
-          </Button>
+        {[...perDatum].map(([datum, dagensVisningar]) => (
+          <div key={datum} className="mb-4">
+            <p className="valt-datum small text-uppercase mb-2 text-center">
+              {datum}
+            </p>
 
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-          >
-            <span>Salong 2</span>
-            <span>kl 20:00</span>
-          </Button>
-        </div>
+            <div className="d-grid gap-3 w-75 mx-auto">
+              {dagensVisningar.map((visning) => (
+                <Button
+                  key={visning.showingId}
+                  size="lg"
+                  className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+                  // Bokningssidan läser showingId i bokningstasken
+                  onClick={() =>
+                    navigate("/booking", {
+                      state: { showingId: visning.showingId },
+                    })
+                  }
+                >
+                  <span>{salongsNamn(visning.auditoriumId)}</span>
+                  <span>kl {visning.time.slice(0, 5)}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        ))}
       </Card.Body>
     </Card>
   );
