@@ -1,4 +1,5 @@
-//import useFetch
+
+import apiRequest from "./apiRequest.ts"
 
 //jwtDecode används då '/users/:Id' behöver användarens ID från token för att kunna hämta användarens data.
 import { jwtDecode } from "jwt-decode"; 
@@ -8,9 +9,7 @@ import { AuthUser } from "../interface/types";
 interface TokenPayload {
   sub: string;
 }
-interface UserResponse {
-    data: AuthUser;
-}
+
 interface LoginResponse {
   token: string;
   user: AuthUser;
@@ -23,7 +22,7 @@ interface RegisterResponse {
 
 export const authService = {
     login:(email: string, password: string) => {
-        return useFetch<LoginResponse>("users/auth/login", {
+        return apiRequest<LoginResponse>("users/auth/login", {
             method: "POST",
             body: JSON.stringify({email, password}),
 
@@ -32,7 +31,7 @@ export const authService = {
 
     
     register:(username: string, email: string, password: string) => {
-        return useFetch<RegisterResponse>("users/auth/register", {
+        return apiRequest<RegisterResponse>("users/auth/register", {
             method: "POST",
             body: JSON.stringify({username, email, password}),
         });
@@ -53,8 +52,7 @@ export const authService = {
             throw new Error("Token saknar ett användar ID");
         }
 
-        const response = await useFetch<UserResponse>(`users/${encodeURIComponent(payload.sub)}`);
+        return apiRequest<AuthUser>(`users/${encodeURIComponent(payload.sub)}`);
 
-        return response.data;
-    }
+    },
 }
