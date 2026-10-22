@@ -7,8 +7,6 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
-import Form from "react-bootstrap/Form";
-import Collapse from "react-bootstrap/Collapse";
 import Biodukbg from "../assets/img/biodukbg.png";
 import Spiderman from "../assets/Spiderman.jpeg";
 import Superman from "../assets/Superman.jpg";
@@ -17,6 +15,8 @@ import placeholder from "../assets/img/ph.png";
 import useFetch from "../hooks/useFetch"; // #319
 import LoadingSpinner from "../components/LoadingSpinner"; // #320
 import ErrorMessage from "../components/ErrorMessage"; // #320
+import Datumremsa from "../components/Datumremsa";
+import { langtDatum, plusDagar } from "../utils/datum";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -26,25 +26,37 @@ type Movie = {
   title: string;
 };
 
-export default function Start() {
-  const [aktivtFilter, setAktivtFilter] = useState<
-    "idag" | "imorgon" | "kalender"
-  >("idag");
-  const [datum, setDatum] = useState("");
-  const idag = new Date().toISOString().split("T")[0];
+/* Det Start behöver veta om en visning: vilken film den gäller.
+   (Svaret från GET /showings innehåller mer, t.ex. tid och salong.) */
+type Showing = {
+  movieId: number;
+};
 
-  /* #319: hämtar filmerna från databasen i stället för hårdkodad testdata.
-     Idag/Imorgon/Kalender filtrerar inte än enligt nya beslutet – det kräver visningarna (showings)
-     och görs i #331 task. Just nu visas alla filmer som går (current = true). */
+export default function Start() {
+  const idag = plusDagar(0);
+  const [valtDatum, setValtDatum] = useState(idag); // sidan börjar på idag
+
+  // Alla filmer som går just nu (current = true)
   const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
 
-  function valjFilter(filter: "idag" | "imorgon" | "kalender") {
-    setAktivtFilter(filter);
-  }
+  // Visningarna för valt datum. De visar vilka filmer som går just den dagen.
+  // limit=100 så att alla dagens visningar kommer med (utan limit får vi max 50).
+  const {
+    data: visningar,
+    loading: laddarVisningar,
+    error: visningsFel,
+  } = useFetch<Showing[]>(`/showings?date=${valtDatum}&limit=100`);
 
-  function handleDatumChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setDatum(event.target.value);
-  }
+  // Behåller bara filmerna som har minst en visning det datumet
+  const filmerDenDagen =
+    filmer && visningar
+      ? filmer.filter((film) =>
+          visningar.some((v) => String(v.movieId) === String(film.movieId)),
+        )
+      : null;
+
+  const laddar = loading || laddarVisningar;
+  const fel = error ?? visningsFel;
 
   return (
     <>
@@ -53,24 +65,29 @@ export default function Start() {
         style={{ backgroundImage: `url(${Biodukbg})` }}
       >
         <HeroCarousel />
-        <FilterKnappar
-          aktivtFilter={aktivtFilter}
-          datum={datum}
-          idag={idag}
-          onValjFilter={valjFilter}
-          onDatumChange={handleDatumChange}
-        />
+        <Container className="filter-sektion">
+          <Datumremsa valtDatum={valtDatum} onByt={setValtDatum} />
+        </Container>
         <Container className="filmkatalog">
-          {/* #320: gemensam laddning och felruta */}
-          {loading && <LoadingSpinner text="Hämtar filmer…" />}
-          {error && <ErrorMessage message={error} />}
+          <h2 className="datum-rubrik">
+            {valtDatum === idag ? "Idag · " : ""}
+            {langtDatum(valtDatum)}
+          </h2>
 
-          {filmer && filmer.length === 0 && (
-            <p className="text-center text-light">
-              Inga filmer att visa just nu.
-            </p>
+          {/* #320: gemensam laddning och felruta */}
+          {laddar && <LoadingSpinner text="Hämtar filmer…" />}
+          {fel && <ErrorMessage message={fel} />}
+
+          {filmerDenDagen && filmerDenDagen.length === 0 && (
+            <IngaVisningar
+              onVisaIdag={
+                valtDatum === idag ? undefined : () => setValtDatum(idag)
+              }
+            />
           )}
-          {filmer && filmer.length > 0 && <FilmerStart filmer={filmer} />}
+          {filmerDenDagen && filmerDenDagen.length > 0 && (
+            <FilmerStart filmer={filmerDenDagen} datum={valtDatum} />
+          )}
         </Container>
       </div>
     </>
@@ -117,88 +134,35 @@ function HeroCarousel() {
   );
 }
 
-/* Platshållare  3 filterknappar ersätts T094a - Design av datumfiltret och bygg den   
-ersätts när #331 skapas*/
+/* Visas när inga filmer går det valda datumet.
+   Knappen "Visa idag" visas bara om man inte redan tittar på idag. */
 
-type FilterKnapparProps = {
-  aktivtFilter: "idag" | "imorgon" | "kalender";
-  datum: string;
-  idag: string;
-  onValjFilter: (filter: "idag" | "imorgon" | "kalender") => void;
-  onDatumChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
-function FilterKnappar({
-  aktivtFilter,
-  datum,
-  idag,
-  onValjFilter,
-  onDatumChange,
-}: FilterKnapparProps) {
+function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
   return (
-    <Container className="filter-sektion">
-      <Row className="g-2 g-md-5">
-        <Col xs={12} md={4}>
-          <Button
-            className="w-100 filter-knapp"
-            active={aktivtFilter === "idag"}
-            onClick={() => onValjFilter("idag")}
-          >
-            Idag
-          </Button>
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Button
-            className="w-100 filter-knapp"
-            active={aktivtFilter === "imorgon"}
-            onClick={() => onValjFilter("imorgon")}
-          >
-            Imorgon
-          </Button>
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Button
-            className="w-100 filter-knapp"
-            active={aktivtFilter === "kalender"}
-            onClick={() => onValjFilter("kalender")}
-            aria-expanded={aktivtFilter === "kalender"}
-            aria-controls="kalender-val"
-          >
-            Kalender
-          </Button>
-        </Col>
-      </Row>
-      <Collapse in={aktivtFilter === "kalender"}>
-        <div id="kalender-val">
-          <Row className="justify-content-center mt-3">
-            <Col xs={12} md={4}>
-              <Form.Label htmlFor="datumval">Välj datum</Form.Label>
-              <Form.Control
-                id="datumval"
-                type="date"
-                min={idag}
-                value={datum}
-                onChange={onDatumChange}
-              />
-            </Col>
-          </Row>
-        </div>
-      </Collapse>
-    </Container>
+    <div className="inga-visningar">
+      <h3>Inga visningar detta datum</h3>
+      <p>
+        Välj ett annat datum{onVisaIdag ? ", eller se vad som visas idag" : ""}.
+      </p>
+      {onVisaIdag && (
+        <Button className="filter-knapp" onClick={onVisaIdag}>
+          Visa idag
+        </Button>
+      )}
+    </div>
   );
 }
+
 /* Platshållare Filmkort med knapp till biljetter.
    Ersätts av MovieCard + MovieGrid i #338. */
 
-function FilmerStart({ filmer }: { filmer: Movie[] }) {
+function FilmerStart({ filmer, datum }: { filmer: Movie[]; datum: string }) {
   return (
     <Row xs={2} md={3} className="g-3 g-md-5">
       {filmer.map((film) => (
         <Col key={film.movieId}>
           <Card className="filmkort">
-            <Link to={`/moviedetails/filmkatalog/${film.movieId}`}>
+            <Link to={`/moviedetails/moviecatalog/${film.movieId}?datum=${datum}`}>
               {/* Platshållare – riktiga posters kommer i poster-tasken #337*/}
               <Card.Img variant="top" src={placeholder} alt={film.title} />
             </Link>
@@ -206,7 +170,7 @@ function FilmerStart({ filmer }: { filmer: Movie[] }) {
               {/* Platshållare Byts mot gemensam CTA-komponent i task #340*/}
               <Button
                 as={Link as any}
-                to={`/moviedetails/filmkatalog/${film.movieId}`}
+                to={`/moviedetails/moviecatalog/${film.movieId}?datum=${datum}`}
                 variant="normal"
                 className="boka-knapp"
               >
