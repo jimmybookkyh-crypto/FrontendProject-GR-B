@@ -8,65 +8,39 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import backgroundImage from "../assets/img/biodukbg.png";
 import TicketButton from "../components/ticketButton";
+import placeholder from "../assets/img/ph.png";
+import useFetch from "../hooks/useFetch"; // #319
+import LoadingSpinner from "../components/LoadingSpinner"; // #320
+import ErrorMessage from "../components/ErrorMessage"; // #320
+import MovieGrid from "../components/MovieGrid";
 
-import TMNT from "../assets/TMNT.jpg";
-import Superman from "../assets/Superman.jpg";
-import Mulanfilm from "../assets/Mulanfilm.jpeg";
-import Ninja from "../assets/Ninja.jpg";
-import charlie from "../assets/charlie.jpg";
-import Thor from "../assets/Thor.jpg";
-import Batman from "../assets/Batman.jpg";
-import fyra from "../assets/fyra.jpg";
-import superman2 from "../assets/superman2.jpg";
-import SpidermanJpg from "../assets/Spiderman.jpg";
-import Spidelmanfilm from "../assets/Spidelmanfilm.jpg";
-import Mulan from "../assets/Mulan.jpg";
-import Doomsday from "../assets/Doomsday.jpg";
-import SpidermanJpeg from "../assets/Spiderman.jpeg";
-
-type FilmMock = {
-  id: string;
-  titel: string;
-  bild: string;
+/* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
+   Fälten heter som i backend (backend/interface/types.ts).
+   Ersätt med: import type { Movie } from "../interface/types"; */
+type Movie = {
+  movieId: string;
+  title: string;
 };
 
-const allaFilmer: FilmMock[] = [
-  { id: "thor", titel: "Thor: Love & Thunder", bild: Thor },
-  { id: "batman", titel: "Batman", bild: Batman },
-  { id: "spiderman-jpg", titel: "Spider-Man", bild: SpidermanJpg },
-  {
-    id: "spidelmanfilm",
-    titel: "Spider-Man: No Way Home",
-    bild: Spidelmanfilm,
-  },
-  { id: "mulan", titel: "Mulan", bild: Mulan },
-  { id: "mulanfilm", titel: "Mulan (Live Action)", bild: Mulanfilm },
-  { id: "tmnt", titel: "TMNT", bild: TMNT },
-  { id: "charlie", titel: "Charlie's Angels", bild: charlie },
-  { id: "superman", titel: "Superman", bild: Superman },
-  { id: "superman2", titel: "Superman II", bild: superman2 },
-  { id: "doomsday", titel: "Doomsday", bild: Doomsday },
-  { id: "ninja", titel: "Ninja Turtles", bild: Ninja },
-  { id: "fyra", titel: "Fantastic Four", bild: fyra },
-  { id: "spiderman-jpeg", titel: "Spider-Man: Animated", bild: SpidermanJpeg },
-];
+type Filter = "allaFilmer" | "kommandeFilmer";
 
-const kommandeFilmer: FilmMock[] = [
-  { id: "doomsday", titel: "Doomsday", bild: Doomsday },
-  { id: "superman2", titel: "Superman II", bild: superman2 },
-  { id: "fyra", titel: "Fantastic Four", bild: fyra },
-  { id: "ninja", titel: "Ninja Turtles", bild: Ninja },
-  { id: "mulanfilm", titel: "Mulan (Live Action)", bild: Mulanfilm },
-  { id: "spiderman-jpeg", titel: "Spider-Man: Animated", bild: SpidermanJpeg },
-];
+/* #319: Vilken endpoint i backend varje filterknapp hämtar från.
+   current = true  -> filmen visas just nu
+   current = false -> filmen visas inte just nu (t.ex. kommande) */
+const FILTER_PATH: Record<Filter, string> = {
+  allaFilmer: "/movies/current",
+  kommandeFilmer: "/movies/not-current",
+};
 
 export default function MovieCatalog() {
-  const [aktivtFilter, setAktivFilter] = useState<
-    "allaFilmer" | "kommandeFilmer"
-  >("allaFilmer");
+  const [aktivtFilter, setAktivFilter] = useState<Filter>("allaFilmer");
 
-  const visadeFilmer =
-    aktivtFilter === "allaFilmer" ? allaFilmer : kommandeFilmer;
+  // #319: hämtar filmerna från databasen i stället för hårdkodad testdata
+  const {
+    data: filmer,
+    loading,
+    error,
+  } = useFetch<Movie[]>(FILTER_PATH[aktivtFilter]);
 
   return (
     <>
@@ -83,18 +57,27 @@ export default function MovieCatalog() {
           onValjFilter={setAktivFilter}
         />
         <Container className="filmkatalog">
-          <FilmerStart filmer={visadeFilmer} />
+          {/* #320: gemensam laddning och felruta */}
+          {loading && <LoadingSpinner text="Hämtar filmer…" />}
+          {error && <ErrorMessage message={error} />}
+
+          {filmer && filmer.length === 0 && (
+            <p className="text-center text-light">
+              Inga filmer att visa just nu.
+            </p>
+          )}
+          {filmer && filmer.length > 0 && <MovieGrid movies={filmer} />}
         </Container>
       </div>
     </>
   );
 }
 
-/* 3 filterknappar – staplas på mobil, tre i rad på läsplatta/desktop */
+/* 2 filterknappar – staplas på mobil, i rad på läsplatta/desktop */
 
 type FilterKnapparProps = {
-  aktivtFilter: "allaFilmer" | "kommandeFilmer";
-  onValjFilter: (filter: "allaFilmer" | "kommandeFilmer") => void;
+  aktivtFilter: Filter;
+  onValjFilter: (filter: Filter) => void;
 };
 
 function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
@@ -102,7 +85,8 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
     <Container className="filter-sektion">
       <Row className="g-2 g-md-5 d-flex justify-content-center">
         <Col xs={12} md={5}>
-          <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+          <Button
+            style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
             variant="outline-dark"
             size="lg"
             className="w-100 filter-knapp"
@@ -114,7 +98,8 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
         </Col>
 
         <Col xs={12} md={5}>
-          <Button style={{ backgroundColor: '#8e1733', borderColor: '#8e1733' }}
+          <Button
+            style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
             variant="outline-dark"
             size="lg"
             className="w-100 filter-knapp"
@@ -126,26 +111,6 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
         </Col>
       </Row>
     </Container>
-  );
-}
-/*6 st filmer cards med knapp till biljetter.*/
-
-function FilmerStart({ filmer }: { filmer: FilmMock[] }) {
-  return (
-<Row xs={2} sm={2} md={3} lg={4} className="g-4 justify-content-center">
-      {filmer.map((film) => (
-        <Col key={film.id}>
-          <Card className="filmkort">
-            <Link to={`/moviedetails/moviecatalog/${film.id}`}>
-              <Card.Img variant="top" src={film.bild} alt={film.titel} />
-            </Link>
-            <Card.Body className="filmkort-body">
-              <TicketButton to={`/moviedetails/moviecatalog/${film.id}`} />
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
   );
 }
 
