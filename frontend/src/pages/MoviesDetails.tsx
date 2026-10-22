@@ -9,6 +9,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
 import Datumremsa from "../components/Datumremsa";
 import { giltigtDatum, langtDatum } from "../utils/datum";
+import BackButton from "../components/backButton"
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts och databasen).
