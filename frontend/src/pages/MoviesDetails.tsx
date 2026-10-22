@@ -1,15 +1,18 @@
-import { useNavigate, useParams } from "react-router";
-import { Container, Col, Row, Card, Button, Badge } from "react-bootstrap";
+import { useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router";
+import { Container, Col, Row, Ratio, Card, Button, Badge,} from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
+import Datumremsa from "../components/Datumremsa";
+import { giltigtDatum, langtDatum } from "../utils/datum";
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts och databasen).
-   Ersätt med: import type { Movie, Showing, Auditorium } from "../interface/types"; */
+   Ersätt med: import type { Movie, Showing } from "../interface/types"; */
 type Movie = {
   movieId: string;
   title: string;
@@ -23,22 +26,26 @@ type Movie = {
   ageRating: number | null;
 };
 
+/* Så ser en visning ut i svaret från GET /showings (se backend/routes/showings.ts) */
 type Showing = {
   showingId: string;
+  date: string; // "2026-10-26"
+  time: string; // "18:00"
   movieId: number;
+  movieTitle: string;
   auditoriumId: string;
-  date: string; // t.ex. "2026-10-22T22:00:00.000Z"
-  time: string; // t.ex. "16:00:00+00"
-};
-
-type Auditorium = {
-  auditoriumId: string;
-  name: string;
+  auditoriumName: string;
+  eventId: number | null;
 };
 
 export default function MovieDetails() {
   const navigate = useNavigate();
   const { id } = useParams(); // id från adressen, t.ex. /moviedetails/moviecatalog/3
+  const [searchParams] = useSearchParams();
+  // Datumet följer med från startsidan (?datum=2026-10-26). Annars börjar vi på idag.
+  const [valtDatum, setValtDatum] = useState(
+    giltigtDatum(searchParams.get("datum")),
+  );
 
   // hämtar filmen. null = vänta tills id finns i adressen
   const {
@@ -159,45 +166,35 @@ function FilmInfo({ film }: { film: Movie }) {
   );
 }
 
-/* "2026-10-22T22:00:00.000Z" -> "torsdag 23 oktober" (svensk tid) */
-function formateraDatum(datum: string): string {
-  return new Date(datum).toLocaleDateString("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+/* Visar vilket datum som är valt */
+function ThisDate({ datum }: { datum: string }) {
+  return (
+    <Card className="mb-4 glass-card">
+      <Card.Body className="py-3">
+        <Card.Subtitle className="valt-datum small text-uppercase mb-1 d-flex justify-content-center">
+          Valt datum
+        </Card.Subtitle>
+        <Card.Title
+          as="h3"
+          className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center"
+        >
+          {langtDatum(datum)}
+        </Card.Title>
+      </Card.Body>
+    </Card>
+  );
 }
 
-/* visningar för filmen, grupperade per datum */
-function SlotSelection({ movieId }: { movieId: string }) {
+/* Visningarna för filmen det valda datumet */
+function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
   const navigate = useNavigate();
 
-  // /showings kan inte filtrera på film än, så vi hämtar max (100) och filtrerar här
+  // API:t filtrerar på datum och film, sorterar på tid och skickar med salongens namn
   const {
     data: visningar,
     loading,
     error,
-  } = useFetch<Showing[]>("/showings?limit=100");
-  // Salongernas namn, så att det står "Stora Salongen" i stället för ett id
-  const { data: salonger } = useFetch<Auditorium[]>("/auditorium");
-
-  const filmensVisningar = (visningar ?? [])
-    .filter((v) => String(v.movieId) === movieId)
-    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-
-  // Grupperar visningarna per datum: { "torsdag 23 oktober": [visning, visning] }
-  const perDatum = new Map<string, Showing[]>();
-  for (const visning of filmensVisningar) {
-    const datum = formateraDatum(visning.date);
-    perDatum.set(datum, [...(perDatum.get(datum) ?? []), visning]);
-  }
-
-  function salongsNamn(auditoriumId: string): string {
-    return (
-      salonger?.find((s) => s.auditoriumId === auditoriumId)?.name ??
-      `Salong ${auditoriumId}`
-    );
-  }
+  } = useFetch<Showing[]>(`/showings?date=${datum}&movieId=${movieId}`);
 
   return (
     <Card className="glass-card">
@@ -209,36 +206,30 @@ function SlotSelection({ movieId }: { movieId: string }) {
         {loading && <LoadingSpinner text="Hämtar visningar…" />}
         {error && <ErrorMessage message={error} />}
 
-        {visningar && filmensVisningar.length === 0 && (
-          <p className="text-center">Inga visningar inlagda för filmen ännu.</p>
+        {visningar && visningar.length === 0 && (
+          <p className="text-center mb-0">Inga visningar detta datum</p>
         )}
 
-        {[...perDatum].map(([datum, dagensVisningar]) => (
-          <div key={datum} className="mb-4">
-            <p className="valt-datum small text-uppercase mb-2 text-center">
-              {datum}
-            </p>
-
-            <div className="d-grid gap-3 w-75 mx-auto">
-              {dagensVisningar.map((visning) => (
-                <Button
-                  key={visning.showingId}
-                  size="lg"
-                  className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-                  // Bokningssidan läser showingId i bokningstasken
-                  onClick={() =>
-                    navigate("/booking", {
-                      state: { showingId: visning.showingId },
-                    })
-                  }
-                >
-                  <span>{salongsNamn(visning.auditoriumId)}</span>
-                  <span>kl {visning.time.slice(0, 5)}</span>
-                </Button>
-              ))}
-            </div>
+        {visningar && visningar.length > 0 && (
+          <div className="d-grid gap-3 w-75 mx-auto">
+            {visningar.map((visning) => (
+              <Button
+                key={visning.showingId}
+                size="lg"
+                className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+                // Bokningssidan läser showingId i bokningstasken
+                onClick={() =>
+                  navigate("/booking", {
+                    state: { showingId: visning.showingId },
+                  })
+                }
+              >
+                <span>{visning.auditoriumName}</span>
+                <span>kl {visning.time}</span>
+              </Button>
+            ))}
           </div>
-        ))}
+        )}
       </Card.Body>
     </Card>
   );
