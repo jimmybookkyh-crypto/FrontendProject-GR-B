@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import {
-  Container,
-  Col,
-  Row,
-  Ratio,
-  Card,
-  Button,
-  Badge,
-} from "react-bootstrap";
+import { Container, Col, Row, Ratio, Card, Button, Badge,} from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import Trailer from "../components/Trailer";
 import Datumremsa from "../components/Datumremsa";
 import { giltigtDatum, langtDatum } from "../utils/datum";
 
@@ -29,6 +22,7 @@ type Movie = {
   director: string | null;
   actors: string[] | null;
   description: string | null;
+  youtubetrailers: string[] | null; // YouTube-id,
   ageRating: number | null;
 };
 
@@ -83,47 +77,21 @@ export default function MovieDetails() {
         {error && <ErrorMessage message={error} />}
 
         {film && (
-          <>
-            <Row className="mb-4">
-              <Col>
-                <Datumremsa valtDatum={valtDatum} onByt={setValtDatum} />
-              </Col>
-            </Row>
-            <Row className="g-4 justify-content-center">
-              <Col lg={7} md={12}>
-                <Trailer />
-                <FilmInfo film={film} />
-              </Col>
-              <Col lg={5} md={12}>
-                <ThisDate datum={valtDatum} />
-                <SlotSelection movieId={film.movieId} datum={valtDatum} />
-              </Col>
-            </Row>
-          </>
+          <Row className="g-4 justify-content-center">
+            <Col lg={7} md={12}>
+              <Trailer
+                youtubeId={film.youtubetrailers?.[0]}
+                title={film.title}
+              />
+              <FilmInfo film={film} />
+            </Col>
+            <Col lg={5} md={12}>
+              <SlotSelection movieId={film.movieId} />
+            </Col>
+          </Row>
         )}
       </Container>
     </div>
-  );
-}
-
-/* TODO - Trailern kopplas mot databasen i trailer-tasken – */
-function Trailer() {
-  return (
-    <Card className="mb-4 glass-card">
-      <Card.Body className="p-3">
-        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">
-          Trailer
-        </Card.Title>
-        <Ratio aspectRatio="16x9">
-          <iframe
-            src="https://www.youtube.com/embed/Go8nTmfrQd8"
-            title="Movie trailer"
-            allowFullScreen
-            className="rounded"
-          />
-        </Ratio>
-      </Card.Body>
-    </Card>
   );
 }
 
