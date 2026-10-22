@@ -132,6 +132,7 @@ bookingsRouter.get("/me", requireAuth, async (req, res) => {
 });
 
 // GET /bookings/:id  (bokningen + dess biljetter)
+// Ägaren eller admin (T126d)
 bookingsRouter.get("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -141,12 +142,18 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
     });
   }
 
+  // Ägarkontroll: admin ser alla, övriga bara sina egna.
+  // Någon annans bokning ger 404 (inte 403), så att man inte kan lista ut vilka som finns.
+  const user = currentUser(res.locals)!;
+  const isAdmin = user.role === "admin";
+
   try {
     const booking = await pool.query<Booking>(
       `select "bookingId", "bookingNumber", email, "showingId", "userId", created_at
         from bookings
-        where "bookingId" = $1`,
-      [id],
+        where "bookingId" = $1
+          and ($2::boolean or "userId" = $3::bigint)`,
+      [id, isAdmin, user.userId],
     );
 
     if (booking.rows.length === 0) {
@@ -280,6 +287,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
+// Ägaren (om visningen inte har börjat) eller admin (T126d)
 bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -289,10 +297,40 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
     });
   }
 
+  // Ägarkontroll: admin får avboka alla, övriga bara sina egna.
+  const user = currentUser(res.locals)!;
+  const isAdmin = user.role === "admin";
+
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    // Låser bokningen och kollar ägare och om visningen redan har börjat
+    const found = await client.query<{ hasStarted: boolean }>(
+      `select ((sh.date + sh."time") <= now()) as "hasStarted"
+        from bookings b
+        join showings sh on sh."showingId" = b."showingId"
+        where b."bookingId" = $1
+          and ($2::boolean or b."userId" = $3::bigint)
+        for update of b`,
+      [id, isAdmin, user.userId],
+    );
+
+    if (found.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: { message: "Bokningen finns ej" },
+      });
+    }
+
+    if (found.rows[0].hasStarted && !isAdmin) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: { message: "Visningen har redan börjat och kan inte avbokas" },
+      });
+    }
+
     await client.query(`delete from tickets where "bookingId" = $1`, [id]);
 
     const result = await client.query(
