@@ -7,7 +7,8 @@ export interface MovieCardProps {
   title: string;
   images: string[] | string;
   ageRating?: number;
-  showDetails?: boolean; 
+  showDetails?: boolean;
+  datum?: string; 
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -15,7 +16,8 @@ const MovieCard: React.FC<MovieCardProps> = ({
   title,
   images,
   ageRating,
-  showDetails = true, 
+  showDetails = true,
+  datum,
 }) => {
   let imageUrl = '';
   try {
@@ -25,6 +27,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
     imageUrl = typeof images === 'string' ? images : '';
   }
 
+  // Bygg sökvägen inklusive datum-parametern
+  const targetPath = datum
+    ? `/moviedetails/moviecatalog/${movieId}?datum=${datum}`
+    : `/movies/${movieId}`;
+
   return (
     <Card
       className="movie-card h-100 position-relative bg-dark bg-opacity-75 text-white border border-secondary rounded-3 overflow-hidden"
@@ -33,7 +40,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         WebkitBackdropFilter: 'blur(8px)',
       }}
     >
-      <Link to={`/movies/${movieId}`} className="position-relative d-block text-decoration-none">
+      <Link to={targetPath} className="position-relative d-block text-decoration-none">
         <Card.Img
           variant="top"
           src={imageUrl || 'https://via.placeholder.com/300x450?text=Ingen+bild'}
@@ -59,7 +66,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         <Card.Body className="d-flex flex-column justify-content-between text-white bg-dark bg-opacity-75">
           <Card.Title className="text-white fw-bold mb-3">{title}</Card.Title>
           <Link
-            to={`/movies/${movieId}`}
+            to={targetPath}
             className="cta-btn mt-2 d-flex align-items-center justify-content-center text-center text-decoration-none"
           >
             Biljetter →

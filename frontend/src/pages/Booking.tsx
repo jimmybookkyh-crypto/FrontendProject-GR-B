@@ -1,9 +1,8 @@
-import { Row, Container, Col, Card, InputGroup, Form, Modal } from "react-bootstrap";
+import { Row, Container, Col, Card, InputGroup, Form } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
-import "../styles/buttons.css";
 
 export default function BookingPage() {
   const auditoriums = [
@@ -17,7 +16,7 @@ export default function BookingPage() {
     },
   ];
 
-  const currentSalon = auditoriums[0];
+  const currentSalon = auditoriums[1];
 
   const buildRows = (seatsPerRow: number[]) => {
     let seatNumber = 1;
@@ -99,15 +98,11 @@ export default function BookingPage() {
         childTickets,
         seniorTickets,
         totalPrice,
-        email: email,
       },
     });
   };
 
   const occupiedSeats = ["12", "35", "36"];
-
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [email, setEmail] = useState("");
 
   return (
     <div
@@ -121,7 +116,7 @@ export default function BookingPage() {
       <button
         type="button"
         onClick={() => navigate("/moviedetails/moviecatalog/thor")}
-        className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
+        className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
       >
         ← Tillbaka
       </button>
@@ -147,7 +142,7 @@ export default function BookingPage() {
                     <h2 className="h5 fw-bold mb-3">Thor: Love and Thunder</h2>
                     <p className="mb-1">Datum: 2026-10-01</p>
                     <p className="mb-1">Tid: 19:00</p>
-                    <p className="mb-0">Salong: Stora Salongen</p>
+                    <p className="mb-0">Salong: Lilla Salongen</p>
                   </Col>
                 </Row>
               </Card.Body>
@@ -159,7 +154,7 @@ export default function BookingPage() {
           <Col xs={12} lg={7}>
             <Card className="glass-card overflow-x-auto">
               <Card.Body className="p-3 p-md-4">
-                <h3 className="h5 fw-bold heading-gold mb-3 text-center">STORA SALONGEN</h3>
+                <h3 className="h5 fw-bold heading-gold mb-3 text-center">LILLA SALONGEN</h3>
 
                 <div className="d-flex justify-content-center w-100 mb-3">
                   <img
@@ -338,45 +333,15 @@ export default function BookingPage() {
                 <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
                   <button
                     type="button"
-                    className="cta-btn checkout-btn rounded-pill py-2 px-4 fw-bold"
+                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold"
                     disabled={
                       selectedSeats.length === 0 ||
                       totaltTickets !== selectedSeats.length
                     }
-                  onClick={() => setShowEmailModal(true)}
+                    onClick={handleCheckout}
                   >
                     Till betalning
-                </button>
-                
-                <Modal
-                  show={showEmailModal}
-                  onHide={() => setShowEmailModal(false)}
-                  centered
-                >
-                  <Modal.Header closeButton>
-                    <Modal.Title>Ange din e‑post</Modal.Title>
-                  </Modal.Header>
-
-                  <Modal.Body>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="din@email.se"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </Modal.Body>
-
-                  <Modal.Footer>
-                    <button
-                      className="cta-btn checkout-btn"
-                      onClick={handleCheckout}
-                    >
-                      Boka
-                    </button>
-                  </Modal.Footer>
-                </Modal>
-
+                  </button>
               </Card.Body>
             </Card>
           </Col>
@@ -388,6 +353,6 @@ export default function BookingPage() {
 
 BookingPage.route = {
   path: "/booking",
-  order: 3,
+  order: 13,
   label: "Bokningssida",
 };
