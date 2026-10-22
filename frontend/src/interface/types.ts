@@ -35,3 +35,5 @@ export interface Showings {
 export interface SlotSelectionProps {
   showings?: Showings[];
 }
+
+
