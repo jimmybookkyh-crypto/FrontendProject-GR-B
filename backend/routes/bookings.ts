@@ -1,18 +1,33 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { parseId, isPositiveInt } from "../utils/parseId.js";
-import { parsePagination } from "../utils/parsePagination.js"
+import { parsePagination } from "../utils/parsePagination.js";
 import { validateEmail } from "../utils/validateEmail.js";
-import { Booking, CreateBookingInput, TicketInput } from "../interface/types.js";
+import {
+  Booking,
+  CreateBookingInput,
+  TicketInput,
+} from "../interface/types.js";
 import { createBooking } from "../services/createBooking.js";
 import {
   findBookingByNumber,
   getBookingTickets,
   parseBookingNumber,
 } from "../services/findBooking.js";
-import { requireAuth, requireAdmin } from "../utils/requireAuth.js";
+import {
+  requireAuth,
+  requireAdmin,
+  type AuthUser,
+} from "../utils/requireAuth.js";
+import { optionalAuth } from "../utils/optionalAuth.js";
 
 const bookingsRouter = Router();
+
+/* Inloggad användare från token, satt av requireAuth/optionalAuth.
+   Läses alltid härifrån, aldrig från ett id i URL:en eller i body. */
+function currentUser(locals: Record<string, unknown>): AuthUser | undefined {
+  return locals.user as AuthUser | undefined;
+}
 
 // GET /bookings
 // ADMIN: se alla bokningar
@@ -129,17 +144,26 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 });
 
 // POST /bookings
-bookingsRouter.post("/", async (req, res) => {
+// Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
+bookingsRouter.post("/", optionalAuth, async (req, res) => {
   const body = (req.body ?? {}) as Partial<CreateBookingInput>;
-  const { email, showingId, userId, tickets } = body;
+  const { email, showingId, tickets } = body;
 
-  if (
-    !validateEmail(email) ||
-    !isPositiveInt(showingId) ||
-    (userId !== undefined && userId !== null && !isPositiveInt(userId))
-  ) {
+  //Varför parseId(user.userId)? I token är id:t text ("3"),
+  // men kolumnen userId i databasen är ett heltal. parseId gör om det
+  // och kontrollerar samtidigt att det är ett giltigt id.
+  const user = currentUser(res.locals);
+  const userId = user ? parseId(user.userId) : null;
+
+  if (user && userId === null) {
+    return res.status(401).json({
+      error: { message: "Ogiltig inloggning, logga in igen" },
+    });
+  }
+
+  if (!validateEmail(email) || !isPositiveInt(showingId)) {
     return res.status(400).json({
-      error: { message: "Ogiltig e-post, visning eller användare" },
+      error: { message: "Ogiltig e-post eller visning" },
     });
   }
 
@@ -162,12 +186,7 @@ bookingsRouter.post("/", async (req, res) => {
   }
 
   try {
-    const result = await createBooking({
-      email,
-      showingId,
-      userId: userId ?? null,
-      tickets,
-    });
+    const result = await createBooking({ email, showingId, tickets }, userId);
 
     return res.status(201).json({ data: result });
   } catch (error: any) {
@@ -188,6 +207,7 @@ bookingsRouter.post("/", async (req, res) => {
     });
   }
 });
+
 // ADMIN: PATCH /bookings/:id   body: { "email": "ny@adress.se" }
 bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
@@ -234,7 +254,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
 bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
-  const id = parseId(req.params.id as string );
+  const id = parseId(req.params.id as string);
 
   if (id === null) {
     return res.status(400).json({
