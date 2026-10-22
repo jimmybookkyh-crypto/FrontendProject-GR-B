@@ -6,10 +6,15 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 
+import { useAuth } from "../utils/authContext.tsx"
+
+
 export default function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [omOssOpen, setOmOssOpen] = useState(false);
+
+  const {user, loading, logout } = useAuth();
 
   /* Dator med mus: menyn öppnas vid hover och klick på Om oss går till sidan.
      Mobil/touch: klick öppnar menyn som vanligt. */
@@ -28,22 +33,43 @@ export default function Header() {
       </Navbar.Brand>
 
       <Navbar.Toggle aria-controls="fv-navbar-nav" />
-      <Link to="/login" className="fv-login" aria-label="Logga in">
-        <svg
-          className="fv-login-icon"
-          viewBox="0 0 48 48"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          <circle cx="24" cy="24" r="21" />
-          <circle cx="24" cy="18" r="7" />
-          <path d="M9 38c3-7 8-10 15-10s12 3 15 10" />
-        </svg>
-        <span className="d-none d-lg-inline">Logga in</span>
-      </Link>
+
+      {!loading && (user ? (
+        <div className ="fv-login">
+          <span className="d-none d-lg-inline">
+            Inloggad
+          </span>
+
+          <button
+          type = "button"
+          className= "fv-auth-button"
+          onClick= {() => {
+            logout();
+            navigate("/");
+          }}
+          >
+            Logga ut
+          </button>
+        </div>
+        ) : (
+          <Link to="/login" className="fv-login" aria-label="Logga in">
+            <svg
+              className="fv-login-icon"
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="21" />
+              <circle cx="24" cy="18" r="7" />
+              <path d="M9 38c3-7 8-10 15-10s12 3 15 10" />
+            </svg>
+            <span className="d-none d-lg-inline">Logga in</span>
+          </Link>
+        )
+      )}
 
       <Navbar.Collapse id="fv-navbar-nav">
         <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
