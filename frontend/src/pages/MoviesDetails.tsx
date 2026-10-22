@@ -1,15 +1,16 @@
-import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import { Container, Col, Row, Ratio, Card, Button, Badge,} from "react-bootstrap";
+import { Container, Col, Row, Card, Badge } from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
+import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
 import Datumremsa from "../components/Datumremsa";
+import SlotButton from "../components/slotButton";
+import BackButton from "../components/backButton";
 import { giltigtDatum, langtDatum } from "../utils/datum";
-import BackButton from "../components/backButton"
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts och databasen).
@@ -23,8 +24,12 @@ type Movie = {
   director: string | null;
   actors: string[] | null;
   description: string | null;
-  youtubetrailers: string[] | null; // YouTube-id,
+  youtubetrailers: string[] | null; // YouTube-id
   ageRating: number | null;
+  language: string | null; // t.ex. "Engelska"
+  subtitles: string | null; // t.ex. "Svenska"
+  productioncountries: string[] | null; // t.ex. ["USA", "Storbritannien"]
+  distributor: string | null; // t.ex. "Disney"
 };
 
 /* Så ser en visning ut i svaret från GET /showings (se backend/routes/showings.ts) */
@@ -41,12 +46,26 @@ type Showing = {
 
 export default function MovieDetails() {
   const navigate = useNavigate();
-  const { id } = useParams(); // id från adressen, t.ex. /moviedetails/moviecatalog/3
-  const [searchParams] = useSearchParams();
-  // Datumet följer med från startsidan (?datum=2026-10-26). Annars börjar vi på idag.
-  const [valtDatum, setValtDatum] = useState(
-    giltigtDatum(searchParams.get("datum")),
-  );
+  const { id } = useParams(); // id från adressen, t.ex. /movies/3
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
+  // vid omladdning och när man går tillbaka från bokningen. Saknas det = idag.
+  const valtDatum = giltigtDatum(searchParams.get("datum"));
+
+  function bytDatum(datum: string) {
+    // replace: varje dagsbyte ska inte bli ett eget steg i webbläsarens historik
+    setSearchParams({ datum }, { replace: true });
+  }
+
+  // Finns en tidigare sida i appen: gå tillbaka. Annars: gå till filmkatalogen.
+  function tillbaka() {
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/moviecatalog");
+    }
+  }
 
   // hämtar filmen. null = vänta tills id finns i adressen
   const {
@@ -64,26 +83,34 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <BackButton to="/" />  { /*component/backButton.tsx*/}
-      
+      <BackButton onClick={tillbaka} /> {/* components/backButton.tsx */}
+
       <Container className="pb-5">
         {/* gemensam laddning och felruta */}
         {loading && <LoadingSpinner text="Hämtar film…" />}
         {error && <ErrorMessage message={error} />}
 
         {film && (
-          <Row className="g-4 justify-content-center">
-            <Col lg={7} md={12}>
-              <Trailer
-                youtubeId={film.youtubetrailers?.[0]}
-                title={film.title}
-              />
-              <FilmInfo film={film} />
-            </Col>
-            <Col lg={5} md={12}>
-              <SlotSelection movieId={film.movieId} />
-            </Col>
-          </Row>
+          <>
+            {/* T094f: datumväljare i stället för fast datum */}
+            <div className="mb-4">
+              <Datumremsa valtDatum={valtDatum} onByt={bytDatum} />
+            </div>
+
+            <Row className="g-4 justify-content-center">
+              <Col lg={7} md={12}>
+                <Trailer
+                  youtubeId={film.youtubetrailers?.[0]}
+                  title={film.title}
+                />
+                <FilmInfo film={film} />
+              </Col>
+              <Col lg={5} md={12}>
+                <ThisDate datum={valtDatum} />
+                <SlotSelection movieId={film.movieId} datum={valtDatum} />
+              </Col>
+            </Row>
+          </>
         )}
       </Container>
     </div>
@@ -142,7 +169,8 @@ function FilmInfo({ film }: { film: Movie }) {
 
         <hr className="border-secondary my-3" />
 
-        {/* Filminformation */}
+        {/* Filminformation. Varje rad visas bara om fältet har ett värde,
+            så en film utan t.ex. språk får ingen tom "Språk:"-rad. */}
         <div className="film-krediter mt-1">
           {film.director && (
             <div className="mb-1">
@@ -150,9 +178,33 @@ function FilmInfo({ film }: { film: Movie }) {
             </div>
           )}
           {film.actors && film.actors.length > 0 && (
-            <div>
+            <div className="mb-1">
               <strong className="text-white">Skådespelare:</strong>{" "}
               {film.actors.join(", ")}
+            </div>
+          )}
+          {film.language && (
+            <div className="mb-1">
+              <strong className="text-white">Språk:</strong> {film.language}
+            </div>
+          )}
+          {film.subtitles && (
+            <div className="mb-1">
+              <strong className="text-white">Undertext:</strong>{" "}
+              {film.subtitles}
+            </div>
+          )}
+          {Array.isArray(film.productioncountries) &&
+            film.productioncountries.length > 0 && (
+              <div className="mb-1">
+                <strong className="text-white">Land:</strong>{" "}
+                {film.productioncountries.join(", ")}
+              </div>
+            )}
+          {film.distributor && (
+            <div>
+              <strong className="text-white">Distributör:</strong>{" "}
+              {film.distributor}
             </div>
           )}
         </div>
@@ -184,7 +236,8 @@ function ThisDate({ datum }: { datum: string }) {
 function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
   const navigate = useNavigate();
 
-  // API:t filtrerar på datum och film, sorterar på tid och skickar med salongens namn
+  // API:t filtrerar på datum och film, sorterar på tid och skickar med salongens namn.
+  // När datum ändras ändras sökvägen, och useFetch hämtar då på nytt.
   const {
     data: visningar,
     loading,
@@ -208,20 +261,17 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
         {visningar && visningar.length > 0 && (
           <div className="d-grid gap-3 w-75 mx-auto">
             {visningar.map((visning) => (
-              <Button
+              <SlotButton
                 key={visning.showingId}
-                size="lg"
-                className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+                auditoriumName={visning.auditoriumName}
+                time={visning.time}
                 // Bokningssidan läser showingId i bokningstasken
                 onClick={() =>
                   navigate("/booking", {
                     state: { showingId: visning.showingId },
                   })
                 }
-              >
-                <span>{visning.auditoriumName}</span>
-                <span>kl {visning.time}</span>
-              </Button>
+              />
             ))}
           </div>
         )}
@@ -230,10 +280,8 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
   );
 }
 
-
-
 MovieDetails.route = {
-  path: "/moviedetails/moviecatalog/:id",
+  path: "/movies/:id",
   order: 1,
   label: "Film detaljer",
 };
