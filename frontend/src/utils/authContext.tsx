@@ -41,6 +41,7 @@ export function AuthProvider({children}: AuthProviderProps) {
                 //hämtar användaren
                 const currentUser = await authService.me();
                 setUser(currentUser);
+                console.log("Hämtat användare och sessionen är restorerad")
             } catch(error) {
                 console.error("Kunde inte restorera sessionen:", error);
                 localStorage.removeItem("token");
