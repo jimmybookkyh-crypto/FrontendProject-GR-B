@@ -5,6 +5,11 @@ import { parsePagination } from "../utils/parsePagination.js"
 import { validateEmail } from "../utils/validateEmail.js";
 import { Booking, CreateBookingInput, TicketInput } from "../interface/types.js";
 import { createBooking } from "../services/createBooking.js";
+import {
+  findBookingByNumber,
+  getBookingTickets,
+  parseBookingNumber,
+} from "../services/findBooking.js";
 import { requireAuth, requireAdmin } from "../utils/requireAuth.js";
 
 const bookingsRouter = Router();
@@ -43,6 +48,47 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// GET /bookings/number/:bookingNumber  (bokningen + dess biljetter)
+// ADMIN: personalen slår upp en bokning via bokningsnumret, t.ex. /bookings/number/3F9A0C1B
+bookingsRouter.get(
+  "/number/:bookingNumber",
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const bookingNumber = parseBookingNumber(req.params.bookingNumber);
+
+    if (bookingNumber === null) {
+      return res.status(400).json({
+        error: {
+          message: "Ogiltigt bokningsnummer. Det ska vara 8 tecken (0-9, A-F)",
+        },
+      });
+    }
+
+    try {
+      const booking = await findBookingByNumber(bookingNumber);
+
+      if (booking === null) {
+        return res.status(404).json({
+          error: { message: "Bokningen finns ej" },
+        });
+      }
+
+      return res.status(200).json({ data: booking });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Okänt fel";
+      console.error("GET /bookings/number/:bookingNumber failed", {
+        bookingNumber,
+        message,
+      });
+
+      return res.status(500).json({
+        error: { message: "Fel vid hämtning av bokning" },
+      });
+    }
+  },
+);
+
 // GET /bookings/:id  (bokningen + dess biljetter)
 bookingsRouter.get("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
@@ -67,19 +113,10 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
       });
     }
 
-    const tickets = await pool.query(
-      `select t."ticketId", t."seatId", s."seatsRow", s."seatsNumber",
-          t."ticketTypeId", tt.name as "ticketType", tt.price
-        from tickets t
-        join seats s on s."seatId" = t."seatId"
-        join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
-        where t."bookingId" = $1
-        order by s."seatsRow", s."seatsNumber"`,
-      [id],
-    );
+    const tickets = await getBookingTickets(id);
 
     return res.status(200).json({
-      data: { ...booking.rows[0], tickets: tickets.rows },
+      data: { ...booking.rows[0], tickets },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
