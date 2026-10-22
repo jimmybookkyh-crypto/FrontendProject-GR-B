@@ -25,7 +25,7 @@ export default function BookingPage() {
         const id = String(seatNumber).padStart(2, "0");
         seatNumber += 1;
         return id;
-      })
+      }),
     );
   };
 
@@ -50,14 +50,14 @@ export default function BookingPage() {
     setSelectedSeats((current) =>
       current.includes(seat)
         ? current.filter((selected) => selected !== seat)
-        : [...current, seat]
+        : [...current, seat],
     );
   };
 
   const handleInputChange = (
     value: string,
     setter: (val: number) => void,
-    currentTicketTypeVal: number
+    currentTicketTypeVal: number,
   ) => {
     const parsed = parseInt(value, 10);
     if (isNaN(parsed) || parsed < 0) {
@@ -78,7 +78,7 @@ export default function BookingPage() {
   const adjustTickets = (
     setter: (val: number) => void,
     current: number,
-    delta: number
+    delta: number,
   ) => {
     const next = current + delta;
     if (next < 0) {
@@ -106,13 +106,13 @@ export default function BookingPage() {
 
   return (
     <div
-        className="booking-page min-vh-100 text-light"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      className="booking-page min-vh-100 text-light"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <button
         type="button"
         onClick={() => navigate("/moviedetails/moviecatalog/thor")}
@@ -154,7 +154,9 @@ export default function BookingPage() {
           <Col xs={12} lg={7}>
             <Card className="glass-card overflow-x-auto">
               <Card.Body className="p-3 p-md-4">
-                <h3 className="h5 fw-bold heading-gold mb-3 text-center">LILLA SALONGEN</h3>
+                <h3 className="h5 fw-bold heading-gold mb-3 text-center">
+                  LILLA SALONGEN
+                </h3>
 
                 <div className="d-flex justify-content-center w-100 mb-3">
                   <img
@@ -181,8 +183,8 @@ export default function BookingPage() {
                               isOccupied
                                 ? "seat-occupied"
                                 : isSelected
-                                ? "seat-selected"
-                                : "seat-available"
+                                  ? "seat-selected"
+                                  : "seat-available"
                             }`}
                             disabled={isOccupied}
                             onClick={() => handleSeatClick(seat)}
@@ -231,7 +233,7 @@ export default function BookingPage() {
                         handleInputChange(
                           e.target.value,
                           setAdultTickets,
-                          adultTickets
+                          adultTickets,
                         )
                       }
                       min={0}
@@ -268,7 +270,7 @@ export default function BookingPage() {
                         handleInputChange(
                           e.target.value,
                           setChildTickets,
-                          childTickets
+                          childTickets,
                         )
                       }
                       min={0}
@@ -305,7 +307,7 @@ export default function BookingPage() {
                         handleInputChange(
                           e.target.value,
                           setSeniorTickets,
-                          seniorTickets
+                          seniorTickets,
                         )
                       }
                       min={0}
@@ -331,17 +333,17 @@ export default function BookingPage() {
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
                 <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
-                  <button
-                    type="button"
-                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold"
-                    disabled={
-                      selectedSeats.length === 0 ||
-                      totaltTickets !== selectedSeats.length
-                    }
-                    onClick={handleCheckout}
-                  >
-                    Till betalning
-                  </button>
+                <button
+                  type="button"
+                  className="btn checkout-btn rounded-pill py-2 px-4 fw-bold"
+                  disabled={
+                    selectedSeats.length === 0 ||
+                    totaltTickets !== selectedSeats.length
+                  }
+                  onClick={handleCheckout}
+                >
+                  Till betalning
+                </button>
               </Card.Body>
             </Card>
           </Col>
@@ -349,7 +351,7 @@ export default function BookingPage() {
       </Container>
     </div>
   );
-} 
+}
 
 BookingPage.route = {
   path: "/booking",
