@@ -20,6 +20,7 @@ import {
   type AuthUser,
 } from "../utils/requireAuth.js";
 import { optionalAuth } from "../utils/optionalAuth.js";
+import { getMyBookings } from "../services/myBookings.js";
 
 const bookingsRouter = Router();
 
@@ -103,6 +104,32 @@ bookingsRouter.get(
     }
   },
 );
+
+// GET /bookings/me  (T126c)
+// Inloggad användare: sina egna bokningar, uppdelade i kommande och tidigare.
+// OBS: måste ligga före /:id, annars tolkas "me" som ett id och ger 400.
+bookingsRouter.get("/me", requireAuth, async (req, res) => {
+  const user = currentUser(res.locals)!;
+  const userId = parseId(user.userId);
+
+  if (userId === null) {
+    return res.status(401).json({
+      error: { message: "Ogiltig inloggning, logga in igen" },
+    });
+  }
+
+  try {
+    const bookings = await getMyBookings(userId);
+    return res.status(200).json({ data: bookings });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /bookings/me failed", { userId, message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av dina bokningar" },
+    });
+  }
+});
 
 // GET /bookings/:id  (bokningen + dess biljetter)
 bookingsRouter.get("/:id", requireAuth, async (req, res) => {
