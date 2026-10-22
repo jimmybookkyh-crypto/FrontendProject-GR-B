@@ -7,6 +7,7 @@ import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import backgroundImage from "../assets/img/biodukbg.png";
+import TicketButton from "../components/ticketButton";
 import placeholder from "../assets/img/ph.png";
 import useFetch from "../hooks/useFetch"; // #319
 import LoadingSpinner from "../components/LoadingSpinner"; // #320

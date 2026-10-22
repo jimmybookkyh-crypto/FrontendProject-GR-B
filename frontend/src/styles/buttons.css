@@ -8,10 +8,13 @@
   transition: 0.25s ease;
 }
 
-.cta-btn:hover {
+
+.cta-btn:hover,
+.tid-knapp:hover {
   color: #fff !important;
   transform: translateY(-5px);
   box-shadow: 0 0 10px rgba(142, 23, 51, 0.6);
+  transition: 0.25s ease;
 }
 
 .button-cancel {

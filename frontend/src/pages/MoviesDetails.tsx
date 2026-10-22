@@ -63,14 +63,8 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <button
-        type="button"
-        onClick={() => navigate("/moviecatalog")}
-        className="btn tillbaka-knapp rounded-pill py-2 px-4 fw-bold m-3"
-      >
-        ← Tillbaka
-      </button>
-
+      <BackButton to="/" />  { /*component/backButton.tsx*/}
+      
       <Container className="pb-5">
         {/* gemensam laddning och felruta */}
         {loading && <LoadingSpinner text="Hämtar film…" />}
@@ -234,6 +228,8 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
     </Card>
   );
 }
+
+
 
 MovieDetails.route = {
   path: "/moviedetails/moviecatalog/:id",
