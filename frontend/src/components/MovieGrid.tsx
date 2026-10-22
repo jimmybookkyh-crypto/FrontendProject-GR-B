@@ -6,16 +6,17 @@ import MovieCard from './MovieCard';
 export interface Movie {
   movieId: number | string;
   title: string;
-  images: string[] | string;
+  images?: string[] | string;
   ageRating?: number;
   [key: string]: any;
 }
 
 interface MovieGridProps {
   movies: Movie[];
+  datum?: string; 
 }
 
-const MovieGrid: React.FC<MovieGridProps> = ({ movies }) => {
+const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum }) => {
   return (
     <Row xs={2} md={3} lg={4} className="g-4">
       {movies.map((movie) => (
@@ -23,8 +24,9 @@ const MovieGrid: React.FC<MovieGridProps> = ({ movies }) => {
           <MovieCard
             movieId={movie.movieId}
             title={movie.title}
-            images={movie.images}
+            images={movie.images ?? ''}
             ageRating={movie.ageRating}
+            datum={datum}
           />
         </Col>
       ))}

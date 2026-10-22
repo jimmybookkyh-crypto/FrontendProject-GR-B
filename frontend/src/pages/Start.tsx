@@ -17,6 +17,7 @@ import LoadingSpinner from "../components/LoadingSpinner"; // #320
 import ErrorMessage from "../components/ErrorMessage"; // #320
 import Datumremsa from "../components/Datumremsa";
 import { langtDatum, plusDagar } from "../utils/datum";
+import MovieGrid from "../components/MovieGrid";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -86,7 +87,7 @@ export default function Start() {
             />
           )}
           {filmerDenDagen && filmerDenDagen.length > 0 && (
-            <FilmerStart filmer={filmerDenDagen} datum={valtDatum} />
+            <MovieGrid movies={filmerDenDagen} datum={valtDatum} />
           )}
         </Container>
       </div>
@@ -153,36 +154,7 @@ function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
   );
 }
 
-/* Platshållare Filmkort med knapp till biljetter.
-   Ersätts av MovieCard + MovieGrid i #338. */
 
-function FilmerStart({ filmer, datum }: { filmer: Movie[]; datum: string }) {
-  return (
-    <Row xs={2} md={3} className="g-3 g-md-5">
-      {filmer.map((film) => (
-        <Col key={film.movieId}>
-          <Card className="filmkort">
-            <Link to={`/moviedetails/moviecatalog/${film.movieId}?datum=${datum}`}>
-              {/* Platshållare – riktiga posters kommer i poster-tasken #337*/}
-              <Card.Img variant="top" src={placeholder} alt={film.title} />
-            </Link>
-            <Card.Body className="filmkort-body">
-              {/* Platshållare Byts mot gemensam CTA-komponent i task #340*/}
-              <Button
-                as={Link as any}
-                to={`/moviedetails/moviecatalog/${film.movieId}?datum=${datum}`}
-                variant="normal"
-                className="boka-knapp"
-              >
-                Biljetter →
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
-  );
-}
 
 Start.route = {
   path: "/",

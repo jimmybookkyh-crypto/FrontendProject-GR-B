@@ -11,6 +11,7 @@ import placeholder from "../assets/img/ph.png";
 import useFetch from "../hooks/useFetch"; // #319
 import LoadingSpinner from "../components/LoadingSpinner"; // #320
 import ErrorMessage from "../components/ErrorMessage"; // #320
+import MovieGrid from "../components/MovieGrid";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -64,7 +65,7 @@ export default function MovieCatalog() {
               Inga filmer att visa just nu.
             </p>
           )}
-          {filmer && filmer.length > 0 && <FilmerStart filmer={filmer} />}
+          {filmer && filmer.length > 0 && <MovieGrid movies={filmer} />}
         </Container>
       </div>
     </>
@@ -109,38 +110,6 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
         </Col>
       </Row>
     </Container>
-  );
-}
-
-/* Filmkort med knapp till biljetter.
-   Ersätts av MovieCard + MovieGrid i #338. */
-
-function FilmerStart({ filmer }: { filmer: Movie[] }) {
-  return (
-    <Row xs={2} sm={2} md={3} lg={4} className="g-4 justify-content-center">
-      {filmer.map((film) => (
-        <Col key={film.movieId}>
-          <Card className="filmkort">
-            <Link to={`/moviedetails/moviecatalog/${film.movieId}`}>
-              {/* Platshållare – riktiga posters kommer i poster-tasken */}
-              <Card.Img variant="top" src={placeholder} alt={film.title} />
-            </Link>
-            <Card.Body className="filmkort-body">
-              {/* Byts mot gemensam CTA-komponent i annan task */}
-              <Button
-                style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
-                variant="outline-light"
-                as={Link as any}
-                to={`/moviedetails/moviecatalog/${film.movieId}`}
-                className="boka-knapp"
-              >
-                Biljetter →
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      ))}
-    </Row>
   );
 }
 
