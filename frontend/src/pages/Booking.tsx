@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Card, InputGroup, Form, Modal } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  InputGroup,
+  Form,
+  Modal,
+} from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
@@ -7,7 +15,12 @@ import useFetch from "../hooks/useFetch";
 import SeatMap, { Seat } from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import { useAuth } from "../utils/authContext";
-import {formatDate, formatTime, calculateTotalPrice, getMaxAllowedTickets,} from "../utils/bookingHelpers";
+import {
+  formatDate,
+  formatTime,
+  calculateTotalPrice,
+  getMaxAllowedTickets,
+} from "../utils/bookingHelpers";
 
 interface Showing {
   showingId: number;
@@ -70,15 +83,18 @@ export default function BookingPage() {
   }, [user]);
 
   // Hämta visningsdetaljer från backend
-  const { data: showingRaw, loading: showingLoading, error: showingError } =
-    useFetch<any>(showingId ? `/showings/${showingId}` : null);
+  const {
+    data: showingRaw,
+    loading: showingLoading,
+    error: showingError,
+  } = useFetch<any>(showingId ? `/showings/${showingId}` : null);
 
   const showing: Showing | undefined = showingRaw?.data || showingRaw;
   const currentMovieId = showing?.movieId ?? showing?.movie_id;
 
   // Hämta filmens detaljer om visningen saknar JOIN med movies
   const { data: movieRaw } = useFetch<any>(
-    currentMovieId ? `/movies/${currentMovieId}` : null
+    currentMovieId ? `/movies/${currentMovieId}` : null,
   );
   const movie: Movie | undefined = movieRaw?.data || movieRaw;
 
@@ -105,7 +121,7 @@ export default function BookingPage() {
 
   // Konvertera alltid ID:t till ett siffervärde med Number()
   const currentAuditoriumId = Number(
-    showing?.auditoriumId ?? showing?.auditorium_id ?? 0
+    showing?.auditoriumId ?? showing?.auditorium_id ?? 0,
   );
 
   const getAuditoriumName = (id?: number) => {
@@ -124,22 +140,27 @@ export default function BookingPage() {
     getAuditoriumName(currentAuditoriumId);
 
   // Hämta alla stolar för salongen från /seats och normalisera fälten
-  const { data: seatsRaw, loading: seatsLoading, error: seatsError } =
-    useFetch<any>(currentAuditoriumId ? `/seats?auditoriumId=${currentAuditoriumId}` : null);
+  const {
+    data: seatsRaw,
+    loading: seatsLoading,
+    error: seatsError,
+  } = useFetch<any>(
+    currentAuditoriumId ? `/seats?auditoriumId=${currentAuditoriumId}` : null,
+  );
 
   const rawSeatsList = seatsRaw?.data || seatsRaw || [];
   const seats: Seat[] = Array.isArray(rawSeatsList)
     ? rawSeatsList.map((s: any) => ({
-      seatId: Number(s.seatId ?? s.seat_id),
-      seatsRow: Number(s.seatsRow ?? s.seats_row ?? s.row),
-      seatsNumber: Number(s.seatsNumber ?? s.seats_number ?? s.number),
-      auditoriumId: Number(s.auditoriumId ?? s.auditorium_id),
-    }))
+        seatId: Number(s.seatId ?? s.seat_id),
+        seatsRow: Number(s.seatsRow ?? s.seats_row ?? s.row),
+        seatsNumber: Number(s.seatsNumber ?? s.seats_number ?? s.number),
+        auditoriumId: Number(s.auditoriumId ?? s.auditorium_id),
+      }))
     : [];
 
   // Hämta upptagna stolar för den aktuella visningen (inkluderar seatRefreshKey för automatisk reload)
   const { data: occupiedSeatsRaw } = useFetch<any>(
-    showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null
+    showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null,
   );
 
   const rawList = occupiedSeatsRaw?.data || occupiedSeatsRaw || [];
@@ -147,26 +168,33 @@ export default function BookingPage() {
   // Säkerställer att alla upptagna stolar konverteras till rena NUMMER
   const occupiedSeats: number[] = Array.isArray(rawList)
     ? rawList
-      .map((item: any) => {
-        if (typeof item === "object" && item !== null) {
-          return Number(item.seatId ?? item.seat_id);
-        }
-        return Number(item);
-      })
-      .filter((id) => !isNaN(id) && id > 0)
+        .map((item: any) => {
+          if (typeof item === "object" && item !== null) {
+            return Number(item.seatId ?? item.seat_id);
+          }
+          return Number(item);
+        })
+        .filter((id) => !isNaN(id) && id > 0)
     : [];
 
   // Hämta biljetttyper från API:et
   const { data: ticketTypesRaw } = useFetch<any>("/tickets/ticketTypes");
-  const ticketTypes: TicketType[] = ticketTypesRaw?.data || ticketTypesRaw || [
-    { ticketTypeId: 1, name: "Vuxen", price: 140 },
-    { ticketTypeId: 2, name: "Barn", price: 80 },
-    { ticketTypeId: 3, name: "Pensionär", price: 120 },
-  ];
+  const ticketTypes: TicketType[] = ticketTypesRaw?.data ||
+    ticketTypesRaw || [
+      { ticketTypeId: 1, name: "Vuxen", price: 140 },
+      { ticketTypeId: 2, name: "Barn", price: 80 },
+      { ticketTypeId: 3, name: "Pensionär", price: 120 },
+    ];
 
-  const adultType = ticketTypes.find((t) => t.name.toLowerCase().includes("vuxen")) || ticketTypes[0];
-  const childType = ticketTypes.find((t) => t.name.toLowerCase().includes("barn")) || ticketTypes[1];
-  const seniorType = ticketTypes.find((t) => t.name.toLowerCase().includes("pensionär")) || ticketTypes[2];
+  const adultType =
+    ticketTypes.find((t) => t.name.toLowerCase().includes("vuxen")) ||
+    ticketTypes[0];
+  const childType =
+    ticketTypes.find((t) => t.name.toLowerCase().includes("barn")) ||
+    ticketTypes[1];
+  const seniorType =
+    ticketTypes.find((t) => t.name.toLowerCase().includes("pensionär")) ||
+    ticketTypes[2];
 
   const adultPrice = adultType?.price ?? 140;
   const childPrice = childType?.price ?? 80;
@@ -191,43 +219,79 @@ export default function BookingPage() {
     seniorTickets,
     adultPrice,
     childPrice,
-    seniorPrice
+    seniorPrice,
   );
 
   const handleSeatClick = (seat: Seat) => {
     setSelectedSeats((current) =>
       current.some((s) => Number(s.seatId) === Number(seat.seatId))
         ? current.filter((s) => Number(s.seatId) !== Number(seat.seatId))
-        : [...current, seat]
+        : [...current, seat],
     );
   };
 
-  const handleInputChange = (value: string, setter: (val: number) => void, currentVal: number) => {
+  const handleInputChange = (
+    value: string,
+    setter: (val: number) => void,
+    currentVal: number,
+  ) => {
     const parsed = parseInt(value, 10);
     if (isNaN(parsed) || parsed < 0) return setter(0);
 
     // Använder getMaxAllowedTickets från bookingHelpers
-    const maxAllowed = getMaxAllowedTickets(selectedSeats.length, totaltTickets, currentVal);
+    const maxAllowed = getMaxAllowedTickets(
+      selectedSeats.length,
+      totaltTickets,
+      currentVal,
+    );
     setter(parsed > maxAllowed ? Math.max(0, maxAllowed) : parsed);
   };
 
-  const adjustTickets = (setter: (val: number) => void, current: number, delta: number) => {
+  const adjustTickets = (
+    setter: (val: number) => void,
+    current: number,
+    delta: number,
+  ) => {
     const next = current + delta;
     if (next < 0) return setter(0);
 
     // Använder getMaxAllowedTickets från bookingHelpers
-    const maxAllowed = getMaxAllowedTickets(selectedSeats.length, totaltTickets, current);
+    const maxAllowed = getMaxAllowedTickets(
+      selectedSeats.length,
+      totaltTickets,
+      current,
+    );
     setter(Math.min(next, Math.max(0, maxAllowed)));
   };
 
   // Koppla ihop varje vald stol med motsvarande biljetttyp ID
   const mapSeatsToTickets = () => {
-    const mappedTickets: Array<{ seatId: number; ticketTypeId: number; price: number; seatInfo: string; }> = [];
+    const mappedTickets: Array<{
+      seatId: number;
+      ticketTypeId: number;
+      price: number;
+      seatInfo: string;
+    }> = [];
     let seatIndex = 0;
 
-    const adultTypeId = Number(adultType?.ticketTypeId || adultType?.ticket_type_id || adultType?.id || 1);
-    const childTypeId = Number(childType?.ticketTypeId || childType?.ticket_type_id || childType?.id || 2);
-    const seniorTypeId = Number(seniorType?.ticketTypeId || seniorType?.ticket_type_id || seniorType?.id || 3);
+    const adultTypeId = Number(
+      adultType?.ticketTypeId ||
+        adultType?.ticket_type_id ||
+        adultType?.id ||
+        1,
+    );
+    const childTypeId = Number(
+      childType?.ticketTypeId ||
+        childType?.ticket_type_id ||
+        childType?.id ||
+        2,
+    );
+    const seniorTypeId = Number(
+      seniorType?.ticketTypeId ||
+        seniorType?.ticket_type_id ||
+        seniorType?.id ||
+        3,
+    );
 
     // Koppla vuxenbiljetter
     for (let i = 0; i < adultTickets; i++) {
@@ -322,28 +386,43 @@ export default function BookingPage() {
           setSeatRefreshKey((prev) => prev + 1);
 
           throw new Error(
-            "Tyvärr hann någon annan boka en eller flera av de valda stolarna. Kartan har uppdaterats med de senaste lediga platserna."
+            "Tyvärr hann någon annan boka en eller flera av de valda stolarna. Kartan har uppdaterats med de senaste lediga platserna.",
           );
         }
         throw new Error(
-          result.error?.message || "Kunde inte genomföra bokningen."
+          result.error?.message || "Kunde inte genomföra bokningen.",
         );
       }
 
       setShowEmailModal(false);
 
-      // Navigera till bekräftelsesidan
+      // Biljettypens namn utifrån id, t.ex. 1 -> "Vuxen"
+      const ticketTypeName = (id: number) =>
+        ticketTypes.find(
+          (t) => Number(t.ticketTypeId ?? t.ticket_type_id ?? t.id) === id,
+        )?.name ?? "Biljett";
+
+      // Navigera till bekräftelsesidan och skicka med bokningen i state.
+      // replace: true gör att bakåtknappen inte leder tillbaka till bokningsformuläret.
       navigate("/bookingconfirmation", {
+        replace: true,
         state: {
-          bookingId: result.data?.bookingId || result.bookingId,
+          bookingNumber: result.data.bookingNumber,
+          movieId: Number(currentMovieId),
           movieTitle: currentTitle,
+          images: currentImages,
           date: currentDate,
           time: currentTime,
           auditoriumName: currentAuditoriumName,
-          seats: selectedSeats,
-          ticketsPayload: mappedTickets,
-          totalPrice,
-          email,
+          tickets: mappedTickets.map((t) => {
+            const seat = selectedSeats.find((s) => s.seatId === t.seatId);
+            return {
+              seatsRow: seat?.seatsRow ?? 0,
+              seatsNumber: seat?.seatsNumber ?? 0,
+              ticketTypeName: ticketTypeName(t.ticketTypeId),
+              price: Number(t.price),
+            };
+          }),
         },
       });
     } catch (err) {
@@ -367,7 +446,11 @@ export default function BookingPage() {
   }
 
   if (showingError || seatsError) {
-    return <div className="text-center text-danger p-5">{showingError || seatsError}</div>;
+    return (
+      <div className="text-center text-danger p-5">
+        {showingError || seatsError}
+      </div>
+    );
   }
 
   return (
@@ -387,7 +470,9 @@ export default function BookingPage() {
         ← Tillbaka
       </button>
 
-      <h1 className="h4 fw-bold text-center mb-4 heading-gold">BOKA BILJETTER</h1>
+      <h1 className="h4 fw-bold text-center mb-4 heading-gold">
+        BOKA BILJETTER
+      </h1>
 
       <Container className="pb-5">
         <Row className="justify-content-center mb-4">
@@ -436,40 +521,134 @@ export default function BookingPage() {
           <Col xs={12} lg={5}>
             <Card className="glass-card">
               <Card.Body className="p-3 p-md-4">
-                <h3 className="h5 fw-bold text-center heading-gold mb-4">BILJETTER</h3>
+                <h3 className="h5 fw-bold text-center heading-gold mb-4">
+                  BILJETTER
+                </h3>
 
                 {/* Vuxen */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>{adultType?.name || "Vuxen"} : {adultPrice} kr</span>
+                  <span>
+                    {adultType?.name || "Vuxen"} : {adultPrice} kr
+                  </span>
                   <InputGroup style={{ maxWidth: 140 }}>
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setAdultTickets, adultTickets, -1)}>−</button>
-                    <Form.Control type="number" className="text-center" value={adultTickets} onChange={(e) => handleInputChange(e.target.value, setAdultTickets, adultTickets)} min={0} />
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setAdultTickets, adultTickets, 1)}>+</button>
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setAdultTickets, adultTickets, -1)
+                      }
+                    >
+                      −
+                    </button>
+                    <Form.Control
+                      type="number"
+                      className="text-center"
+                      value={adultTickets}
+                      onChange={(e) =>
+                        handleInputChange(
+                          e.target.value,
+                          setAdultTickets,
+                          adultTickets,
+                        )
+                      }
+                      min={0}
+                    />
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setAdultTickets, adultTickets, 1)
+                      }
+                    >
+                      +
+                    </button>
                   </InputGroup>
                 </div>
 
                 {/* Barn */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>{childType?.name || "Barn"} : {childPrice} kr</span>
+                  <span>
+                    {childType?.name || "Barn"} : {childPrice} kr
+                  </span>
                   <InputGroup style={{ maxWidth: 140 }}>
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setChildTickets, childTickets, -1)}>−</button>
-                    <Form.Control type="number" className="text-center" value={childTickets} onChange={(e) => handleInputChange(e.target.value, setChildTickets, childTickets)} min={0} />
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setChildTickets, childTickets, 1)}>+</button>
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setChildTickets, childTickets, -1)
+                      }
+                    >
+                      −
+                    </button>
+                    <Form.Control
+                      type="number"
+                      className="text-center"
+                      value={childTickets}
+                      onChange={(e) =>
+                        handleInputChange(
+                          e.target.value,
+                          setChildTickets,
+                          childTickets,
+                        )
+                      }
+                      min={0}
+                    />
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setChildTickets, childTickets, 1)
+                      }
+                    >
+                      +
+                    </button>
                   </InputGroup>
                 </div>
 
                 {/* Pensionär */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>{seniorType?.name || "Pensionär"} : {seniorPrice} kr</span>
+                  <span>
+                    {seniorType?.name || "Pensionär"} : {seniorPrice} kr
+                  </span>
                   <InputGroup style={{ maxWidth: 140 }}>
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setSeniorTickets, seniorTickets, -1)}>−</button>
-                    <Form.Control type="number" className="text-center" value={seniorTickets} onChange={(e) => handleInputChange(e.target.value, setSeniorTickets, seniorTickets)} min={0} />
-                    <button className="btn btn-outline-light" type="button" onClick={() => adjustTickets(setSeniorTickets, seniorTickets, 1)}>+</button>
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setSeniorTickets, seniorTickets, -1)
+                      }
+                    >
+                      −
+                    </button>
+                    <Form.Control
+                      type="number"
+                      className="text-center"
+                      value={seniorTickets}
+                      onChange={(e) =>
+                        handleInputChange(
+                          e.target.value,
+                          setSeniorTickets,
+                          seniorTickets,
+                        )
+                      }
+                      min={0}
+                    />
+                    <button
+                      className="btn btn-outline-light"
+                      type="button"
+                      onClick={() =>
+                        adjustTickets(setSeniorTickets, seniorTickets, 1)
+                      }
+                    >
+                      +
+                    </button>
                   </InputGroup>
                 </div>
 
                 <div className="mb-3">
-                  <p className="mb-1 fw-bold">Valda platser ({selectedSeats.length}):</p>
+                  <p className="mb-1 fw-bold">
+                    Valda platser ({selectedSeats.length}):
+                  </p>
                   {selectedSeats.length > 0 ? (
                     <ul className="list-unstyled small mb-0 ps-2">
                       {selectedSeats.map((seat) => (
@@ -490,7 +669,10 @@ export default function BookingPage() {
                 <button
                   type="button"
                   className="btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
-                  disabled={selectedSeats.length === 0 || totaltTickets !== selectedSeats.length}
+                  disabled={
+                    selectedSeats.length === 0 ||
+                    totaltTickets !== selectedSeats.length
+                  }
                   onClick={() => setShowEmailModal(true)}
                 >
                   Boka
@@ -498,7 +680,9 @@ export default function BookingPage() {
 
                 <Modal show={showEmailModal} onHide={handleCloseModal} centered>
                   <Modal.Header closeButton>
-                    <Modal.Title className="text-dark">Bekräfta e-post</Modal.Title>
+                    <Modal.Title className="text-dark">
+                      Bekräfta e-post
+                    </Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
                     {bookingError && (
@@ -509,7 +693,9 @@ export default function BookingPage() {
                     <Form.Group controlId="bookingEmail">
                       <Form.Label className="text-dark d-flex align-items-center gap-2">
                         E-postadress
-                        {user && <span className="badge bg-success">Inloggad</span>}
+                        {user && (
+                          <span className="badge bg-success">Inloggad</span>
+                        )}
                       </Form.Label>
                       <Form.Control
                         type="email"
@@ -520,7 +706,8 @@ export default function BookingPage() {
                       />
                       {user && (
                         <Form.Text className="text-muted">
-                          Bokningsbekräftelsen kopplas till ditt konto ({user.email}).
+                          Bokningsbekräftelsen kopplas till ditt konto (
+                          {user.email}).
                         </Form.Text>
                       )}
                     </Form.Group>
