@@ -2,10 +2,13 @@ import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
 import { Booking, CreateBookingInput } from "../interface/types.js";
 
+/* userId kommer från token (res.locals.user), aldrig från anropets body.
+   null = gästbokning. */
 export async function createBooking(
-  input: CreateBookingInput
+  input: CreateBookingInput,
+  userId: number | null,
 ): Promise<Booking & { tickets: CreateBookingInput["tickets"] }> {
-  const { email, showingId, userId, tickets } = input;
+  const { email, showingId, tickets } = input;
 
   // Kolla dubbletter av säten
   const seatIds = tickets.map((t) => t.seatId);
@@ -27,7 +30,7 @@ export async function createBooking(
         from showings
         where "showingId" = $1
         for update`,
-      [showingId]
+      [showingId],
     );
 
     if (showing.rows.length === 0) {
@@ -39,20 +42,20 @@ export async function createBooking(
     const seats = await client.query(
       `select "seatId" from seats
         where "auditoriumId" = $1 and "seatId" = any($2::bigint[])`,
-      [auditoriumId, seatIds]
+      [auditoriumId, seatIds],
     );
 
     if (seats.rows.length !== seatIds.length) {
       throw Object.assign(
         new Error("Ett eller flera säten finns inte i visningens salong"),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const types = await client.query(
       `select "ticketTypeId" from "ticketTypes"
         where "ticketTypeId" = any($1::bigint[])`,
-      [ticketTypeIds]
+      [ticketTypeIds],
     );
 
     if (types.rows.length !== new Set(ticketTypeIds).size) {
@@ -64,13 +67,13 @@ export async function createBooking(
         from tickets t
         join bookings b on b."bookingId" = t."bookingId"
         where b."showingId" = $1 and t."seatId" = any($2::bigint[])`,
-      [showingId, seatIds]
+      [showingId, seatIds],
     );
 
     if (taken.rows.length > 0) {
       const err = Object.assign(
         new Error("Ett eller flera säten är redan bokade"),
-        { status: 409 }
+        { status: 409 },
       );
       (err as any).seatIds = taken.rows.map((row: any) => row.seatId);
       throw err;
@@ -82,7 +85,7 @@ export async function createBooking(
       `insert into bookings ("bookingNumber", email, "showingId", "userId")
         values ($1, $2, $3, $4)
         returning "bookingId", "bookingNumber", email, "showingId", "userId", created_at`,
-      [bookingNumber, email, showingId, userId ?? null]
+      [bookingNumber, email, showingId, userId],
     );
 
     const bookingId = booking.rows[0].bookingId;
@@ -91,7 +94,7 @@ export async function createBooking(
       await client.query(
         `insert into tickets ("ticketTypeId", "bookingId", "seatId")
           values ($1, $2, $3)`,
-        [ticket.ticketTypeId, bookingId, ticket.seatId]
+        [ticket.ticketTypeId, bookingId, ticket.seatId],
       );
     }
 

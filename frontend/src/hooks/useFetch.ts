@@ -17,6 +17,7 @@ type ApiResponse<T> = {
 
 /* Översätter statuskoden till ett svenskt felmeddelande */
 function getErrorMessage(status: number, backendMessage?: string): string {
+  if (status === 401) return "Du behöver logga in igen för att se det här.";
   if (backendMessage) return backendMessage;
   if (status === 404) return "Det du letar efter finns inte.";
   if (status >= 500)
@@ -43,9 +44,16 @@ export default function useFetch<T>(path: string | null): FetchState<T> {
     setState({ data: null, loading: true, error: null });
 
     (async () => {
+      // Skickar med inloggningens token om den finns (T126e).
+      // Behövs för skyddade anrop som /bookings/me, påverkar inte publika anrop.
+      const headers = new Headers();
+      const token = localStorage.getItem("token");
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+
       let response: Response;
       try {
         response = await fetch(`${BASE_URL}${path}`, {
+          headers,
           signal: controller.signal,
         });
       } catch {
