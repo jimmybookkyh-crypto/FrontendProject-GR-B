@@ -7,10 +7,10 @@ export interface Booking {
   userId: number | null;
 }
 
+// Nu säger TypeScript ifrån om någon försöker läsa userId från anropet.
 export interface CreateBookingInput {
   email: string;
   showingId: number;
-  userId?: number | null;
   tickets: { seatId: number; ticketTypeId: number }[];
 }
 
@@ -38,7 +38,7 @@ export interface Movie {
   ageRating: number | null;
 }
 
-export interface EventRow  {
+export interface EventRow {
   eventId: string;
   created_at: string;
   name: string;
