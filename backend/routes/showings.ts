@@ -138,6 +138,31 @@ showingsRouter.get("/:id", async (req, res, next) => {
   }
 });
 
+/* GET /showings/:id/seats - Hämtar alla upptagna stolar för en specifik visning via view */
+showingsRouter.get("/:id/seats", async (req, res) => {
+  try {
+    const showingId = parseInt(req.params.id, 10);
+
+    if (isNaN(showingId)) {
+      return res.status(400).json({ error: "Ogiltigt showingId" });
+    }
+
+    // Hämtar alla seatId direkt från din nyskapade booked_seats_view
+    const { rows } = await pool.query(
+      `SELECT "seatId" FROM public.booked_seats_view WHERE "showingId" = $1`,
+      [showingId]
+    );
+
+    // Mappar om resultatet till en ren array av nummer, t.ex. [12, 13, 14, 15]
+    const occupiedSeatIds = rows.map((row) => Number(row.seatId));
+
+    return res.status(200).json({ data: occupiedSeatIds });
+  } catch (error) {
+    console.error("Fel vid hämtning av upptagna stolar från view:", error);
+    return res.status(500).json({ error: "Kunde inte hämta upptagna stolar" });
+  }
+});
+
 showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const body = req.body ?? {};
 
