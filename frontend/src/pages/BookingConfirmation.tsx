@@ -1,21 +1,18 @@
 import { Row, Container, Col, Card } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/buttons.css";
-import useFetch from "../hooks/useFetch";
-import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";
 
-type Booking = {
+/* Det som bokningssidan skickar med i navigate(..., { state }) */
+type ConfirmationState = {
   bookingNumber: string;
-  email: string;
-  date: string;
-  time: string;
   movieId: number;
   movieTitle: string;
-  images: string[] | null;
-  ageRating: number | null;
+  images: string[];
+  date: string;
+  time: string;
   auditoriumName: string;
   tickets: {
     ticketTypeName: string;
@@ -27,16 +24,16 @@ type Booking = {
 
 export default function BookingConfirmation() {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const {
-    data: booking,
-    loading,
-    error,
-  } = useFetch<Booking>(id ? `/bookings/confirmation/${id}` : null);
+  const location = useLocation();
 
-  if (loading) return <LoadingSpinner text="Hämtar bokning…" />;
-  if (error || !booking)
-    return <ErrorMessage message={error ?? "Bokningen finns inte"} />;
+  // state finns bara om man kommer direkt från bokningssidan i samma flik
+  const booking = location.state as ConfirmationState | null;
+
+  if (!booking?.bookingNumber) {
+    return (
+      <ErrorMessage message="Det finns ingen bokning att visa. Har du redan bokat hittar du bokningsnumret i ditt bekräftelsemejl." />
+    );
+  }
 
   const seatLabels = booking.tickets
     .map((t) => `Rad ${t.seatsRow} plats ${t.seatsNumber}`)
@@ -74,8 +71,7 @@ export default function BookingConfirmation() {
                       <MovieCard
                         movieId={booking.movieId}
                         title={booking.movieTitle}
-                        images={booking.images ?? ""}
-                        ageRating={booking.ageRating ?? undefined}
+                        images={booking.images}
                         showDetails={false}
                         datum={booking.date}
                       />
@@ -141,12 +137,12 @@ export default function BookingConfirmation() {
                       Till startsidan
                     </button>
 
-                    <button
+                    {/* <button
                       type="button"
                       className="button-cancel btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
                     >
                       Avboka bokning
-                    </button>
+                    </button> */}
                   </div>
                 </Card.Body>
               </Card>
@@ -159,7 +155,7 @@ export default function BookingConfirmation() {
 }
 
 BookingConfirmation.route = {
-  path: "/booking/confirmation",
+  path: "/bookingconfirmation",
   order: 14,
   label: "Bokningsbekräftelse",
 };

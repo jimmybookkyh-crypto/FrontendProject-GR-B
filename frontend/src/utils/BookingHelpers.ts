@@ -1,10 +1,15 @@
-// Omvandlar "2026-10-26T23:00:00.000Z" eller "2026-10-26" till "2026-10-26"
+// Omvandlar "2026-10-23T22:00:00.000Z" eller "2026-10-24" till "2026-10-24".
+// Ett datum med tid (ISO) räknas om till svensk tid. Backend skickar midnatt
+// svensk tid som 22:00 dagen innan i UTC, så att bara klippa vid "T" ger en dag fel.
 export const formatDate = (dateString?: string): string => {
   if (!dateString) return "";
 
-  // Plocka ut de första 10 tecknen (YYYY-MM-DD)
   if (dateString.includes("T")) {
-    return dateString.split("T")[0];
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      // sv-SE ger formatet ÅÅÅÅ-MM-DD
+      return date.toLocaleDateString("sv-SE", { timeZone: "Europe/Stockholm" });
+    }
   }
   return dateString;
 };
