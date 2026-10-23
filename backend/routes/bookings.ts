@@ -14,9 +14,21 @@ import {
   getBookingTickets,
   parseBookingNumber,
 } from "../services/findBooking.js";
-import { requireAuth, requireAdmin } from "../utils/requireAuth.js";
+import {
+  requireAuth,
+  requireAdmin,
+  type AuthUser,
+} from "../utils/requireAuth.js";
+import { optionalAuth } from "../utils/optionalAuth.js";
+import { getMyBookings } from "../services/myBookings.js";
 
 const bookingsRouter = Router();
+
+/* Inloggad användare från token, satt av requireAuth/optionalAuth.
+   Läses alltid härifrån, aldrig från ett id i URL:en eller i body. */
+function currentUser(locals: Record<string, unknown>): AuthUser | undefined {
+  return locals.user as AuthUser | undefined;
+}
 
 // GET /bookings
 // ADMIN: se alla bokningar
@@ -98,6 +110,47 @@ bookingsRouter.get(
 // requireAuth borttaget
 bookingsRouter.get("/:id", async (req, res) => {
   const { id } = req.params;
+// GET /bookings/me  (T126c)
+// Inloggad användare: sina egna bokningar, uppdelade i kommande och tidigare.
+// OBS: måste ligga före /:id, annars tolkas "me" som ett id och ger 400.
+bookingsRouter.get("/me", requireAuth, async (req, res) => {
+  const user = currentUser(res.locals)!;
+  const userId = parseId(user.userId);
+
+  if (userId === null) {
+    return res.status(401).json({
+      error: { message: "Ogiltig inloggning, logga in igen" },
+    });
+  }
+
+  try {
+    const bookings = await getMyBookings(userId);
+    return res.status(200).json({ data: bookings });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /bookings/me failed", { userId, message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av dina bokningar" },
+    });
+  }
+});
+
+// GET /bookings/:id  (bokningen + dess biljetter)
+// Ägaren eller admin (T126d)
+bookingsRouter.get("/:id", requireAuth, async (req, res) => {
+  const id = parseId(req.params.id as string);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt boknings-id" },
+    });
+  }
+
+  // Ägarkontroll: admin ser alla, övriga bara sina egna.
+  // Någon annans bokning ger 404 (inte 403), så att man inte kan lista ut vilka som finns.
+  const user = currentUser(res.locals)!;
+  const isAdmin = user.role === "admin";
 
   try {
     //  Kontrollera parametern ett siffer-ID eller bokningsnummer
@@ -116,6 +169,12 @@ bookingsRouter.get("/:id", async (req, res) => {
        left join auditoriums a on a."auditoriumId" = s."auditoriumId"
        where ${isNumeric ? `b."bookingId" = $1` : `b."bookingNumber" = $1`}`,
       [isNumeric ? parseInt(id, 10) : id],
+    const booking = await pool.query<Booking>(
+      `select "bookingId", "bookingNumber", email, "showingId", "userId", created_at
+        from bookings
+        where "bookingId" = $1
+          and ($2::boolean or "userId" = $3::bigint)`,
+      [id, isAdmin, user.userId],
     );
 
     if (bookingResult.rows.length === 0) {
@@ -157,17 +216,26 @@ bookingsRouter.get("/:id", async (req, res) => {
 
 
 // POST /bookings
-bookingsRouter.post("/", async (req, res) => {
+// Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
+bookingsRouter.post("/", optionalAuth, async (req, res) => {
   const body = (req.body ?? {}) as Partial<CreateBookingInput>;
-  const { email, showingId, userId, tickets } = body;
+  const { email, showingId, tickets } = body;
 
-  if (
-    !validateEmail(email) ||
-    !isPositiveInt(showingId) ||
-    (userId !== undefined && userId !== null && !isPositiveInt(userId))
-  ) {
+  //Varför parseId(user.userId)? I token är id:t text ("3"),
+  // men kolumnen userId i databasen är ett heltal. parseId gör om det
+  // och kontrollerar samtidigt att det är ett giltigt id.
+  const user = currentUser(res.locals);
+  const userId = user ? parseId(user.userId) : null;
+
+  if (user && userId === null) {
+    return res.status(401).json({
+      error: { message: "Ogiltig inloggning, logga in igen" },
+    });
+  }
+
+  if (!validateEmail(email) || !isPositiveInt(showingId)) {
     return res.status(400).json({
-      error: { message: "Ogiltig e-post, visning eller användare" },
+      error: { message: "Ogiltig e-post eller visning" },
     });
   }
 
@@ -190,12 +258,7 @@ bookingsRouter.post("/", async (req, res) => {
   }
 
   try {
-    const result = await createBooking({
-      email,
-      showingId,
-      userId: userId ?? null,
-      tickets,
-    });
+    const result = await createBooking({ email, showingId, tickets }, userId);
 
     return res.status(201).json({ data: result });
   } catch (error: any) {
@@ -216,6 +279,7 @@ bookingsRouter.post("/", async (req, res) => {
     });
   }
 });
+
 // ADMIN: PATCH /bookings/:id   body: { "email": "ny@adress.se" }
 bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
@@ -261,6 +325,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
+// Ägaren (om visningen inte har börjat) eller admin (T126d)
 bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -270,10 +335,40 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
     });
   }
 
+  // Ägarkontroll: admin får avboka alla, övriga bara sina egna.
+  const user = currentUser(res.locals)!;
+  const isAdmin = user.role === "admin";
+
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    // Låser bokningen och kollar ägare och om visningen redan har börjat
+    const found = await client.query<{ hasStarted: boolean }>(
+      `select ((sh.date + sh."time") <= now()) as "hasStarted"
+        from bookings b
+        join showings sh on sh."showingId" = b."showingId"
+        where b."bookingId" = $1
+          and ($2::boolean or b."userId" = $3::bigint)
+        for update of b`,
+      [id, isAdmin, user.userId],
+    );
+
+    if (found.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: { message: "Bokningen finns ej" },
+      });
+    }
+
+    if (found.rows[0].hasStarted && !isAdmin) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: { message: "Visningen har redan börjat och kan inte avbokas" },
+      });
+    }
+
     await client.query(`delete from tickets where "bookingId" = $1`, [id]);
 
     const result = await client.query(

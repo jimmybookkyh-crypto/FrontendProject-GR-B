@@ -1,21 +1,25 @@
 /* placeholder for types */
 
 export interface AuthUser {
-    userId: string;
-    username: string;
-    email: string;
-    role: "user" | "admin";
+  userId: string;
+  username: string;
+  email: string;
+  role: "user" | "admin";
 }
 export interface AuthResponse {
-    token: string;
-    user: AuthUser;
+  token: string;
+  user: AuthUser;
 }
 export interface AuthContextType {
-    user: AuthUser | null;
-    loading: boolean | null;
-    login: (email: string, password: string) => Promise<void>;
-    logout: () => void;
-    register: (username: string, email: string, password: string) => Promise<void>;
+  user: AuthUser | null;
+  loading: boolean | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
 }
 // Backknapp
 export interface BackButtonProps {
@@ -55,4 +59,35 @@ export interface SlotSelectionProps {
   showings?: Showings[];
 }
 
+// Mina sidor (T126): en biljett i en av användarens bokningar
+export interface MyBookingTicket {
+  seatsRow: number;
+  seatsNumber: number;
+  ticketType: string; // "Vuxen", "Pensionär", "Barn"
+  price: number;
+}
 
+// Mina sidor (T126): en bokning från GET /bookings/me
+export interface MyBooking {
+  bookingId: string | number;
+  bookingNumber: string;
+  createdAt: string;
+  showingId: string | number;
+  movieId: string | number;
+  movieTitle: string;
+  images: string[] | string | null;
+  ageRating: number | null;
+  date: string; // "2026-10-26"
+  time: string; // "18:30"
+  auditoriumName: string;
+  isUpcoming: boolean;
+  totalPrice: number;
+  tickets: MyBookingTicket[];
+  status?: "confirmed" | "cancelled"; // kommer med avbokning som status (T113)
+}
+
+// Mina sidor (T126): svaret från GET /bookings/me
+export interface MyBookingsResponse {
+  upcoming: MyBooking[]; // närmast först
+  past: MyBooking[]; // senaste först
+}
