@@ -105,6 +105,140 @@ bookingsRouter.get(
   },
 );
 
+//----------------------------------------------------
+bookingsRouter.get("/me", requireAuth, async (req, res) => {
+  const user = currentUser(res.locals)!;
+  const userId = parseId(user.userId);
+
+  if (userId === null) {
+    return res.status(401).json({
+      error: { message: "Ogiltig inloggning, logga in igen" },
+    });
+  }
+
+  try {
+    const bookings = await getMyBookings(userId);
+    return res.status(200).json({ data: bookings });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /bookings/me failed", { userId, message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av dina bokningar" },
+    });
+  }
+});
+
+// GET /bookings/confirmation/:bookingNumber  (T077)
+// Bekräftelsesidan: öppen för gäster. Bokningsnumret är slumpat och fungerar som nyckel.
+// Returnerar bokningen med film, visning, salong och biljetter.
+bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
+  const bookingNumber = parseBookingNumber(req.params.bookingNumber);
+
+  if (bookingNumber === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt bokningsnummer" },
+    });
+  }
+
+  try {
+    const bookingResult = await pool.query(
+      `select b."bookingId", b."bookingNumber", b.email, b."showingId", b."userId", b.created_at,
+              s.date::text as date,
+              left(s."time"::text, 5) as "time",
+              m."movieId", m.title as "movieTitle", m.images, m."ageRating",
+              a.name as "auditoriumName"
+       from bookings b
+       left join showings s on s."showingId" = b."showingId"
+       left join movies m on m."movieId" = s."movieId"
+       left join auditoriums a on a."auditoriumId" = s."auditoriumId"
+       where b."bookingNumber" = $1`,
+      [bookingNumber],
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Bokningen finns ej" },
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    const ticketsResult = await pool.query(
+      `select tt.name as "ticketTypeName", tt.price::float as price,
+              se."seatsRow", se."seatsNumber"
+       from tickets t
+       join seats se on se."seatId" = t."seatId"
+       join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
+       where t."bookingId" = $1
+       order by se."seatsRow", se."seatsNumber"`,
+      [booking.bookingId],
+    );
+
+    return res.status(200).json({
+      data: { ...booking, tickets: ticketsResult.rows },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /bookings/confirmation/:bookingNumber failed", {
+      bookingNumber,
+      message,
+    });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av bokning" },
+    });
+  }
+});
+
+// GET /bookings/:id  (bokningen + dess biljetter)
+// Ägaren eller admin (T126d)
+bookingsRouter.get("/:id", requireAuth, async (req, res) => {
+  const id = parseId(req.params.id as string);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: "Ogiltigt boknings-id" },
+    });
+  }
+
+  // Ägarkontroll: admin ser alla, övriga bara sina egna.
+  // Någon annans bokning ger 404 (inte 403), så att man inte kan lista ut vilka som finns.
+  const user = currentUser(res.locals)!;
+  const isAdmin = user.role === "admin";
+
+  try {
+    const booking = await pool.query<Booking>(
+      `select "bookingId", "bookingNumber", email, "showingId", "userId", created_at
+        from bookings
+        where "bookingId" = $1
+          and ($2::boolean or "userId" = $3::bigint)`,
+      [id, isAdmin, user.userId],
+    );
+
+    if (booking.rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Bokningen finns ej" },
+      });
+    }
+
+    const tickets = await getBookingTickets(id);
+
+    return res.status(200).json({
+      data: { ...booking.rows[0], tickets },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("GET /bookings/:id failed", { bookingId: id, message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av vald bokning" },
+    });
+  }
+});
+
+
+/*
 //Testning-----------------------------------------------------------------------------------------
 // GET /bookings/:id Hämtar bokning via bokningsnummer siffer-id
 // requireAuth borttaget
@@ -213,7 +347,7 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
     });
   }
 });
-
+*/
 
 // POST /bookings
 // Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
