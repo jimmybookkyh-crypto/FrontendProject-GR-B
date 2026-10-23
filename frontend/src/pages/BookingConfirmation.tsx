@@ -32,7 +32,7 @@ export default function BookingConfirmation() {
     data: booking,
     loading,
     error,
-  } = useFetch<Booking>(id ? `/bookings/${id}` : null);
+  } = useFetch<Booking>(id ? `/bookings/confirmation/${id}` : null);
 
   if (loading) return <LoadingSpinner text="Hämtar bokning…" />;
   if (error || !booking)
@@ -159,7 +159,7 @@ export default function BookingConfirmation() {
 }
 
 BookingConfirmation.route = {
-  path: "/booking/:id",
+  path: "/booking/confirmation",
   order: 14,
   label: "Bokningsbekräftelse",
 };
