@@ -105,6 +105,11 @@ bookingsRouter.get(
   },
 );
 
+//Testning-----------------------------------------------------------------------------------------
+// GET /bookings/:id Hämtar bokning via bokningsnummer siffer-id
+// requireAuth borttaget
+bookingsRouter.get("/:id", async (req, res) => {
+  const { id } = req.params;
 // GET /bookings/me  (T126c)
 // Inloggad användare: sina egna bokningar, uppdelade i kommande och tidigare.
 // OBS: måste ligga före /:id, annars tolkas "me" som ett id och ger 400.
@@ -148,6 +153,22 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
   const isAdmin = user.role === "admin";
 
   try {
+    //  Kontrollera parametern ett siffer-ID eller bokningsnummer
+    const isNumeric = /^\d+$/.test(id);
+
+    //  Hämta bokningsdata film- och salongsinformation
+    const bookingResult = await pool.query(
+      `select b."bookingId", b."bookingNumber", b.email, b."showingId", b."userId", b.created_at,
+              s.date::text as date,
+              left(s."time"::text, 5) as "time",
+              m."movieId", m.title as "movieTitle", m.images, m."ageRating",
+              a.name as "auditoriumName"
+       from bookings b
+       left join showings s on s."showingId" = b."showingId"
+       left join movies m on m."movieId" = s."movieId"
+       left join auditoriums a on a."auditoriumId" = s."auditoriumId"
+       where ${isNumeric ? `b."bookingId" = $1` : `b."bookingNumber" = $1`}`,
+      [isNumeric ? parseInt(id, 10) : id],
     const booking = await pool.query<Booking>(
       `select "bookingId", "bookingNumber", email, "showingId", "userId", created_at
         from bookings
@@ -156,26 +177,43 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
       [id, isAdmin, user.userId],
     );
 
-    if (booking.rows.length === 0) {
+    if (bookingResult.rows.length === 0) {
       return res.status(404).json({
         error: { message: "Bokningen finns ej" },
       });
     }
 
-    const tickets = await getBookingTickets(id);
+    const booking = bookingResult.rows[0];
 
+    //  Hämta kopplad biljett med stolstyp pris, rad och stolnummer
+    const ticketsResult = await pool.query(
+      `select tt.name as "ticketTypeName", tt.price::float as price,
+              se."seatsRow", se."seatsNumber"
+       from tickets t
+       join seats se on se."seatId" = t."seatId"
+       join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
+       where t."bookingId" = $1
+       order by se."seatsRow", se."seatsNumber"`,
+      [booking.bookingId],
+    );
+
+    //  Returnera allt under data
     return res.status(200).json({
-      data: { ...booking.rows[0], tickets },
+      data: {
+        ...booking,
+        tickets: ticketsResult.rows,
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /bookings/:id failed", { bookingId: id, message });
+    console.error("GET /bookings/:id failed", { id, message });
 
     return res.status(500).json({
-      error: { message: "Fel vid hämtning av vald bokning" },
+      error: { message: "Fel vid hämtning av bokning" },
     });
   }
 });
+
 
 // POST /bookings
 // Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
