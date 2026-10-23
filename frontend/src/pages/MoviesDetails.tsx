@@ -266,11 +266,7 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
                 auditoriumName={visning.auditoriumName}
                 time={visning.time}
                 // Bokningssidan läser showingId i bokningstasken
-                onClick={() =>
-                  navigate("/booking", {
-                    state: { showingId: visning.showingId },
-                  })
-                }
+                onClick={() => navigate(`/booking/${visning.showingId}`)}
               />
             ))}
           </div>
