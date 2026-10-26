@@ -364,8 +364,6 @@ export default function BookingPage() {
       ticketTypeId: Number(t.ticketTypeId || 1),
     }));
 
-
-
     // Skickar med userId om användaren är inloggad
     const bookingBody = {
       showingId: Number(showingId),
@@ -373,8 +371,6 @@ export default function BookingPage() {
       userId: Number(userId),
       tickets: formattedTickets,
     };
-
-    let test = JSON.stringify(bookingBody)
 
     try {
       /* kan kanske implementera senare
@@ -399,8 +395,6 @@ export default function BookingPage() {
       });
 
       const result = await response.json();
-
-      let res = JSON.stringify(result)
 
       if (!response.ok) {
         if (response.status === 409) {
