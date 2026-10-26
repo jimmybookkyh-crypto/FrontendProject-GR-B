@@ -15,6 +15,7 @@ export interface AuthContextType {
   loading: boolean | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (user: AuthUser) => void; // Mina sidor: efter ändrade uppgifter
   register: (
     username: string,
     email: string,
