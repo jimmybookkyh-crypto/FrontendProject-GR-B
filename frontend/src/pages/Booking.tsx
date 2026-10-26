@@ -22,6 +22,9 @@ import {
   getMaxAllowedTickets,
 } from "../utils/bookingHelpers";
 
+//kan kanske implementera för att förtkorta kod
+//import apiRequest from "../utils/apiRequest.ts";
+
 interface Showing {
   showingId: number;
   movieId?: number;
@@ -77,6 +80,7 @@ export default function BookingPage() {
       setEmail(user.email);
     }
     const currentUserId = user?.userId;
+
     if (currentUserId) {
       setUserId(Number(currentUserId));
     }
@@ -360,24 +364,43 @@ export default function BookingPage() {
       ticketTypeId: Number(t.ticketTypeId || 1),
     }));
 
+
+
     // Skickar med userId om användaren är inloggad
     const bookingBody = {
       showingId: Number(showingId),
       email: email,
-      userId: userId,
+      userId: Number(userId),
       tickets: formattedTickets,
     };
 
+    let test = JSON.stringify(bookingBody)
+
     try {
+      /* kan kanske implementera senare
+      const response = apiRequest("/api/bookings", {
+        method: "POST",
+        body: JSON.stringify(bookingBody)
+      });
+      */
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/bookings", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(bookingBody),
       });
 
       const result = await response.json();
+
+      let res = JSON.stringify(result)
 
       if (!response.ok) {
         if (response.status === 409) {
