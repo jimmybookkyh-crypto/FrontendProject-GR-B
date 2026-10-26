@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from "react-router";
+import { useNavigate, Link  } from "react-router";
 import type { SubmitEvent } from "react";
 
 import useFormData from "../utils/useFormData.ts";
@@ -31,7 +31,7 @@ export default function Login() {
         try {
             await login(formData.email, formData.password);
             resetForm();
-            navigate("/"); //gåt till startsida, kanske byta till "min profil"
+            navigate("/"); //går till startsida, kanske byta till "min profil"
         } catch (error) {
             setError(
                 error instanceof Error 
@@ -53,6 +53,11 @@ export default function Login() {
             <button type="submit" disabled={loading}>
                 {loading ? "Loggar in..." : "Logga in"}
             </button>
+
+            <p>
+                Inte redan medlem?          
+                <Link to="/bli-medlem">Bli medlem här</Link>
+            </p>
         </form>
     </>
 }

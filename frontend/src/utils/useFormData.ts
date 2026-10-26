@@ -1,18 +1,24 @@
 
 import {useState} from 'react';
+import type {ChangeEvent} from 'react';
 
-export default function useFormData(formValues) {
+export default function useFormData<T extends Record<string, string>>(
+    formValues: T
+) {
 
     const initFormValues = {... formValues };
-    const [formData, setFormData] = useState(formValues);
+    const [formData, setFormData] = useState<T>(formValues);
 
-    function formChange(event) {
+    function formChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         const { name, value } = event.currentTarget;
 
         setFormData({ ...formData, [name]: value });
     }  
 
-    function formAttribute(name, required = true) {
+    function formAttribute<K extends keyof T>(
+        name: K, 
+        required = true
+    ) {
         return {
             name,
             value: formData[name],
