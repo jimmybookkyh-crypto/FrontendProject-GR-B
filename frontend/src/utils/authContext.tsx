@@ -41,6 +41,7 @@ export function AuthProvider({children}: AuthProviderProps) {
                 //hämtar användaren
                 const currentUser = await authService.me();
                 setUser(currentUser);
+                console.log(currentUser);
                 console.log("Hämtat användare och sessionen är restorerad")
             } catch(error) {
                 console.error("Kunde inte restorera sessionen:", error);
@@ -57,8 +58,8 @@ export function AuthProvider({children}: AuthProviderProps) {
     }, []);
 
     //logga in en existerande användare
-    async function login(email: string, password: string) {
-        const response = await authService.login(email, password);
+    async function login(username: string, password: string) {
+        const response = await authService.login(username, password);
 
         localStorage.setItem("token", response.token);
         setUser(response.user);

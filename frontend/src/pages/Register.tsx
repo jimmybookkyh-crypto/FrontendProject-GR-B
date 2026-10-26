@@ -47,8 +47,8 @@ export default function Register() {
     return <>
         <form onSubmit= {handleSubmit}>
             <h1>Bli medlem</h1>
-            <input {...formAttribute('username')} placeholder="username" type="text"/>
-            <input {...formAttribute('email')} placeholder="email" type="text"/>
+            <input {...formAttribute('username')} placeholder="användarnamn" type="text"/>
+            <input {...formAttribute('email')} placeholder="epost" type="text"/>
             <input {...formAttribute('password')} placeholder="lösenord" type="text"/>
             {error && <p role="alert"> {error} </p>}
 

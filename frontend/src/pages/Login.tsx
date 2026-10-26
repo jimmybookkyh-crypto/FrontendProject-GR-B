@@ -12,7 +12,7 @@ export default function Login() {
         formData,
         formAttribute,
         resetForm} = useFormData({
-        email: '',
+        username: '',
         password: ''
     });
 
@@ -29,7 +29,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            await login(formData.email, formData.password);
+            await login(formData.username, formData.password);
             resetForm();
             navigate("/"); //går till startsida, kanske byta till "min profil"
         } catch (error) {
@@ -46,7 +46,7 @@ export default function Login() {
     return <>
         <form onSubmit= {handleSubmit}>
             <h1>Logga in</h1>
-            <input {...formAttribute('email')} placeholder="email" type="text"/>
+            <input {...formAttribute('username')} placeholder="användarnamn" type="text"/>
             <input {...formAttribute('password')} placeholder="lösenord" type="text"/>
             {error && <p role="alert"> {error} </p>}
 

@@ -37,7 +37,7 @@ export default function Header() {
       {!loading && (user ? (
         <div className ="fv-login">
           <span className="d-none d-lg-inline">
-            Inloggad
+            {user.username}
           </span>
 
           <button
@@ -45,7 +45,6 @@ export default function Header() {
           className= "fv-auth-button"
           onClick= {() => {
             logout();
-            navigate("/");
           }}
           >
             Logga ut

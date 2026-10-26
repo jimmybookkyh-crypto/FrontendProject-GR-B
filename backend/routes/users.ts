@@ -258,48 +258,47 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
 
 /* AUTH login */
 usersRouter.post("/auth/login", async (req, res) => {
-  //uppstår problem om email inte är en sträng vid .toLowerCase()
-  const email = typeof req.body.email === "string"
-  ? req.body.email.toLowerCase()
-  : req.body.email;
 
   const password = req.body.password;
+  const username = req.body.username;
 
   //ser om fälten finns och är strängar
   if (
   typeof password !== "string" ||
-  typeof email !== "string"
+  typeof username !== "string"
   ) {
     return res.status(400).json({
-      error: { message: "Email och lösenord krävs och måste vara strängar" },
+      error: { message: "Användarnamn och lösenord krävs och måste vara strängar" },
     });
   }
 
   //ser om fälten är tomma eller är bara mellanslag
   if (
     password.trim() === "" ||
-    email.trim() === ""
+    username.trim() === ""
   ) {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
     });
   }
 
+  /*
   //validera email
   if (!validateEmail(email)) {
     return res.status(400).json({
       error: { message: "Ogiltig email" },
     });
   }
+  */
 
   try {
-    // hämta användare baserat på email
+    // hämta användare baserat på användarnamn
     const { rows } = await pool.query(
-      'select "userId", username, password, email, role from users where email = $1', [email]);
+      'select "userId", username, password, email, role from users where username = $1', [username]);
 
     if (rows.length === 0) {
       return res.status(401).json({
-        error: { message: "Ogiltig email eller lösenord" },
+        error: { message: "Ogiltig användarnamn eller lösenord" },
       });
     }
 
@@ -309,7 +308,7 @@ usersRouter.post("/auth/login", async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({
-        error: { message: "Ogiltig email eller lösenord" },
+        error: { message: "Ogiltig användarnamn eller lösenord" },
       });
     }
     
