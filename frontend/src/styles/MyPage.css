@@ -1,0 +1,394 @@
+/* Mina sidor (T126) – färger från den grafiska profilen.
+   Variablerna gäller även modalerna, som React-Bootstrap lägger utanför .mypage */
+.mypage,
+.mypage-modal {
+  --mp-guld: var(--fv-guldgul, #dfa213);
+  --mp-vinrod: var(--fv-vinrod, #8e1733);
+  --mp-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
+  --mp-midnatt: var(--fv-midnatt, #100e1c);
+  --mp-panel: #1d1b2e;
+  --mp-kort: #262438;
+  --mp-text: var(--fv-offwhite, #f5f7fa);
+  --mp-dampad: rgba(245, 247, 250, 0.72);
+  --mp-linje: rgba(245, 247, 250, 0.14);
+}
+
+.mypage {
+  min-height: 100vh;
+  background-color: var(--mp-midnatt);
+  color: var(--mp-text);
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-weight: 300;
+}
+
+/* ---------- Rubrik ---------- */
+
+.mypage-title {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  letter-spacing: 0.25em;
+  color: var(--mp-guld);
+  margin-bottom: 0.75rem;
+}
+
+.mypage-greeting {
+  font-size: 1.15rem;
+  color: var(--mp-text);
+}
+
+.mypage-notice {
+  max-width: 760px;
+  margin: 0 auto 1.5rem;
+}
+
+/* ---------- Paneler ---------- */
+
+.mypage-panel {
+  background: var(--mp-panel);
+  border: 1px solid var(--mp-linje);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+@media (min-width: 992px) {
+  .mypage-panel {
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+.mypage-panel-title,
+.mypage-section-title {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  letter-spacing: 0.18em;
+  color: var(--mp-text);
+  font-size: 1.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.mypage-section-title {
+  font-size: 2rem;
+}
+
+.mypage-count {
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  color: var(--mp-dampad);
+  margin-left: 0.4rem;
+}
+
+/* ---------- Formulär ---------- */
+
+.mypage .form-label {
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+  color: var(--mp-dampad);
+}
+
+.mypage .form-control {
+  background-color: var(--mp-midnatt);
+  border: 1px solid rgba(245, 247, 250, 0.35);
+  color: var(--mp-text);
+  font-weight: 400;
+}
+
+.mypage .form-control:focus {
+  background-color: var(--mp-midnatt);
+  color: var(--mp-text);
+  border-color: var(--mp-guld);
+  box-shadow: 0 0 0 0.2rem rgba(223, 162, 19, 0.3);
+}
+
+.mypage .form-control:disabled {
+  background-color: rgba(16, 14, 28, 0.6);
+  color: var(--mp-dampad);
+  opacity: 1;
+}
+
+.mypage .form-control::placeholder {
+  color: rgba(245, 247, 250, 0.4);
+}
+
+.mypage .invalid-feedback {
+  color: #ff8a9d; /* läsbar mot mörk bakgrund */
+}
+
+.mypage-help {
+  color: var(--mp-dampad) !important;
+}
+
+/* ---------- Knappar ---------- */
+
+.mypage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* stor nog att trycka på i mobil */
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.mypage-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mypage-btn:focus-visible {
+  outline: 2px solid var(--mp-guld);
+  outline-offset: 2px;
+}
+
+.mypage-btn-outline {
+  background: transparent;
+  color: var(--mp-text);
+  border: 1.5px solid var(--mp-text);
+}
+
+.mypage-btn-outline:hover:not(:disabled) {
+  background: rgba(245, 247, 250, 0.12);
+  color: var(--mp-text);
+}
+
+.mypage-btn-red {
+  background: var(--mp-vinrod);
+  color: #fff;
+  border: 1.5px solid var(--mp-vinrod);
+}
+
+.mypage-btn-red:hover:not(:disabled) {
+  background: var(--mp-vinrod-hover);
+  border-color: var(--mp-vinrod-hover);
+  color: #fff;
+}
+
+.mypage-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.mypage-actions .mypage-btn {
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  white-space: nowrap;
+}
+
+.mypage-btn-delete {
+  font-size: 1.15rem;
+  padding: 0.6rem 1.8rem;
+}
+
+/* ---------- Kommande bokningar ---------- */
+
+.mypage-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.mypage-booking {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1rem;
+  background: var(--mp-kort);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.mypage-poster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  aspect-ratio: 2 / 3;
+  background: var(--mp-panel);
+  border-radius: 4px;
+  overflow: hidden;
+  color: var(--mp-dampad);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.mypage-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mypage-movie-title {
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.mypage-total {
+  color: var(--mp-guld);
+  font-weight: 500;
+  font-size: 1.25rem;
+  margin: 0.2rem 0 0.25rem;
+}
+
+.mypage-bookingnr {
+  font-size: 0.85rem;
+  color: var(--mp-dampad);
+  margin: 0;
+  word-break: break-all;
+}
+
+.mypage-bookingnr span {
+  font-family: ui-monospace, "Consolas", monospace;
+  color: var(--mp-text);
+  letter-spacing: 0.05em;
+}
+
+.mypage-booking-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.mypage-booking-actions small {
+  grid-column: 1 / -1;
+  color: var(--mp-dampad);
+}
+
+/* Från surfplatta: knapparna till höger, som i skissen */
+@media (min-width: 768px) {
+  .mypage-booking {
+    grid-template-columns: 80px 1fr 180px;
+    align-items: center;
+  }
+
+  .mypage-booking-actions {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Tidigare bokningar ---------- */
+
+.mypage-past {
+  gap: 0;
+  background: var(--mp-kort);
+  border-radius: 6px;
+}
+
+.mypage-past-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 1rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--mp-linje);
+}
+
+.mypage-past-row:last-child {
+  border-bottom: 0;
+}
+
+.mypage-past-title {
+  font-weight: 500;
+}
+
+.mypage-past-price {
+  text-align: right;
+}
+
+.mypage-badge {
+  justify-self: start;
+  padding: 0.1rem 1rem;
+  border: 1.5px dashed var(--mp-text);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* Mobil: titel + pris överst, datum och biljetter under */
+@media (max-width: 767.98px) {
+  .mypage-past-row > :nth-child(2),
+  .mypage-past-row > :nth-child(3) {
+    grid-column: 1;
+    color: var(--mp-dampad);
+    font-size: 0.95rem;
+  }
+
+  .mypage-past-row > .mypage-past-price {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .mypage-past-row > .mypage-badge {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    justify-self: end;
+  }
+}
+
+@media (min-width: 768px) {
+  .mypage-past-row {
+    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
+  }
+
+  .mypage-badge {
+    justify-self: center;
+  }
+}
+
+/* ---------- Tomma lägen ---------- */
+
+.mypage-empty {
+  background: var(--mp-kort);
+  border-radius: 6px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.mypage-empty p,
+.mypage-empty-text {
+  color: var(--mp-dampad);
+}
+
+/* ---------- Modaler (renderas utanför .mypage, därför egna färger) ---------- */
+
+/* .modal-content.mypage-modal: två klasser, så att stilen vinner över Bootstrap
+   (bootstrap.min.css laddas efter sidornas CSS i main.tsx) */
+.modal-content.mypage-modal {
+  --bs-modal-bg: var(--mp-panel);
+  --bs-modal-color: var(--mp-text);
+  --bs-modal-header-border-color: var(--mp-linje);
+  --bs-modal-footer-border-color: var(--mp-linje);
+  background: var(--mp-panel);
+  color: var(--mp-text);
+  border: 1px solid var(--mp-linje);
+  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-weight: 300;
+}
+
+.mypage-modal .modal-header,
+.mypage-modal .modal-footer {
+  border-color: var(--mp-linje);
+}
+
+.mypage-modal .modal-title {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  letter-spacing: 0.12em;
+  font-size: 1.8rem;
+  color: var(--mp-guld);
+}
+
+.mypage-modal .btn-close {
+  filter: invert(1);
+}
