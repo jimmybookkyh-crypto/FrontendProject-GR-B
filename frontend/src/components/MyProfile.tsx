@@ -5,6 +5,7 @@ import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../utils/authContext.tsx";
 import { userService } from "../utils/userService.ts";
+import PasswordInput from "./PasswordInput.tsx";
 import type { AuthUser } from "../interface/types.ts";
 
 /* Mina uppgifter, Byt lösenord och Radera konto (T126 / #330).
@@ -195,18 +196,21 @@ export default function MyProfile({ user }: { user: AuthUser }) {
 
         <Form.Group className="mb-3" controlId="mypage-current-password">
           <Form.Label>Nuvarande lösenord</Form.Label>
-          <Form.Control
-            type="password"
+          <PasswordInput
+            id="mypage-current-password"
+            className="form-control"
             autoComplete="current-password"
             value={currentPassword}
             disabled={!editing}
-            isInvalid={!!errors.currentPassword}
+            invalid={!!errors.currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             aria-describedby="mypage-current-password-help"
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.currentPassword}
-          </Form.Control.Feedback>
+          {errors.currentPassword && (
+            <Form.Control.Feedback type="invalid" className="d-block">
+              {errors.currentPassword}
+            </Form.Control.Feedback>
+          )}
           {editing && !errors.currentPassword && (
             <Form.Text
               id="mypage-current-password-help"
@@ -219,18 +223,21 @@ export default function MyProfile({ user }: { user: AuthUser }) {
 
         <Form.Group className="mb-4" controlId="mypage-new-password">
           <Form.Label>Nytt lösenord (minst 8 tecken)</Form.Label>
-          <Form.Control
-            type="password"
+          <PasswordInput
+            id="mypage-new-password"
+            className="form-control"
             autoComplete="new-password"
             value={newPassword}
             disabled={!editing}
-            isInvalid={!!errors.newPassword}
+            invalid={!!errors.newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder={editing ? "Lämna tomt om du inte vill byta" : ""}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.newPassword}
-          </Form.Control.Feedback>
+          {errors.newPassword && (
+            <Form.Control.Feedback type="invalid" className="d-block">
+              {errors.newPassword}
+            </Form.Control.Feedback>
+          )}
         </Form.Group>
 
         {saveError && (
