@@ -148,8 +148,17 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   }
 });
 
-/* DELETE /users/:Id  (SELF OR ADMIN) */
-usersRouter.delete("/:Id", requireAuth, async (req, res) => { 
+/* DELETE /users/:Id  (SELF OR ADMIN)
+   Radera konto (T126 / T156 / #297), allt i en transaktion:
+   1. Kommande bokningar (visningen har inte börjat) avbokas: biljetter och bokning tas bort,
+      så platserna blir lediga för andra.
+   2. Tidigare bokningar anonymiseras: kopplas loss från kontot (userId = NULL)
+      och e-posten ersätts, så att biografens historik finns kvar utan personuppgifter.
+   3. Kontot raderas.
+   Utan steg 1–2 stoppar databasen raderingen (booking_userId_fkey) och svaret blir 500. */
+const ANONYMIZED_EMAIL = "raderad-anvandare@filmvisarna.se";
+
+usersRouter.delete("/:Id", requireAuth, async (req, res) => {
   const userId = parseId(req.params.Id as string);
 
   if (!userId) {
@@ -158,32 +167,81 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId) {
+  if (
+    res.locals.user.role !== "admin" &&
+    Number(res.locals.user.userId) !== userId
+  ) {
     return res.status(403).json({
-      error: { message: "Du får inte ta bort andra användare" }
+      error: { message: "Du får inte ta bort andra användare" },
     });
   }
 
+  const client = await pool.connect();
+
   try {
-    const { rows } = await pool.query(
+    await client.query("BEGIN");
+
+    // 1. Avboka kommande bokningar och frigör platserna
+    const upcoming = await client.query<{ bookingId: string }>(
+      `select b."bookingId"
+        from bookings b
+        join showings sh on sh."showingId" = b."showingId"
+        where b."userId" = $1
+          and (sh.date + sh."time") > now()
+        for update of b`,
+      [userId],
+    );
+
+    const upcomingIds = upcoming.rows.map((row) => row.bookingId);
+
+    if (upcomingIds.length > 0) {
+      await client.query(
+        `delete from tickets where "bookingId" = any($1::bigint[])`,
+        [upcomingIds],
+      );
+      await client.query(
+        `delete from bookings where "bookingId" = any($1::bigint[])`,
+        [upcomingIds],
+      );
+    }
+
+    // 2. Anonymisera tidigare bokningar
+    await client.query(
+      `update bookings
+        set "userId" = null, email = $2
+        where "userId" = $1`,
+      [userId, ANONYMIZED_EMAIL],
+    );
+
+    // 3. Radera kontot
+    const { rows } = await client.query(
       `delete from users
         where "userId" = $1
         returning "userId", username, email, role, "created_At"`,
-      [userId]);
+      [userId],
+    );
 
     if (rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         error: { message: "Användare hittades inte" },
       });
     }
 
-    return res.status(200).json({ data: rows[0] });
+    await client.query("COMMIT");
+
+    return res.status(200).json({
+      data: { ...rows[0], cancelledBookings: upcomingIds.length },
+    });
   } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("DELETE /users/:Id failed", error);
 
     return res.status(500).json({
       error: { message: "Fel vid borttagning av användare" },
     });
+  } finally {
+    client.release();
   }
 });
 /* AUTH register*/ /*istället för post*/

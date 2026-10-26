@@ -36,6 +36,27 @@ export default function Header() {
 
       {!loading && (user ? (
         <div className ="fv-login">
+          {/* Gul ring med ikon: går till Mina sidor (T126) */}
+          <NavLink
+            to="/mypage"
+            className="fv-mypage-link"
+            aria-label="Mina sidor"
+            title="Mina sidor"
+          >
+            <svg
+              className="fv-mypage-icon"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="23" fill="currentColor" />
+              <circle cx="24" cy="18" r="7.5" fill="#100e1c" />
+              <path
+                d="M11 37.5c2.4-6.6 7.3-9.8 13-9.8s10.6 3.2 13 9.8c-3.4 3.4-8 5.3-13 5.3s-9.6-1.9-13-5.3z"
+                fill="#100e1c"
+              />
+            </svg>
+          </NavLink>
+
           <span className="d-none d-lg-inline">
             {user.username}
           </span>

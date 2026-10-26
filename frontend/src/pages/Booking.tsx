@@ -369,10 +369,14 @@ export default function BookingPage() {
     };
 
     try {
+      // Skickar med inloggningens token så att backend kopplar bokningen till kontot (T126b).
+      // Utan token sparas bokningen som gästbokning och syns inte på Mina sidor.
+      const token = localStorage.getItem("token");
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(bookingBody),
       });

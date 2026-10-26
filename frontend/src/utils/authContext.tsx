@@ -12,7 +12,7 @@ import {
 //ansvarar för kommunikationen med backend genom apiRequest för att skicka eller hämta inloggningsuppgifter
 import { authService } from "./authService.ts";
 
-import { AuthUser, AuthContextType } from "../interface/types.ts";
+import type { AuthUser, AuthContextType } from "../interface/types.ts";
 
 //skapar contexten
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +70,11 @@ export function AuthProvider({children}: AuthProviderProps) {
         await authService.register(username, email, password);
     }
 
+    //uppdaterar användarens uppgifter i appen efter ändring på Mina sidor (T126)
+    function updateUser(updatedUser: AuthUser) {
+        setUser(updatedUser);
+    }
+
     //logga ut användaren
     function logout() {
         localStorage.removeItem("token");
@@ -84,7 +89,8 @@ export function AuthProvider({children}: AuthProviderProps) {
             loading,
             login,
             register,
-            logout
+            logout,
+            updateUser
         }}>
             {children}
         </AuthContext.Provider>

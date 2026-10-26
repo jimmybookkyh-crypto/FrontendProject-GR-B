@@ -11,4 +11,13 @@ export const MY_BOOKINGS_PATH = "/bookings/me";
    så en inloggad användares bokning kopplas till kontot i backend (T126b). */
 export const bookingService = {
   getMyBookings: () => apiRequest<MyBookingsResponse>("bookings/me"),
+
+  /* Avbokar en bokning (DELETE /bookings/:id).
+     Backend tillåter bara ägaren (eller admin) och bara om visningen inte har börjat.
+     Bokningen raderas och platserna blir lediga. Status "Avbokad" kommer i sprint 4 (T113). */
+  cancelBooking: (bookingId: string | number) =>
+    apiRequest<{ bookingId: number }>(
+      `bookings/${encodeURIComponent(String(bookingId))}`,
+      { method: "DELETE" },
+    ),
 };

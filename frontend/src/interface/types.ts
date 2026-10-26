@@ -13,8 +13,9 @@ export interface AuthResponse {
 export interface AuthContextType {
   user: AuthUser | null;
   loading: boolean | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>; // inloggning med användarnamn (#371)
   logout: () => void;
+  updateUser: (user: AuthUser) => void; // Mina sidor: efter ändrade uppgifter
   register: (
     username: string,
     email: string,
