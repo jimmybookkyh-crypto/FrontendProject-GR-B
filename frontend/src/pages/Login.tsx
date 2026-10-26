@@ -1,9 +1,75 @@
-//PLACEHOLDER FÖR TEST
-// ta bort vid implementering av faktisk sida
 
-import { useAuth } from "../utils/authContext.tsx"
+import { useState } from 'react';
+import { useNavigate, Link  } from "react-router";
+import type { SubmitEvent } from "react";
+
+import useFormData from "../utils/useFormData.ts";
+
+import { useAuth } from "../utils/authContext.tsx";
+
 export default function Login() {
-    const username = "xX_SuperBertil_DragonSlayer_Xx";
+    const {
+        formData,
+        formAttribute,
+        resetForm} = useFormData({
+        username: '',
+        password: ''
+    });
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        setError("");
+        setLoading(true);
+
+        try {
+            await login(formData.username, formData.password);
+            resetForm();
+            navigate("/"); //går till startsida, kanske byta till "min profil"
+        } catch (error) {
+            setError(
+                error instanceof Error 
+                ? error.message 
+                : "Login misslyckades vid oväntat fel"
+            );
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return <>
+        <form onSubmit= {handleSubmit}>
+            <h1>Logga in</h1>
+            <input {...formAttribute('username')} placeholder="användarnamn" type="text"/>
+            <input {...formAttribute('password')} placeholder="lösenord" type="text"/>
+            {error && <p role="alert"> {error} </p>}
+
+            <button type="submit" disabled={loading}>
+                {loading ? "Loggar in..." : "Logga in"}
+            </button>
+
+            <p>
+                Inte redan medlem?          
+                <Link to="/bli-medlem">Bli medlem här</Link>
+            </p>
+        </form>
+    </>
+}
+
+Login.route = {
+  path: "/login",
+  order: 0,
+  label: "Login",
+};
+
+/*
+const username = "xX_SuperBertil_DragonSlayer_Xx";
     const email = "ImSoAmazingLiteralGod@gmail.com";
     const password = "SUPAtestOMG123!!";
 
@@ -53,10 +119,4 @@ export default function Login() {
             </button>
         </div>
     );
-}
-
-Login.route = {
-  path: "/login",
-  order: 0,
-  label: "Login",
-};
+*/

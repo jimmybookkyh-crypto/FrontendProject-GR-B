@@ -71,7 +71,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
       email.trim().toLowerCase() !== (user.email ?? "").toLowerCase() ||
       newPassword !== "";
 
-    if (username.trim() === "") found.username = "Fyll i ditt namn.";
+    if (username.trim() === "") found.username = "Fyll i ditt användarnamn.";
     if (!EMAIL_PATTERN.test(email.trim()))
       found.email = "Fyll i en giltig e-postadress, t.ex. namn@exempel.se.";
     if (newPassword !== "") found.newPassword = passwordError(newPassword);
@@ -94,8 +94,8 @@ export default function MyProfile({ user }: { user: AuthUser }) {
 
     setSaving(true);
     try {
-      // 1. Rätt nuvarande lösenord? (mot den e-post som är sparad nu)
-      await userService.verifyPassword(user.email, currentPassword);
+      // 1. Rätt nuvarande lösenord? (mot det användarnamn som är sparat nu – inloggning sker med användarnamn, #371)
+      await userService.verifyPassword(user.username, currentPassword);
 
       // 2. Spara. Byter man inte lösenord skickas det nuvarande, så det blir oförändrat.
       const updated = await userService.updateProfile(user.userId, {
@@ -156,7 +156,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
         <h2 className="mypage-panel-title">Mina uppgifter</h2>
 
         <Form.Group className="mb-3" controlId="mypage-username">
-          <Form.Label>Namn</Form.Label>
+          <Form.Label>Användarnamn</Form.Label>
           <Form.Control
             type="text"
             autoComplete="name"
@@ -164,10 +164,16 @@ export default function MyProfile({ user }: { user: AuthUser }) {
             disabled={!editing}
             isInvalid={!!errors.username}
             onChange={(e) => setUsername(e.target.value)}
+            aria-describedby="mypage-username-help"
           />
           <Form.Control.Feedback type="invalid">
             {errors.username}
           </Form.Control.Feedback>
+          {editing && !errors.username && (
+            <Form.Text id="mypage-username-help" className="mypage-help">
+              Du loggar in med ditt användarnamn.
+            </Form.Text>
+          )}
         </Form.Group>
 
         <Form.Group className="mb-4" controlId="mypage-email">

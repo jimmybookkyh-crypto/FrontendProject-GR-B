@@ -17,13 +17,14 @@ export interface DeleteAccountResponse extends AuthUser {
 
 export const userService = {
   /* Kontrollerar att nuvarande lösenord stämmer genom att logga in på nytt.
+     Inloggningen sker med användarnamn sedan PR #371.
      Den nya token sparas inte – vi vill bara veta om lösenordet är rätt.
      (Backend kontrollerar inte nuvarande lösenord i PATCH än, se T168.) */
-  async verifyPassword(email: string, password: string): Promise<void> {
+  async verifyPassword(username: string, password: string): Promise<void> {
     try {
       await apiRequest<unknown>("users/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
     } catch {
       throw new Error("Nuvarande lösenord stämmer inte.");
