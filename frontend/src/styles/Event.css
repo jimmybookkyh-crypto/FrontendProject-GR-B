@@ -2,7 +2,7 @@
    Guldgul #DFA213, Vinröd #8E1733, Midnatt #100E1C, Off-white #F5F7FA
    Typsnitt: Antonio (rubriker), Oswald (brödtext) */
 
-.event-sida {
+.event-page-container {
   padding-top: 2rem;
   padding-bottom: 3rem;
 }
@@ -17,12 +17,12 @@
 }
 
 /* Sidrubrik */
-.event-sidhuvud {
+.event-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.event-sidhuvud h1 {
+.event-header h1 {
   font-family: "Antonio", sans-serif;
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
@@ -32,7 +32,7 @@
   margin-bottom: 0.5rem;
 }
 
-.event-sidhuvud p {
+.event-header p {
   font-family: "Oswald", sans-serif;
   color: #f5f7fa;
   font-size: 1.1rem;
@@ -40,7 +40,7 @@
 }
 
 /* Lista med event, ett under varandra */
-.event-lista {
+.event-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -49,14 +49,14 @@
   gap: 2rem;
 }
 
-.event-tomt {
+.event-empty {
   text-align: center;
   color: #f5f7fa;
   font-family: "Oswald", sans-serif;
 }
 
 /* Eventkort */
-.event-kort {
+.event-card {
   background-color: rgba(16, 14, 28, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -67,11 +67,11 @@
   color: #f5f7fa;
 }
 
-.event-bild-ram {
+.event-image-border{
   height: 100%;
 }
 
-.event-bild {
+.event-image {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -79,20 +79,20 @@
 }
 
 @media (min-width: 992px) {
-  .event-bild {
+  .event-image {
     aspect-ratio: auto;
     height: 100%;
     min-height: 320px;
   }
 }
 
-.event-innehall {
+.event-content {
   padding: 1.5rem;
   font-family: "Oswald", sans-serif;
 }
 
 @media (min-width: 768px) {
-  .event-innehall {
+  .event-content {
     padding: 2rem;
   }
 }
@@ -109,7 +109,7 @@
   letter-spacing: 0.02em;
 }
 
-.event-titel {
+.event-title {
   font-family: "Antonio", sans-serif;
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
@@ -132,7 +132,7 @@
 }
 
 /* Filmlista (öppnas med knapp) */
-.event-filmer {
+.event-movies {
   list-style: none;
   margin: 0.75rem 0 0;
   padding: 0.75rem 0 0;
@@ -142,18 +142,18 @@
 }
 
 @media (min-width: 768px) {
-  .event-filmer {
+  .event-movies {
     columns: 2;
   }
 }
 
-.event-filmer li {
+.event-movies li {
   break-inside: avoid;
   padding: 0.25rem 0;
 }
 
 /* Knappar */
-.event-knappar {
+.event-buttons {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -161,7 +161,7 @@
 }
 
 @media (min-width: 576px) {
-  .event-knappar {
+  .event-buttons {
     flex-direction: row;
     flex-wrap: wrap;
   }
@@ -169,7 +169,7 @@
 
 /* Off-white text på Midnatt (21:1). Bootstrap-variablerna sätts för alla
    lägen så att texten aldrig blir mörk (t.ex. efter klick eller fokus). */
-.btn.event-filmer-knapp {
+.btn.event-movies-button {
   --bs-btn-color: #f5f7fa;
   --bs-btn-bg: transparent;
   --bs-btn-border-color: #dfa213;
@@ -186,40 +186,17 @@
   font-family: "Oswald", sans-serif;
 }
 
-.btn.event-filmer-knapp:hover,
-.btn.event-filmer-knapp:focus,
-.btn.event-filmer-knapp:active,
-.btn.event-filmer-knapp.active,
-.btn.event-filmer-knapp.show {
+.btn.event-movies-button:hover,
+.btn.event-movies-button:focus,
+.btn.event-movies-button:active,
+.btn.event-movies-button.active,
+.btn.event-movies-button.show {
   color: #f5f7fa;
-}
-
-/* CTA i vinröd, samma uttryck som "Biljetter →" på startsidan
-   (Off-white på Vinröd = 9,1:1) */
-.event-boka-knapp {
-  background-color: #8e1733;
-  color: #f5f7fa;
-  border: 2px solid #8e1733;
-  font-family: "Oswald", sans-serif;
-}
-
-.event-boka-knapp:hover,
-.event-boka-knapp:active {
-  background-color: #a81c3d;
-  border-color: #a81c3d;
-  color: #f5f7fa;
-}
-
-/* Synlig tangentbordsfokus */
-.event-filmer-knapp:focus-visible,
-.event-boka-knapp:focus-visible {
-  outline: 3px solid #f5f7fa;
-  outline-offset: 2px;
 }
 
 /* Respektera "minska rörelse" */
 @media (prefers-reduced-motion: reduce) {
-  .event-kort .collapsing {
+  .event-card .collapsing {
     transition: none;
   }
 }

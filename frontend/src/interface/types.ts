@@ -92,3 +92,19 @@ export interface MyBookingsResponse {
   upcoming: MyBooking[]; // närmast först
   past: MyBooking[]; // senaste först
 }
+
+export type EventRow = {
+  eventId: string;
+  name: string;
+  date: string | null; // "YYYY-MM-DD"
+  current: boolean;
+  info: string | null;
+};
+
+export type EventShowing = {
+  showingId: string;
+  date: string;
+  movieId: string;
+  movieTitle: string;
+  productionyear: number | null;
+};
