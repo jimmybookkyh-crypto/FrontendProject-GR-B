@@ -66,7 +66,14 @@ export default function MovieCatalog() {
               Inga filmer att visa just nu.
             </p>
           )}
-          {filmer && filmer.length > 0 && <MovieGrid movies={filmer} />}
+          
+          {/* Skicka med showDetails baserat på om filtret inte är kommandeFilmer */}
+          {filmer && filmer.length > 0 && (
+            <MovieGrid
+              movies={filmer}
+              showDetails={aktivtFilter !== "kommandeFilmer"}
+            />
+          )}
         </Container>
       </div>
     </>

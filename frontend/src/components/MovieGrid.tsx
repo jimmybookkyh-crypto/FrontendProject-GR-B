@@ -13,10 +13,11 @@ export interface Movie {
 
 interface MovieGridProps {
   movies: Movie[];
-  datum?: string; 
+  datum?: string;
+  showDetails?: boolean; // <-- Lägg till denna i interface
 }
 
-const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum }) => {
+const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum, showDetails = true }) => {
   return (
     <Row xs={2} md={3} lg={4} className="g-4">
       {movies.map((movie) => (
@@ -27,6 +28,7 @@ const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum }) => {
             images={movie.images ?? ''}
             ageRating={movie.ageRating}
             datum={datum}
+            showDetails={showDetails} // <-- Skicka vidare till MovieCard
           />
         </Col>
       ))}
