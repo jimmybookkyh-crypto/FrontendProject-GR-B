@@ -76,7 +76,7 @@ export default function BookingPage() {
     if (user?.email) {
       setEmail(user.email);
     }
-    const currentUserId = user?.id ?? user?.userId;
+    const currentUserId = user?.userId;
     if (currentUserId) {
       setUserId(Number(currentUserId));
     }
