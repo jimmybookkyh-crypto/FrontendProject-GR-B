@@ -7,6 +7,12 @@ import useFormData from "../utils/useFormData.ts";
 
 import { useAuth } from "../utils/authContext.tsx";
 
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Form from "react-bootstrap/Form";
+import "../styles/MyPage.css";
+
 export default function Login() {
     const {
         formData,
@@ -43,23 +49,35 @@ export default function Login() {
         }
     }
 
-    return <>
-        <form onSubmit= {handleSubmit}>
-            <h1>Logga in</h1>
-            <input {...formAttribute('username')} placeholder="användarnamn" type="text"/>
-            <input {...formAttribute('password')} placeholder="lösenord" type="text"/>
-            {error && <p role="alert"> {error} </p>}
+    return (
+    <div className="mypage">
+        <Container className="py-5 py-lg-5">
+            <Row className="g-4 py-5 justify-content-md-center">
+                <Col xs={12} lg={4}>
+                    <Form onSubmit= {handleSubmit} className="mypage-panel">
+                        <h2 className="mypage-panel-title">Logga in</h2>
+                        <Form.Group className="mb-3" controlId="mypage-username">
+                            <Form.Label className= "mt-4">Användarnamn</Form.Label>
+                            <Form.Control className= "mt-2" {...formAttribute('username')} placeholder="användarnamn" type="text"/>
 
-            <button type="submit" disabled={loading}>
-                {loading ? "Loggar in..." : "Logga in"}
-            </button>
+                            <Form.Label className= "mt-4">Lösenord</Form.Label>
+                            <Form.Control className= "mt-2" {...formAttribute('password')} placeholder="lösenord" type="text"/>
+                            {error && <p role="alert"> {error} </p>}
 
-            <p>
-                Inte redan medlem?          
-                <Link to="/bli-medlem">Bli medlem här</Link>
-            </p>
-        </form>
-    </>
+                            <button className="mypage-btn mypage-btn-outline mt-4" type="submit" disabled={loading}>
+                                {loading ? "Loggar in..." : "Logga in"}
+                            </button>
+                        </Form.Group>
+                        <Form.Text id="mypage-username-help" className="mypage-help ">
+                            Inte redan medlem?
+                            <Link className="ms-2" to="/bli-medlem">Bli medlem här</Link>
+                        </Form.Text>
+                    </Form>
+                    
+                </Col>
+            </Row>
+        </Container>
+    </div> )
 }
 
 Login.route = {
