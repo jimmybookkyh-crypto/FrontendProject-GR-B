@@ -94,7 +94,6 @@ export default function BookingConfirmation() {
                   <h3 className="h5 fw-bold heading-gold mb-4 text-center">
                     SAMMANFATTNING
                   </h3>
-
                   <h4 className="mb-2 text-center">
                     <strong>Bokningsnummer:</strong> {booking.bookingNumber}
                   </h4>
@@ -104,30 +103,27 @@ export default function BookingConfirmation() {
                       biobiljetter
                     </em>
                   </p>
-
                   <p className="mb-2">
                     <strong>Platser:</strong> {seatLabels}
                   </p>
-
                   {Object.entries(countByType).map(([name, count]) => (
                     <p key={name} className="mb-2">
                       <strong>{name}:</strong> {count} st
                     </p>
                   ))}
-
                   <hr className="border-secondary" />
-
                   <h4 className="h5 mb-4">
                     <strong>Totalpris:</strong> {totalPrice} kr
                   </h4>
 
-                  <p className="mb-4">
-                    <em>
-                      Vi har skickat en bekräftelse på din bokning till din
-                      e-postadress.
-                    </em>
+                  {/* TODO - Regeln om 2 timmar tar ni i sprint 4.  */}
+                  <p className="mb-1">
+                    <strong>Avbokning:</strong> Du kan avboka fram till att
+                    filmen startar.
                   </p>
-
+                  <p className="mb-4">
+                    Är du inloggad avbokar du under Mina sidor.
+                  </p>
                   <div className="d-flex justify-content-between mt-4">
                     <button
                       type="button"
