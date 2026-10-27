@@ -141,7 +141,9 @@ function EventCard({ event }: { event: EventRow }) {
 
         <Col lg={7}>
           <div className="event-content">
-            {!loading && dateRange && <p className="event-date-range">{dateRange}</p>}
+            {!loading && dateRange && (
+              <p className="event-date-range">{dateRange}</p>
+            )}
             <h2 id={headingId} className="event-title">
               {event.name}
             </h2>
@@ -178,8 +180,8 @@ function EventCard({ event }: { event: EventRow }) {
                     aria-controls={moviesId}
                   >
                     {showMovies
-                      ? "Dölj movies"
-                      : `Visa alla ${movies.length} movies`}
+                      ? "Dölj filmer"
+                      : `Visa alla ${movies.length} filmer`}
                   </Button>
                 </div>
               </>
@@ -211,8 +213,8 @@ export default function EventPage() {
     >
       <Container className="event-page-container">
         <header className="event-header">
-          <h1>Kommande event</h1>
-          <p>Hjälteveckor på Filmvisarna: flera movies, en hjälte, en vecka.</p>
+          <h1>Kommande evenemanger</h1>
+          <p>Hjälteveckor på Filmvisarna: flera filmer, en hjälte, en vecka.</p>
         </header>
 
         {loading && <LoadingSpinner text="Hämtar event…" />}
