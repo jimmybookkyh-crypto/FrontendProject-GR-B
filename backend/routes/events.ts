@@ -94,6 +94,36 @@ eventsRouter.get('/:id', async (req, res) => {
   }
 });
 
+/* GET /events/:id/showings */
+eventsRouter.get('/:id/showings', async (req, res) => {
+  const id = parseId(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      error: { message: 'Ogiltigt event id' },
+    });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `select v."showingId", v.date::text as date, v."time",
+              v."movieId", v."movieTitle", m.productionyear
+        from event_showings_view v
+        join movies m on m."movieId" = v."movieId"
+        where v."eventId" = $1
+        order by v.date, v."time"`, [id]);
+
+    return res.status(200).json({ data: rows });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Okänt fel';
+    console.error('GET /events/:id/showings failed', { eventId: id, message });
+
+    return res.status(500).json({
+      error: { message: 'Fel vid hämtning av visningar' },
+    });
+  }
+});
+
 /* POST /events  –  body: { name, date?, current?, info? } */
 eventsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
   const body = req.body ?? {};

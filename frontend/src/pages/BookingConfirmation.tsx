@@ -1,130 +1,157 @@
-import { Row, Container, Col, Card,  } from "react-bootstrap";
+import { Row, Container, Col, Card } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/buttons.css";
+import ErrorMessage from "../components/ErrorMessage";
+import MovieCard from "../components/MovieCard";
+
+/* Det som bokningssidan skickar med i navigate(..., { state }) */
+type ConfirmationState = {
+  bookingNumber: string;
+  movieId: number;
+  movieTitle: string;
+  images: string[];
+  date: string;
+  time: string;
+  auditoriumName: string;
+  tickets: {
+    ticketTypeName: string;
+    price: number;
+    seatsRow: number;
+    seatsNumber: number;
+  }[];
+};
 
 export default function BookingConfirmation() {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const location = useLocation();
 
+  // state finns bara om man kommer direkt från bokningssidan i samma flik
+  const booking = location.state as ConfirmationState | null;
 
-  return <> 
-    <div className="booking-page min-vh-100 text-light"
+  if (!booking?.bookingNumber) {
+    return (
+      <ErrorMessage message="Det finns ingen bokning att visa. Har du redan bokat hittar du bokningsnumret i ditt bekräftelsemejl." />
+    );
+  }
+
+  const seatLabels = booking.tickets
+    .map((t) => `Rad ${t.seatsRow} plats ${t.seatsNumber}`)
+    .join(", ");
+  const countByType = booking.tickets.reduce<Record<string, number>>(
+    (acc, t) => {
+      acc[t.ticketTypeName] = (acc[t.ticketTypeName] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
+  const totalPrice = booking.tickets.reduce((sum, t) => sum + t.price, 0);
+
+  return (
+    <>
+      <div
+        className="booking-page min-vh-100 text-light"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-      <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
-        BOKNINGSBEKRÄFTELSE
-      </h1>
+        <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
+          BOKNINGSBEKRÄFTELSE
+        </h1>
 
-      <Container className="pb-5">
-        <Row className="justify-content-center mb-4">
-          <Col xs={12} lg={8} xl={7}>
-            <Card className="glass-card">
-              <Card.Body className="p-3 p-md-4">
-                <Row className="align-items-center g-3 g-md-4">
-                  <Col xs={5} md={4} className="text-center">
-                    <img
-                      src="src/assets/Thor.jpg"
-                      alt="Film Poster"
-                      className="img-fluid rounded"
-                    />
-                  </Col>
-                  <Col xs={7} md={8}>
-                    <h2 className="h5 fw-bold mb-3">Thor: love and thunder</h2>
-                    <p className="mb-1">Datum: 2026-10-01</p>
-                    <p className="mb-1">Tid: 19:00</p>
-                    <p className="mb-0">Salong: Stora Salongen </p>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-        <Row className="justify-content-center">
-          <Col xs={12} lg={8} xl={7}>
-            <Card className="glass-card">
-              <Card.Body className="p-3 p-md-4">
-
-                <h3 className="h5 fw-bold heading-gold mb-4 text-center">
-                  SAMMANFATTNING
-                </h3>
-
-                <h4 className="mb-2 text-center">
-                  <strong>Bokningsnummer:</strong> FV-2026-AB12
-                </h4>
-                <p className="mb-4 text-center">
-                  <em>Ange ditt bokningsnummer i kassan vid betalning av dina biobiljetter</em>
-                </p>
-    
-
-                <p className="mb-2">
-                  <strong>Platser:</strong>{" "}
-                  {state.seats.join(", ")}
-                </p>
-
-                {state.adultTickets > 0 && (
-                  <p className="mb-2">
-                    <strong>Vuxen:</strong> {state.adultTickets} st
+        <Container className="pb-5">
+          <Row className="justify-content-center mb-4">
+            <Col xs={12} lg={8} xl={7}>
+              <Card className="glass-card">
+                <Card.Body className="p-3 p-md-4">
+                  <Row className="align-items-center g-3 g-md-4">
+                    <Col xs={5} md={4} className="text-center">
+                      <MovieCard
+                        movieId={booking.movieId}
+                        title={booking.movieTitle}
+                        images={booking.images}
+                        showDetails={false}
+                        datum={booking.date}
+                      />
+                    </Col>
+                    <Col xs={7} md={8}>
+                      <h2 className="h5 fw-bold mb-3">{booking.movieTitle}</h2>
+                      <p className="mb-1">Datum: {booking.date}</p>
+                      <p className="mb-1">Tid: {booking.time}</p>
+                      <p className="mb-0">Salong: {booking.auditoriumName}</p>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row className="justify-content-center">
+            <Col xs={12} lg={8} xl={7}>
+              <Card className="glass-card">
+                <Card.Body className="p-3 p-md-4">
+                  <h3 className="h5 fw-bold heading-gold mb-4 text-center">
+                    SAMMANFATTNING
+                  </h3>
+                  <h4 className="mb-2 text-center">
+                    <strong>Bokningsnummer:</strong> {booking.bookingNumber}
+                  </h4>
+                  <p className="mb-4 text-center">
+                    <em>
+                      Ange ditt bokningsnummer i kassan vid betalning av dina
+                      biobiljetter
+                    </em>
                   </p>
-                )}
-
-                {state.childTickets > 0 && (
                   <p className="mb-2">
-                    <strong>Barn:</strong> {state.childTickets} st
+                    <strong>Platser:</strong> {seatLabels}
                   </p>
-                )}
+                  {Object.entries(countByType).map(([name, count]) => (
+                    <p key={name} className="mb-2">
+                      <strong>{name}:</strong> {count} st
+                    </p>
+                  ))}
+                  <hr className="border-secondary" />
+                  <h4 className="h5 mb-4">
+                    <strong>Totalpris:</strong> {totalPrice} kr
+                  </h4>
 
-                {state.seniorTickets > 0 && (
-                  <p className="mb-2">
-                    <strong>Pensionär:</strong> {state.seniorTickets} st
+                  {/* TODO - Regeln om 2 timmar tar ni i sprint 4.  */}
+                  <p className="mb-1">
+                    <strong>Avbokning:</strong> Du kan avboka fram till att
+                    filmen startar.
                   </p>
-                )}
+                  <p className="mb-4">
+                    Är du inloggad avbokar du under Mina sidor.
+                  </p>
+                  <div className="d-flex justify-content-between mt-4">
+                    <button
+                      type="button"
+                      className="cta-btn rounded-pill py-2 px-4 fw-bold m-2"
+                      onClick={() => navigate("/")}
+                    >
+                      Till startsidan
+                    </button>
 
-
-                <hr className="border-secondary" />
-
-                <h4 className="h5 mb-4">
-                  <strong>Totalpris:</strong> {state.totalPrice} kr
-                </h4>
-
-                <p className="mb-4">
-                  <em>Vi har skickat en bekräftelse på din bokning till din e-postadress.</em>
-                </p>
-
-                <div className="d-flex justify-content-between mt-4">
-                  <button
-                    type="button"
-                    className="cta-btn rounded-pill py-2 px-4 fw-bold m-2"
-                    onClick={() => navigate("/")}
-                  >
-                    Till startsidan
-                  </button>
-
-                  <button
-                    type="button"
-                    className="button-cancel btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
-                  >
-                    Avboka bokning
-                  </button>
-                </div>
-
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-      </Container>
-    </div>
-  </>
-;
+                    {/* <button
+                      type="button"
+                      className="button-cancel btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
+                    >
+                      Avboka bokning
+                    </button> */}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </>
+  );
 }
 
 BookingConfirmation.route = {
   path: "/bookingconfirmation",
-  order: 1,
+  order: 14,
   label: "Bokningsbekräftelse",
 };

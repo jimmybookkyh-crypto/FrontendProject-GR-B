@@ -1,0 +1,111 @@
+// är en .tsx fil då filen innehåller JSX syntax men är ingen react komponent
+// createContext skapar en context som kan dela data mellan komponenter 
+// useContext hämtar värdet från en context 
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from "react";
+
+//ansvarar för kommunikationen med backend genom apiRequest för att skicka eller hämta inloggningsuppgifter
+import { authService } from "./authService.ts";
+
+import type { AuthUser, AuthContextType } from "../interface/types.ts";
+
+//skapar contexten
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+//children är det innehål som placeras i AuthProvider, ReactNode anger vilken typ av innehåll som är tillåtet
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+
+export function AuthProvider({children}: AuthProviderProps) {
+    const [user, setUser] = useState<AuthUser | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    //Restorerar användarens session vid uppdatering av sidan.
+    useEffect(() => {
+        async function restoreSession() {
+            const token = localStorage.getItem("token");
+
+            if(!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                //hämtar användaren
+                const currentUser = await authService.me();
+                setUser(currentUser);
+                console.log(currentUser);
+                console.log("Hämtat användare och sessionen är restorerad")
+            } catch(error) {
+                console.error("Kunde inte restorera sessionen:", error);
+                localStorage.removeItem("token");
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        //void uttryckligen ignorerar det Promise-värde som funktionen returnerar
+
+        void restoreSession();
+    }, []);
+
+    //logga in en existerande användare
+    async function login(username: string, password: string) {
+        const response = await authService.login(username, password);
+
+        localStorage.setItem("token", response.token);
+        setUser(response.user);
+    }
+
+    //registrera en ny användare (utan att automatiskt logga in)
+    async function register(username: string, email: string, password: string) {
+        await authService.register(username, email, password);
+    }
+
+    //uppdaterar användarens uppgifter i appen efter ändring på Mina sidor (T126)
+    function updateUser(updatedUser: AuthUser) {
+        setUser(updatedUser);
+    }
+
+    //logga ut användaren
+    function logout() {
+        localStorage.removeItem("token");
+        setUser(null);
+    }
+
+    //gör att autentiseringsinformationen blir tillgänglig för andra komponenter
+    return (
+        <AuthContext.Provider
+        value= {{
+            user,
+            loading,
+            login,
+            register,
+            logout,
+            updateUser
+        }}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+// låter andra komponenter få tillgång till kontext 
+export function useAuth() {
+    const context = useContext(AuthContext);
+
+    if (context === undefined) {
+        throw new Error(
+            "useAuth måste användas inuti en AuthProvider"
+        );
+    }
+
+    return context;
+}

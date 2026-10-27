@@ -7,6 +7,8 @@ import routes from "./routes.tsx";
 import App from "./App.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import { AuthProvider } from "./utils/authContext.tsx"
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,6 +19,8 @@ const router = createBrowserRouter([
 
 createRoot(document.querySelector("#root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 );

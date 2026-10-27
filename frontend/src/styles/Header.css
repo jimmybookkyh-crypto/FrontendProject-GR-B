@@ -1,5 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
 
+.fv-auth-button {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.fv-auth-button:hover {
+  opacity: 0.8;
+}
+
 .navbar.fv-navbar {
   --fv-yellow: #f5b400;
   --fv-bg: #0d0d14;
@@ -291,5 +304,61 @@
 
   .fv-navbar .dropdown-item {
     font-size: 1.2rem;
+  }
+}
+
+/* ---------- Mina sidor-ikon (inloggad) ---------- */
+
+.fv-mypage-link {
+  display: inline-flex;
+  color: var(--fv-yellow);
+  border-radius: 50%;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+
+.fv-mypage-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: block;
+}
+
+.fv-mypage-link:hover,
+.fv-mypage-link:focus-visible {
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.fv-mypage-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+/* Vit ring runt ikonen när man är på Mina sidor */
+.fv-mypage-link.active {
+  box-shadow:
+    0 0 0 3px var(--fv-bg),
+    0 0 0 5px #fff;
+}
+
+@media (max-width: 991.98px) {
+  .fv-mypage-icon {
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+}
+
+/* Inloggad: ikon + Logga ut sida vid sida, mindre text än Logga in-länken */
+.fv-login .fv-auth-button {
+  font-size: 1.5rem;
+  line-height: 1.2;
+  padding: 0.25rem 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+  .fv-login .fv-auth-button {
+    font-size: 1.1rem;
+    padding: 0.2rem 0.55rem;
   }
 }

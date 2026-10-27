@@ -4,134 +4,135 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
+import type { EventRow, EventShowing } from "../interface/types";
 import backgroundImage from "../assets/img/biodukbg.png";
+//placeholder bilder för event tills de finns i databasen
 import Spindel from "../assets/Spindel.jpg";
 import Batman1 from "../assets/Batman1.jpg";
 import Doomsday from "../assets/Doomsday.jpg";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
+import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 
-type EventData = {
-  id: string;
-  titel: string;
+/* mock data för bild och tagline ligger kvar i frontend tills de finns i databasen. */
+type EventMockData = {
   tagline: string;
-  start: string; // ISO-datum, t.ex. "2026-10-26"
-  slut: string;
-  bild: string;
-  bildAlt: string;
-  bildPosition?: string; // CSS object-position, om bilden behöver beskäras
-  text: string[];
-  filmer: string[];
+  src: string;
+  alt: string;
+  position?: string;
 };
 
-/* Mockdata. Senare kan detta hämtas från backend. */
-const EVENT: EventData[] = [
-  {
-    id: "avengers-assemble",
-    titel: "Avengers Assemble",
+const eventMockData: Record<string, EventMockData> = {
+  "avengers assemble": {
     tagline: "Samla hjältarna",
-    start: "2026-12-07",
-    slut: "2026-12-13",
-    bild: Doomsday,
-    bildAlt: "Marvels hjältar samlade inför Avengers: Doomsday",
-    bildPosition: "center 40%",
-    text: [
-      "Inför Avengers: Doomsday, som har svensk biopremiär den 16 december, samlar vi hjältarna på stora duken. Åtta Marvel-filmer, från Iron Man till Endgame, så att du är redo när Doctor Doom gör entré.",
-      "Perfekt för dig som vill se hela sagan igen, eller börja från början.",
-    ],
-    filmer: [
-      "Iron Man (2008)",
-      "Thor (2011)",
-      "Captain America: The First Avenger (2011)",
-      "The Avengers (2012)",
-      "Guardians of the Galaxy (2014)",
-      "Black Panther (2018)",
-      "Avengers: Infinity War (2018)",
-      "Avengers: Endgame (2019)",
-    ],
+    src: Doomsday,
+    alt: "Marvels hjältar samlade inför Avengers: Doomsday",
+    position: "center 40%",
   },
-  {
-    id: "spindelveckan",
-    titel: "Spindelveckan",
+  spindelveckan: {
     tagline: "Din vänliga hjälte i grannskapet",
-    start: "2026-10-26",
-    slut: "2026-10-30",
-    bild: Spindel,
-    bildAlt: "Spider-Man hänger i sitt nät",
-    text: [
-      "Höstlovet är perfekt för en spindelvecka. Vi visar tio Spider-Man-filmer på fem dagar, från Sam Raimis klassiker till de animerade Spider-Verse-filmerna. Peter Parker, Miles Morales och hela spindelfamiljen i samma vecka.",
-      "Passar hela familjen. Åldersgränsen skiljer sig mellan filmerna, så kolla varje films sida innan ni bokar.",
-    ],
-    filmer: [
-      "Spider-Man (2002)",
-      "Spider-Man 2 (2004)",
-      "Spider-Man 3 (2007)",
-      "The Amazing Spider-Man (2012)",
-      "The Amazing Spider-Man 2 (2014)",
-      "Spider-Man: Homecoming (2017)",
-      "Spider-Man: A New Universe (2018)",
-      "Spider-Man: Far From Home (2019)",
-      "Spider-Man: No Way Home (2021)",
-      "Spider-Man: Across the Spider-Verse (2023)",
-    ],
+    src: Spindel,
+    alt: "Spider-Man hänger i sitt nät",
   },
-  {
-    id: "morkrets-riddare",
-    titel: "Mörkrets riddare",
+  "mörkrets riddare": {
     tagline: "Gotham glömmer aldrig",
-    start: "2026-11-02",
-    slut: "2026-11-08",
-    bild: Batman1,
-    bildAlt: "Batman1",
-    text: [
-      "Veckan efter Halloween tar mörkret över duken. Vi visar åtta Batman-filmer, från Tim Burtons gotiska Gotham till Christopher Nolans trilogi och Matt Reeves senaste. Mellan de mörka filmerna finns Lego Batman: Filmen för de yngre.",
-      "Flera av filmerna har högre åldersgräns, så kolla varje films sida innan ni bokar.",
-    ],
-    filmer: [
-      "Batman (1989)",
-      "Batman – Återkomsten (1992)",
-      "Batman Forever (1995)",
-      "Batman Begins (2005)",
-      "The Dark Knight (2008)",
-      "The Dark Knight Rises (2012)",
-      "Lego Batman: Filmen (2017)",
-      "The Batman (2022)",
-    ],
+    src: Batman1,
+    alt: "Batman i mörkret över Gotham",
   },
-];
+};
+/* TODO: Retur för mock data till bild och tagline, ska städas upp senare*/
+function getEventMockData(name: string): EventMockData {
+  return (
+    eventMockData[name.trim().toLowerCase()] ?? {
+      tagline: "",
+      src: backgroundImage,
+      alt: "",
+    }
+  );
+}
 
 /* Svensk datumformatering: "26–30 oktober" eller "30 oktober–2 november" */
-const dagOchManad = new Intl.DateTimeFormat("sv-SE", {
+const dateMonth = new Intl.DateTimeFormat("sv-SE", {
   day: "numeric",
   month: "long",
 });
 
-function formateraPeriod(start: string, slut: string) {
-  const s = new Date(`${start}T00:00:00`);
-  const e = new Date(`${slut}T00:00:00`);
-  const slutText = dagOchManad.format(e);
-  if (s.getMonth() === e.getMonth()) {
-    return `${s.getDate()}–${slutText}`;
+function formatDatePeriod(start: string, end: string) {
+  const startDate = new Date(`${start}T00:00:00`);
+  const endDate = new Date(`${end}T00:00:00`);
+  if (start === end) return dateMonth.format(startDate);
+  const endText = dateMonth.format(endDate);
+  if (startDate.getMonth() === endDate.getMonth()) {
+    return `${startDate.getDate()}–${endText}`;
   }
-  return `${dagOchManad.format(s)}–${slutText}`;
+  return `${dateMonth.format(startDate)}–${endText}`;
 }
 
-function EventKort({ event }: { event: EventData }) {
-  const [visaFilmer, setVisaFilmer] = useState(false);
-  const rubrikId = `event-rubrik-${event.id}`;
-  const filmerId = `event-filmer-${event.id}`;
+/* En rad per film ("Titel (2008)") i visningsordning, samt första och sista
+   visningsdatum. Backend sorterar på datum och tid. */
+function groupShowings(showings: EventShowing[]) {
+  const processedMovieIds = new Set<string>();
+  const movies: string[] = [];
+
+  for (const showing of showings) {
+    if (processedMovieIds.has(showing.movieId)) continue;
+
+    processedMovieIds.add(showing.movieId);
+
+    movies.push(
+      showing.productionyear
+        ? `${showing.movieTitle} (${showing.productionyear})`
+        : showing.movieTitle,
+    );
+  }
+
+  return {
+    movies,
+    start: showings[0]?.date ?? null,
+    end: showings[showings.length - 1]?.date ?? null,
+  };
+}
+
+/* Event.info är en enda textsträng. Varje rad blir paragraph. */
+function parseEventInfo(info: string | null): string[] {
+  if (!info) return [];
+  return info
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+function EventCard({ event }: { event: EventRow }) {
+  const [showMovies, setShowMovies] = useState(false);
+  const { data, loading, error } = useFetch<EventShowing[]>(
+    `/events/${event.eventId}/showings`,
+  );
+
+  const headingId = `event-heading-${event.eventId}`;
+  const moviesId = `event-movies-${event.eventId}`;
+
+  const eventDetails = getEventMockData(event.name);
+  const paragraphs = parseEventInfo(event.info);
+  const { movies, start, end } = groupShowings(data ?? []);
+
+  // Saknas showings används eventets eget datum, och saknas det visas ingen dateRange
+  const periodStart = start ?? event.date;
+  const periodEnd = end ?? event.date;
+  const dateRange =
+    periodStart && periodEnd ? formatDatePeriod(periodStart, periodEnd) : null;
 
   return (
-    <article className="event-kort" aria-labelledby={rubrikId}>
+    <article className="event-card" aria-labelledby={headingId}>
       <Row className="g-0">
         <Col lg={5}>
-          <div className="event-bild-ram">
+          <div className="event-image-border">
             <img
-              className="event-bild"
-              src={event.bild}
-              alt={event.bildAlt}
+              className="event-image"
+              src={eventDetails.src}
+              alt={eventDetails.alt}
               style={
-                event.bildPosition
-                  ? { objectPosition: event.bildPosition }
+                eventDetails.position
+                  ? { objectPosition: eventDetails.position }
                   : undefined
               }
             />
@@ -139,53 +140,52 @@ function EventKort({ event }: { event: EventData }) {
         </Col>
 
         <Col lg={7}>
-          <div className="event-innehall">
-            <p className="event-period">
-              {formateraPeriod(event.start, event.slut)}
-            </p>
-            <h2 id={rubrikId} className="event-titel">
-              {event.titel}
+          <div className="event-content">
+            {!loading && dateRange && (
+              <p className="event-date-range">{dateRange}</p>
+            )}
+            <h2 id={headingId} className="event-title">
+              {event.name}
             </h2>
-            <p className="event-tagline">{event.tagline}</p>
-
-            {event.text.map((stycke) => (
-              <p key={stycke} className="event-text">
-                {stycke}
+            {eventDetails.tagline && (
+              <p className="event-tagline">{eventDetails.tagline}</p>
+            )}
+            {paragraphs.map((paragraph) => (
+              <p key={paragraph} className="event-text">
+                {paragraph}
               </p>
             ))}
 
-            <Collapse in={visaFilmer}>
-              <div id={filmerId}>
-                <ul className="event-filmer">
-                  {event.filmer.map((film) => (
-                    <li key={film}>{film}</li>
-                  ))}
-                </ul>
-              </div>
-            </Collapse>
+            {loading && <LoadingSpinner text="Hämtar event…" />}
+            {error && <ErrorMessage message={error} />}
 
-            <div className="event-knappar">
-              <Button
-                variant="normal"
-                className="event-filmer-knapp"
-                onClick={() => setVisaFilmer((v) => !v)}
-                aria-expanded={visaFilmer}
-                aria-controls={filmerId}
-              >
-                {visaFilmer
-                  ? "Dölj filmer"
-                  : `Visa alla ${event.filmer.length} filmer`}
-              </Button>
-              {/* Byt gärna ut "/" mot en egen route per event senare */}
-              {/* <Button
-                as={Link as any}
-                to="/"
-                variant="normal"
-                className="boka-knapp event-boka-knapp"
-              >
-                Se visningar →
-              </Button> */}
-            </div>
+            {!loading && !error && movies.length > 0 && (
+              <>
+                <Collapse in={showMovies}>
+                  <div id={moviesId}>
+                    <ul className="event-movies">
+                      {movies.map((movie) => (
+                        <li key={movie}>{movie}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </Collapse>
+
+                <div className="event-buttons">
+                  <Button
+                    variant="normal"
+                    className="event-movies-button"
+                    onClick={() => setShowMovies((v) => !v)}
+                    aria-expanded={showMovies}
+                    aria-controls={moviesId}
+                  >
+                    {showMovies
+                      ? "Dölj filmer"
+                      : `Visa alla ${movies.length} filmer`}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </Col>
       </Row>
@@ -194,12 +194,13 @@ function EventKort({ event }: { event: EventData }) {
 }
 
 export default function EventPage() {
-  const idag = new Date().toISOString().split("T")[0];
+  const { data, loading, error } = useFetch<EventRow[]>("/events");
 
-  // Kommande event, sorterade på startdatum
-  const kommandeEvent = EVENT.filter((e) => e.slut >= idag).sort((a, b) =>
-    a.start.localeCompare(b.start),
-  );
+  // TODO: filtrera på slutdatum när events tabell byggs om (idag finns bara ett datum).
+  // Tills vidare visas aktuella event (current = true), sorterade på datum.
+  const upcomingEvents = (data ?? [])
+    .filter((e) => e.current)
+    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
 
   return (
     <div
@@ -210,22 +211,27 @@ export default function EventPage() {
         backgroundPosition: "center",
       }}
     >
-      <Container className="event-sida">
-        <header className="event-sidhuvud">
-          <h1>Kommande event</h1>
+      <Container className="event-page-container">
+        <header className="event-header">
+          <h1>Kommande evenemanger</h1>
           <p>Hjälteveckor på Filmvisarna: flera filmer, en hjälte, en vecka.</p>
         </header>
 
-        {kommandeEvent.length === 0 ? (
-          <p className="event-tomt">
+        {loading && <LoadingSpinner text="Hämtar event…" />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && upcomingEvents.length === 0 && (
+          <p className="event-empty">
             Just nu finns inga kommande event. Titta in igen snart, eller se vad
             som visas idag på startsidan.
           </p>
-        ) : (
-          <ul className="event-lista">
-            {kommandeEvent.map((event) => (
-              <li key={event.id}>
-                <EventKort event={event} />
+        )}
+
+        {!loading && !error && upcomingEvents.length > 0 && (
+          <ul className="event-list">
+            {upcomingEvents.map((event) => (
+              <li key={event.eventId}>
+                <EventCard event={event} />
               </li>
             ))}
           </ul>

@@ -1,13 +1,80 @@
-import { useNavigate } from "react-router";
-import { Container,Col,Row,Ratio,Card,Button,Badge, } from 'react-bootstrap';
+import { useNavigate, useParams, useSearchParams } from "react-router";
+import { Container, Col, Row, Card, Badge } from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.png";
+import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
+import useFetch from "../hooks/useFetch";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
+import Trailer from "../components/Trailer";
+import Datumremsa from "../components/Datumremsa";
+import SlotButton from "../components/slotButton";
+import BackButton from "../components/backButton";
+import { giltigtDatum, langtDatum } from "../utils/datum";
 
+/* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
+   Fälten heter som i backend (backend/interface/types.ts och databasen).
+   Ersätt med: import type { Movie, Showing } from "../interface/types"; */
+type Movie = {
+  movieId: string;
+  title: string;
+  productionyear: number | null;
+  length: number | null; // minuter
+  genre: string | null;
+  director: string | null;
+  actors: string[] | null;
+  description: string | null;
+  youtubetrailers: string[] | null; // YouTube-id
+  ageRating: number | null;
+  language: string | null; // t.ex. "Engelska"
+  subtitles: string | null; // t.ex. "Svenska"
+  productioncountries: string[] | null; // t.ex. ["USA", "Storbritannien"]
+  distributor: string | null; // t.ex. "Disney"
+};
+
+/* Så ser en visning ut i svaret från GET /showings (se backend/routes/showings.ts) */
+type Showing = {
+  showingId: string;
+  date: string; // "2026-10-26"
+  time: string; // "18:00"
+  movieId: number;
+  movieTitle: string;
+  auditoriumId: string;
+  auditoriumName: string;
+  eventId: number | null;
+};
 
 export default function MovieDetails() {
   const navigate = useNavigate();
+  const { id } = useParams(); // id från adressen, t.ex. /movies/3
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  return ( 
+  // Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
+  // vid omladdning och när man går tillbaka från bokningen. Saknas det = idag.
+  const valtDatum = giltigtDatum(searchParams.get("datum"));
+
+  function bytDatum(datum: string) {
+    // replace: varje dagsbyte ska inte bli ett eget steg i webbläsarens historik
+    setSearchParams({ datum }, { replace: true });
+  }
+
+  // Finns en tidigare sida i appen: gå tillbaka. Annars: gå till filmkatalogen.
+  function tillbaka() {
+    if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/moviecatalog");
+    }
+  }
+
+  // hämtar filmen. null = vänta tills id finns i adressen
+  const {
+    data: film,
+    loading,
+    error,
+  } = useFetch<Movie>(id ? `/movies/${id}` : null);
+
+  return (
     <div
       className="film-sida min-vh-100 w-100"
       style={{
@@ -16,115 +83,166 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <button
-        type="button"
-        onClick={() => navigate("/moviecatalog")}
-        className="btn tillbaka-knapp rounded-pill py-2 px-4 fw-bold m-3"
-      >
-        ← Tillbaka
-      </button>
+      <BackButton onClick={tillbaka} /> {/* components/backButton.tsx */}
 
       <Container className="pb-5">
-        <Row className="g-4 justify-content-center">
-          <Col lg={7} md={12}>
-            <Trailer />
-            <FilmInfo />
-          </Col>
-          <Col lg={5} md={12}>
-            <ThisDate />
-            <SlotSelection />
-          </Col>
-        </Row>
+        {/* gemensam laddning och felruta */}
+        {loading && <LoadingSpinner text="Hämtar film…" />}
+        {error && <ErrorMessage message={error} />}
+
+        {film && (
+          <>
+            {/* T094f: datumväljare i stället för fast datum */}
+            <div className="mb-4">
+              <Datumremsa valtDatum={valtDatum} onByt={bytDatum} />
+            </div>
+
+            <Row className="g-4 justify-content-center">
+              <Col lg={7} md={12}>
+                <Trailer
+                  youtubeId={film.youtubetrailers?.[0]}
+                  title={film.title}
+                />
+                <FilmInfo film={film} />
+              </Col>
+              <Col lg={5} md={12}>
+                <ThisDate datum={valtDatum} />
+                <SlotSelection movieId={film.movieId} datum={valtDatum} />
+              </Col>
+            </Row>
+          </>
+        )}
       </Container>
     </div>
   );
 }
 
-function Trailer() {
-  return (
-    <Card className="mb-4 glass-card">
-      <Card.Body className="p-3">
-        <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">Trailer</Card.Title>
-        <Ratio aspectRatio="16x9">
-          <iframe
-            src="https://www.youtube.com/embed/Go8nTmfrQd8"
-            title="Movie trailer"
-            allowFullScreen
-            className="rounded"
-          />
-        </Ratio>
-      </Card.Body>
-    </Card>
-  );
+/* 119 -> "1 tim 59 min" */
+function formateraLangd(minuter: number): string {
+  const tim = Math.floor(minuter / 60);
+  const min = minuter % 60;
+  return tim > 0 ? `${tim} tim ${min} min` : `${min} min`;
 }
 
-function FilmInfo() {
+/* visar filmens information från databasen */
+function FilmInfo({ film }: { film: Movie }) {
   return (
     <Card className="mb-0 glass-card film-info">
       <Card.Body className="p-4 p-xl-5">
+        <Card.Title as="h1" className="mb-2">
+          {film.title}
+        </Card.Title>
+        {film.productionyear !== null && (
+          <Card.Subtitle className="film-original mb-3">
+            {film.productionyear}
+          </Card.Subtitle>
+        )}
 
-        {/* Badges */}
-            <Card.Title as="h1" className="mb-2">Thor: Love and Thunder</Card.Title>
-            <Card.Subtitle className="film-original mb-3">
-              Originaltitel: Thor: Love and Thunder (2022)
-            </Card.Subtitle>
-          
+        {/* Åldersgräns och längd */}
         <div className="d-flex gap-2 mb-2">
-            <Badge bg="danger" className="p-2">11 år</Badge>
-            <Badge bg="secondary" className="p-2">1 tim 59 min</Badge>
+          {film.ageRating !== null && (
+            <Badge bg="danger" className="p-2">
+              {film.ageRating === 0 ? "Barntillåten" : `${film.ageRating} år`}
+            </Badge>
+          )}
+          {film.length !== null && (
+            <Badge bg="secondary" className="p-2">
+              {formateraLangd(film.length)}
+            </Badge>
+          )}
         </div>
-        
-        {/* Genrer */}
-        <div className="mb-3">
-          <Badge bg="outline-light" className="border text-white me-1">Action</Badge>
-          <Badge bg="outline-light" className="border text-white me-1">Äventyr</Badge>
-          <Badge bg="outline-light" className="border text-white">Komedi</Badge>
-        </div>
+
+        {/* Genre */}
+        {film.genre && (
+          <div className="mb-3">
+            <Badge bg="outline-light" className="border text-white me-1">
+              {film.genre}
+            </Badge>
+          </div>
+        )}
 
         <hr className="border-secondary my-3" />
 
-        <p className="film-beskrivning mb-4">
-          Thor ger sig ut på en resa olik något han någonsin ställts inför, en jakt på inre frid. 
-          Men hans pensionering avbryts av en galaktisk mördare känd som Gorr the God Butcher, 
-          som vill utrota alla gudar. För att bekämpa hotet tar Thor hjälp av King Valkyrie, 
-          Korg och sin före detta flickvän Jane Foster.
-        </p>
+        {film.description && (
+          <p className="film-beskrivning mb-4">{film.description}</p>
+        )}
 
         <hr className="border-secondary my-3" />
 
-        {/* Filminformation */}
+        {/* Filminformation. Varje rad visas bara om fältet har ett värde,
+            så en film utan t.ex. språk får ingen tom "Språk:"-rad. */}
         <div className="film-krediter mt-1">
-          <div className="mb-1">
-            <strong className="text-white">Regissör:</strong> Taika Waititi
-          </div>
-          <div className="mb-1">
-            <strong className="text-white">Manusförfattare:</strong> Taika Waititi, Jennifer Kaytin Robinson
-          </div>
-          <div>
-            <strong className="text-white">Skådespelare:</strong> Chris Hemsworth, Natalie Portman, Christian Bale, Tessa Thompson, Russell Crowe
-          </div>
+          {film.director && (
+            <div className="mb-1">
+              <strong className="text-white">Regissör:</strong> {film.director}
+            </div>
+          )}
+          {film.actors && film.actors.length > 0 && (
+            <div className="mb-1">
+              <strong className="text-white">Skådespelare:</strong>{" "}
+              {film.actors.join(", ")}
+            </div>
+          )}
+          {film.language && (
+            <div className="mb-1">
+              <strong className="text-white">Språk:</strong> {film.language}
+            </div>
+          )}
+          {film.subtitles && (
+            <div className="mb-1">
+              <strong className="text-white">Undertext:</strong>{" "}
+              {film.subtitles}
+            </div>
+          )}
+          {Array.isArray(film.productioncountries) &&
+            film.productioncountries.length > 0 && (
+              <div className="mb-1">
+                <strong className="text-white">Land:</strong>{" "}
+                {film.productioncountries.join(", ")}
+              </div>
+            )}
+          {film.distributor && (
+            <div>
+              <strong className="text-white">Distributör:</strong>{" "}
+              {film.distributor}
+            </div>
+          )}
         </div>
       </Card.Body>
     </Card>
   );
 }
-function ThisDate() {
+
+/* Visar vilket datum som är valt */
+function ThisDate({ datum }: { datum: string }) {
   return (
     <Card className="mb-4 glass-card">
       <Card.Body className="py-3">
         <Card.Subtitle className="valt-datum small text-uppercase mb-1 d-flex justify-content-center">
           Valt datum
         </Card.Subtitle>
-        <Card.Title as="h3" className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center">
-          Fredag 02-10-2026
+        <Card.Title
+          as="h3"
+          className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center"
+        >
+          {langtDatum(datum)}
         </Card.Title>
       </Card.Body>
     </Card>
   );
 }
 
-function SlotSelection() {
+/* Visningarna för filmen det valda datumet */
+function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
   const navigate = useNavigate();
+
+  // API:t filtrerar på datum och film, sorterar på tid och skickar med salongens namn.
+  // När datum ändras ändras sökvägen, och useFetch hämtar då på nytt.
+  const {
+    data: visningar,
+    loading,
+    error,
+  } = useFetch<Showing[]>(`/showings?date=${datum}&movieId=${movieId}`);
 
   return (
     <Card className="glass-card">
@@ -133,48 +251,33 @@ function SlotSelection() {
           Välj visningstid
         </Card.Title>
 
-        <div className="d-grid gap-3 w-75 mx-auto">
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-            onClick={() => navigate('/booking')}
-          >
-            <span>Salong 1</span>
-            <span>kl 16:00</span>
-          </Button>
+        {loading && <LoadingSpinner text="Hämtar visningar…" />}
+        {error && <ErrorMessage message={error} />}
 
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-            onClick={() => navigate('/booking2')}
-          >
-            <span>Salong 2</span>
-            <span>kl 16:00</span>
-          </Button>
+        {visningar && visningar.length === 0 && (
+          <p className="text-center mb-0">Inga visningar detta datum</p>
+        )}
 
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-          >
-            <span>Salong 1</span>
-            <span>kl 20:00</span>
-          </Button>
-
-          <Button
-            size="lg"
-            className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
-          >
-            <span>Salong 2</span>
-            <span>kl 20:00</span>
-          </Button>
-        </div>
+        {visningar && visningar.length > 0 && (
+          <div className="d-grid gap-3 w-75 mx-auto">
+            {visningar.map((visning) => (
+              <SlotButton
+                key={visning.showingId}
+                auditoriumName={visning.auditoriumName}
+                time={visning.time}
+                // Bokningssidan läser showingId i bokningstasken
+                onClick={() => navigate(`/booking/${visning.showingId}`)}
+              />
+            ))}
+          </div>
+        )}
       </Card.Body>
     </Card>
   );
 }
 
 MovieDetails.route = {
-  path: "/moviedetails/moviecatalog/:id",
+  path: "/movies/:id",
   order: 1,
   label: "Film detaljer",
 };

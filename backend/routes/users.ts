@@ -148,8 +148,17 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   }
 });
 
-/* DELETE /users/:Id  (SELF OR ADMIN) */
-usersRouter.delete("/:Id", requireAuth, async (req, res) => { 
+/* DELETE /users/:Id  (SELF OR ADMIN)
+   Radera konto (T126 / T156 / #297), allt i en transaktion:
+   1. Kommande bokningar (visningen har inte börjat) avbokas: biljetter och bokning tas bort,
+      så platserna blir lediga för andra.
+   2. Tidigare bokningar anonymiseras: kopplas loss från kontot (userId = NULL)
+      och e-posten ersätts, så att biografens historik finns kvar utan personuppgifter.
+   3. Kontot raderas.
+   Utan steg 1–2 stoppar databasen raderingen (booking_userId_fkey) och svaret blir 500. */
+const ANONYMIZED_EMAIL = "raderad-anvandare@filmvisarna.se";
+
+usersRouter.delete("/:Id", requireAuth, async (req, res) => {
   const userId = parseId(req.params.Id as string);
 
   if (!userId) {
@@ -158,32 +167,81 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId) {
+  if (
+    res.locals.user.role !== "admin" &&
+    Number(res.locals.user.userId) !== userId
+  ) {
     return res.status(403).json({
-      error: { message: "Du får inte ta bort andra användare" }
+      error: { message: "Du får inte ta bort andra användare" },
     });
   }
 
+  const client = await pool.connect();
+
   try {
-    const { rows } = await pool.query(
+    await client.query("BEGIN");
+
+    // 1. Avboka kommande bokningar och frigör platserna
+    const upcoming = await client.query<{ bookingId: string }>(
+      `select b."bookingId"
+        from bookings b
+        join showings sh on sh."showingId" = b."showingId"
+        where b."userId" = $1
+          and (sh.date + sh."time") > now()
+        for update of b`,
+      [userId],
+    );
+
+    const upcomingIds = upcoming.rows.map((row) => row.bookingId);
+
+    if (upcomingIds.length > 0) {
+      await client.query(
+        `delete from tickets where "bookingId" = any($1::bigint[])`,
+        [upcomingIds],
+      );
+      await client.query(
+        `delete from bookings where "bookingId" = any($1::bigint[])`,
+        [upcomingIds],
+      );
+    }
+
+    // 2. Anonymisera tidigare bokningar
+    await client.query(
+      `update bookings
+        set "userId" = null, email = $2
+        where "userId" = $1`,
+      [userId, ANONYMIZED_EMAIL],
+    );
+
+    // 3. Radera kontot
+    const { rows } = await client.query(
       `delete from users
         where "userId" = $1
         returning "userId", username, email, role, "created_At"`,
-      [userId]);
+      [userId],
+    );
 
     if (rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         error: { message: "Användare hittades inte" },
       });
     }
 
-    return res.status(200).json({ data: rows[0] });
+    await client.query("COMMIT");
+
+    return res.status(200).json({
+      data: { ...rows[0], cancelledBookings: upcomingIds.length },
+    });
   } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("DELETE /users/:Id failed", error);
 
     return res.status(500).json({
       error: { message: "Fel vid borttagning av användare" },
     });
+  } finally {
+    client.release();
   }
 });
 /* AUTH register*/ /*istället för post*/
@@ -258,48 +316,47 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
 
 /* AUTH login */
 usersRouter.post("/auth/login", async (req, res) => {
-  //uppstår problem om email inte är en sträng vid .toLowerCase()
-  const email = typeof req.body.email === "string"
-  ? req.body.email.toLowerCase()
-  : req.body.email;
 
   const password = req.body.password;
+  const username = req.body.username;
 
   //ser om fälten finns och är strängar
   if (
   typeof password !== "string" ||
-  typeof email !== "string"
+  typeof username !== "string"
   ) {
     return res.status(400).json({
-      error: { message: "Email och lösenord krävs och måste vara strängar" },
+      error: { message: "Användarnamn och lösenord krävs och måste vara strängar" },
     });
   }
 
   //ser om fälten är tomma eller är bara mellanslag
   if (
     password.trim() === "" ||
-    email.trim() === ""
+    username.trim() === ""
   ) {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
     });
   }
 
+  /*
   //validera email
   if (!validateEmail(email)) {
     return res.status(400).json({
       error: { message: "Ogiltig email" },
     });
   }
+  */
 
   try {
-    // hämta användare baserat på email
+    // hämta användare baserat på användarnamn
     const { rows } = await pool.query(
-      'select "userId", username, password, email, role from users where email = $1', [email]);
+      'select "userId", username, password, email, role from users where username = $1', [username]);
 
     if (rows.length === 0) {
       return res.status(401).json({
-        error: { message: "Ogiltig email eller lösenord" },
+        error: { message: "Ogiltig användarnamn eller lösenord" },
       });
     }
 
@@ -309,7 +366,7 @@ usersRouter.post("/auth/login", async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(401).json({
-        error: { message: "Ogiltig email eller lösenord" },
+        error: { message: "Ogiltig användarnamn eller lösenord" },
       });
     }
     
