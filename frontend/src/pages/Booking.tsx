@@ -9,7 +9,9 @@ import {
   Modal,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
+// @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
 import backgroundImage from "../assets/img/biodukbg.png";
+// @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
 import SeatMap, { Seat } from "../components/SeatMap";
@@ -20,7 +22,7 @@ import {
   formatTime,
   calculateTotalPrice,
   getMaxAllowedTickets,
-} from "../utils/bookingHelpers";
+} from "../utils/BookingHelpers";
 
 interface Showing {
   showingId: number;
