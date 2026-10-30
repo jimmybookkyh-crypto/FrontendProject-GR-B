@@ -10,6 +10,8 @@ import bcrypt from 'bcryptjs';
 
 const usersRouter = Router();
 
+const DUMMY_HASH = "$2b$13$6Gg4dNtWkIZNQfKVvlFdD.ZkGKUgBSC3GUGcR8T0Brco0vpdhZlBW";
+
 /* GET /users ONLY ADMIN */
 usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => { 
   const pagination = parsePagination(req.query);
@@ -354,17 +356,16 @@ usersRouter.post("/auth/login", async (req, res) => {
     const { rows } = await pool.query(
       'select "userId", username, password, email, role from users where username = $1', [username]);
 
-    if (rows.length === 0) {
-      return res.status(401).json({
-        error: { message: "Ogiltig användarnamn eller lösenord" },
-      });
-    }
-
     const user = rows[0];
 
-    // jämför lösenord
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+    //om det inte finns ett lösenord tas DUMMY_HASH istället
+    const passwordHash = user?.password ?? DUMMY_HASH;
+
+    // jämför lösenord, även om användare saknas,
+    //  detta gör så att svarstiden inte avslöjar om det finns en användre med det inskrivna användarnamnet
+    const match = await bcrypt.compare(password, passwordHash);
+    
+    if (!user || !match) {
       return res.status(401).json({
         error: { message: "Ogiltig användarnamn eller lösenord" },
       });
