@@ -5,7 +5,6 @@ import type { SlotButtonProps } from "../interface/types";
 export default function SlotButton({
   auditoriumName,
   time,
-  disabled = false,
   onClick,
 }: SlotButtonProps) {
   return (
