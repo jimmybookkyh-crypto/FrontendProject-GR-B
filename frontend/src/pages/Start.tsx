@@ -1,17 +1,12 @@
 import { useState } from "react";
 import "../styles/Start.css";
-import { Link } from "react-router";
 import Container from "react-bootstrap/Container";
 import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 import Biodukbg from "../assets/img/biodukbg.png";
 import Spiderman from "../assets/Spiderman.jpeg";
 import Superman from "../assets/Superman.jpg";
 import Ninja from "../assets/Ninja.jpg";
-import placeholder from "../assets/img/ph.png";
 import useFetch from "../hooks/useFetch"; // #319
 import LoadingSpinner from "../components/LoadingSpinner"; // #320
 import ErrorMessage from "../components/ErrorMessage"; // #320

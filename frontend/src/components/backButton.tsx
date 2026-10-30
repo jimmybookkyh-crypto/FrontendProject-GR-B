@@ -1,7 +1,5 @@
-
-import React from "react";
 import { useNavigate } from "react-router";
-import { BackButtonProps } from "../interface/types";
+import type { BackButtonProps } from "../interface/types";
 import "../styles/buttons.css";
 
 export default function BackButton({

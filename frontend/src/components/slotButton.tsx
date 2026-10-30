@@ -1,7 +1,6 @@
 // src/components/SlotButton.tsx
-import React from "react";
 import { Button } from "react-bootstrap";
-import { SlotButtonProps } from "../interface/types";
+import type { SlotButtonProps } from "../interface/types";
 
 export default function SlotButton({
   auditoriumName,

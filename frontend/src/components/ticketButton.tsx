@@ -1,7 +1,6 @@
-import React from "react";
 import { Link } from "react-router";
 import { Button } from "react-bootstrap";
-import { TicketButtonProps } from "../interface/types";
+import type { TicketButtonProps } from "../interface/types";
 
 export default function TicketButton({
   to,

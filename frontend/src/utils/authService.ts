@@ -3,7 +3,7 @@ import apiRequest from "./apiRequest.ts"
 
 //jwtDecode används då '/users/:Id' behöver användarens ID från token för att kunna hämta användarens data.
 import { jwtDecode } from "jwt-decode"; 
-import { AuthUser } from "../interface/types";
+import type { AuthUser } from "../interface/types";
 
 //för token decoding
 interface TokenPayload {
