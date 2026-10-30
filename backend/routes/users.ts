@@ -1,17 +1,21 @@
-import { Router } from 'express';
-import { pool } from '../db/pool.js';
-import { signToken } from "../utils/jwt.js"; 
+import { Router } from "express";
+import { pool } from "../db/pool.js";
+import { signToken } from "../utils/jwt.js";
 import { parseId } from "../utils/parseId.js";
 import { hashPassword } from "../utils/hashPassword.ts";
-import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
-import { parsePagination } from '../utils/parsePagination.js';
+import {
+  requireAuth,
+  requireAdmin,
+  isValidRole,
+} from "../utils/requireAuth.ts";
+import { parsePagination } from "../utils/parsePagination.js";
 import { validateEmail } from "../utils/validateEmail.js";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 
 const usersRouter = Router();
 
 /* GET /users ONLY ADMIN */
-usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => { 
+usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   const pagination = parsePagination(req.query);
 
   if (!pagination) {
@@ -25,7 +29,9 @@ usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
     const { rows } = await pool.query(
       `select "userId", username, email, role, "created_At"
         from users
-        order by "userId" limit $1 offset $2`, [limit, offset]);
+        order by "userId" limit $1 offset $2`,
+      [limit, offset],
+    );
 
     return res.status(200).json({ data: rows });
   } catch (error) {
@@ -36,7 +42,7 @@ usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 /* GET /users/:Id  (SELF OR ADMIN) */
-usersRouter.get("/:Id", requireAuth, async (req, res) => { 
+usersRouter.get("/:Id", requireAuth, async (req, res) => {
   const userId = parseId(req.params.Id as string);
   if (!userId) {
     return res.status(400).json({
@@ -44,9 +50,12 @@ usersRouter.get("/:Id", requireAuth, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId) {
+  if (
+    res.locals.user.role !== "admin" &&
+    Number(res.locals.user.userId) !== userId
+  ) {
     return res.status(403).json({
-      error: { message: "Du får inte se andra användare" }
+      error: { message: "Du får inte se andra användare" },
     });
   }
 
@@ -54,7 +63,9 @@ usersRouter.get("/:Id", requireAuth, async (req, res) => {
     const { rows } = await pool.query(
       `select "userId", username, email, role, "created_At"
         from users
-        where "userId" = $1`, [userId]);
+        where "userId" = $1`,
+      [userId],
+    );
 
     if (rows.length === 0) {
       return res.status(404).json({
@@ -72,7 +83,7 @@ usersRouter.get("/:Id", requireAuth, async (req, res) => {
   }
 });
 /* PATCH /users/:Id  (SELF OR ADMIN) */
-usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => { 
+usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   const userId = parseId(req.params.Id as string);
   if (!userId) {
     return res.status(400).json({
@@ -80,10 +91,12 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
-  if (res.locals.user.role !== "admin" && Number(res.locals.user.userId) !== userId)
- {
+  if (
+    res.locals.user.role !== "admin" &&
+    Number(res.locals.user.userId) !== userId
+  ) {
     return res.status(403).json({
-      error: { message: "Du får inte uppdatera andra användare" }
+      error: { message: "Du får inte uppdatera andra användare" },
     });
   }
 
@@ -91,9 +104,10 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   const hashedPassword = req.body.passwordHash;
 
   //uppstår problem om email inte är en sträng vid .toLowerCase(), t.ex. om det är null eller undefined
-  const email = typeof req.body.email === "string"
-  ? req.body.email.toLowerCase()
-  : req.body.email;
+  const email =
+    typeof req.body.email === "string"
+      ? req.body.email.toLowerCase()
+      : req.body.email;
 
   // Validera endast fält som skickats med
   if (
@@ -101,12 +115,11 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
       (typeof username !== "string" || username.trim() === "")) ||
     (hashedPassword !== undefined &&
       (typeof hashedPassword !== "string" || hashedPassword.trim() === "")) ||
-    (email !== undefined &&
-      (typeof email !== "string" || email.trim() === ""))
-    ) {
-      return res.status(400).json({
-        error: { message: "Fälten måste vara strängar och får inte vara tomma" },
-      });
+    (email !== undefined && (typeof email !== "string" || email.trim() === ""))
+  ) {
+    return res.status(400).json({
+      error: { message: "Fälten måste vara strängar och får inte vara tomma" },
+    });
   }
 
   if (email !== undefined && !validateEmail(email)) {
@@ -117,7 +130,14 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
 
   if (res.locals.user.role !== "admin" && role !== undefined) {
     return res.status(403).json({
-      error: { message: "Endast admin får ändra roll" }
+      error: { message: "Endast admin får ändra roll" },
+    });
+  }
+
+  // En ogiltig roll skulle låsa kontot (#287), så bara 'user' och 'admin' tillåts
+  if (role !== undefined && !isValidRole(role)) {
+    return res.status(400).json({
+      error: { message: "Ogiltig roll, tillåtna värden är 'user' och 'admin'" },
     });
   }
 
@@ -130,7 +150,8 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
        role = coalesce($5, role)
         where "userId" = $1
         returning "userId", username, email, role, "created_At"`,
-      [userId, username, hashedPassword, email, role]);
+      [userId, username, hashedPassword, email, role],
+    );
 
     if (rows.length === 0) {
       return res.status(404).json({
@@ -139,8 +160,7 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     }
 
     return res.status(200).json({ data: rows[0] });
-  }
-  catch (error) {
+  } catch (error) {
     console.error("PATCH /users/:Id failed", error);
     return res.status(500).json({
       error: { message: "Fel vid uppdatering av användare" },
@@ -246,21 +266,21 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
 });
 /* AUTH register*/ /*istället för post*/
 usersRouter.post("/auth/register", hashPassword, async (req, res) => {
-  
   const username = req.body.username;
 
   //uppstår problem om email inte är en sträng vid .toLowerCase()
-  const email = typeof req.body.email === "string"
-  ? req.body.email.toLowerCase()
-  : req.body.email;
+  const email =
+    typeof req.body.email === "string"
+      ? req.body.email.toLowerCase()
+      : req.body.email;
 
-  const hashedPassword = req.body.passwordHash; 
+  const hashedPassword = req.body.passwordHash;
 
   //ser om fälten är strängar
   if (
-  typeof username !== "string" ||
-  typeof hashedPassword !== "string" ||
-  typeof email !== "string"
+    typeof username !== "string" ||
+    typeof hashedPassword !== "string" ||
+    typeof email !== "string"
   ) {
     return res.status(400).json({
       error: { message: "Alla fält måste finnas och vara strängar" },
@@ -288,7 +308,9 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   try {
     // kontrollerar email
     const emailCheck = await pool.query(
-      'select "userId" from users where email = $1', [email]);
+      'select "userId" from users where email = $1',
+      [email],
+    );
 
     if (emailCheck.rows.length > 0) {
       return res.status(409).json({
@@ -301,7 +323,7 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
       `insert into users (username, password, email, role)
         values ($1, $2, $3, $4)
         returning "userId", username, email, role, "created_At"`,
-      [username, hashedPassword, email, 'user']
+      [username, hashedPassword, email, "user"],
     );
     return res.status(201).json({ data: rows[0] });
   } catch (error) {
@@ -311,30 +333,24 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
       error: { message: "fel vid registrering" },
     });
   }
-
 });
 
 /* AUTH login */
 usersRouter.post("/auth/login", async (req, res) => {
-
   const password = req.body.password;
   const username = req.body.username;
 
   //ser om fälten finns och är strängar
-  if (
-  typeof password !== "string" ||
-  typeof username !== "string"
-  ) {
+  if (typeof password !== "string" || typeof username !== "string") {
     return res.status(400).json({
-      error: { message: "Användarnamn och lösenord krävs och måste vara strängar" },
+      error: {
+        message: "Användarnamn och lösenord krävs och måste vara strängar",
+      },
     });
   }
 
   //ser om fälten är tomma eller är bara mellanslag
-  if (
-    password.trim() === "" ||
-    username.trim() === ""
-  ) {
+  if (password.trim() === "" || username.trim() === "") {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
     });
@@ -352,7 +368,9 @@ usersRouter.post("/auth/login", async (req, res) => {
   try {
     // hämta användare baserat på användarnamn
     const { rows } = await pool.query(
-      'select "userId", username, password, email, role from users where username = $1', [username]);
+      'select "userId", username, password, email, role from users where username = $1',
+      [username],
+    );
 
     if (rows.length === 0) {
       return res.status(401).json({
@@ -369,11 +387,11 @@ usersRouter.post("/auth/login", async (req, res) => {
         error: { message: "Ogiltig användarnamn eller lösenord" },
       });
     }
-    
+
     const token = signToken({
       sub: user.userId,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     return res.status(200).json({
@@ -382,10 +400,9 @@ usersRouter.post("/auth/login", async (req, res) => {
         userId: user.userId,
         username: user.username,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
-
   } catch (error) {
     console.error("POST /users/auth/login failed", error);
     return res.status(500).json({
