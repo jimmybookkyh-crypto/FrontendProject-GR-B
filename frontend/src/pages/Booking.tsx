@@ -108,14 +108,13 @@ export default function BookingPage() {
     movie?.title ||
     "Laddar...";
 
-  const rawImage =
-    showing?.posterUrl ||
-    showing?.poster_url ||
-    showing?.images ||
-    movie?.posterUrl ||
-    movie?.poster_url ||
-    movie?.images ||
-    "/src/assets/img/ph.png";
+const rawImage =
+  showing?.posterUrl ||
+  showing?.poster_url ||
+  showing?.images ||
+  movie?.posterUrl ||
+  movie?.poster_url ||
+  movie?.images;
 
   const currentImages = typeof rawImage === "string" ? [rawImage] : rawImage;
   const currentDate = formatDate(showing?.date);
