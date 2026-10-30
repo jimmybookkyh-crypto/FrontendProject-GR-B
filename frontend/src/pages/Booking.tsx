@@ -12,7 +12,7 @@ import { useNavigate, useParams } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
-import SeatMap, { Seat } from "../components/SeatMap";
+import SeatMap, { type Seat } from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import { useAuth } from "../utils/authContext";
 import {
@@ -20,7 +20,7 @@ import {
   formatTime,
   calculateTotalPrice,
   getMaxAllowedTickets,
-} from "../utils/bookingHelpers";
+} from "../utils/BookingHelpers";
 
 interface Showing {
   showingId: number;
