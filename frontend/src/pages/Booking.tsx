@@ -40,6 +40,7 @@ interface Showing {
   auditorium_id?: number;
   auditoriumName?: string;
   auditorium_name?: string;
+  hasStarted?: boolean; // true = visningen har börjat och kan inte bokas
 }
 
 interface Movie {
@@ -454,6 +455,25 @@ const rawImage =
     return (
       <div className="text-center text-danger p-5">
         {showingError || seatsError}
+      </div>
+    );
+  }
+
+  // Visningen har redan börjat, t.ex. via en gammal länk eller bakåtknappen.
+  // Backend nekar ändå bokningen, men här får besökaren beskedet direkt.
+  if (showing?.hasStarted) {
+    return (
+      <div className="text-center text-light p-5">
+        <p className="mb-3">Visningen har redan börjat och kan inte bokas.</p>
+        <button
+          type="button"
+          className="btn btn-outline-light rounded-pill px-4"
+          onClick={() =>
+            navigate(currentMovieId ? `/movies/${currentMovieId}` : "/")
+          }
+        >
+          Välj en annan visning
+        </button>
       </div>
     );
   }
