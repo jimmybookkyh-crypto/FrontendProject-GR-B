@@ -14,7 +14,7 @@ import backgroundImage from "../assets/img/biodukbg.png";
 // @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
-import SeatMap, { Seat } from "../components/SeatMap";
+import SeatMap, { type Seat } from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import { useAuth } from "../utils/authContext";
 import {
