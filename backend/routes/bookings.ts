@@ -2,6 +2,7 @@ import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { parseId, isPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
+import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";
 import {
   Booking,
@@ -242,7 +243,8 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 // Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
 bookingsRouter.post("/", optionalAuth, async (req, res) => {
   const body = (req.body ?? {}) as Partial<CreateBookingInput>;
-  const { email, showingId, tickets } = body;
+  const { showingId, tickets } = body;
+  const email = normalizeEmail(body.email);
 
   //Varför parseId(user.userId)? I token är id:t text ("3"),
   // men kolumnen userId i databasen är ett heltal. parseId gör om det
@@ -313,7 +315,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     });
   }
 
-  const { email } = req.body ?? {};
+  const email = normalizeEmail(req.body?.email);
 
   if (!validateEmail(email)) {
     return res.status(400).json({
