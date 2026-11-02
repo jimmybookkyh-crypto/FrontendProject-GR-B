@@ -37,7 +37,7 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 
   if (pagination === null) {
     return res.status(400).json({
-      error: { message: "Ogiltig limit eller offset" },
+      error: { message: "Ogiltig gräns eller förskjutning" },
     });
   }
 

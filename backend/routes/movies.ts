@@ -47,7 +47,7 @@ moviesRouter.get("/", (req, res) => {
   const pagination = parsePagination(req.query);
 
   if (pagination === null) {
-    return res.status(400).json({ error: { message: "Ogiltig limit eller offset" } });
+    return res.status(400).json({ error: { message: "Ogiltig gräns eller förskjutning" } });
   }
 
   return sendMovies(res, "GET /movies", "Fel vid hämtning av filmer", "", [], pagination);

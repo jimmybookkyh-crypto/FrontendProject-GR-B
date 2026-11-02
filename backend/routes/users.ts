@@ -22,7 +22,7 @@ usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 
   if (!pagination) {
     return res.status(400).json({
-      error: { message: "Ogiltig limit eller offset" },
+      error: { message: "Ogiltig gräns eller förskjutning" },
     });
   }
   const { limit, offset } = pagination;
