@@ -133,7 +133,7 @@ moviesRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const entries = pickMovieFields(req.body ?? {});
 
   if (entries.length === 0) {
-    return res.status(400).json({ error: { message: "Skicka minst title" } });
+    return res.status(400).json({ error: { message: "Ange minst en titel" } });
   }
 
   const columns = entries.map((e) => `"${e.column}"`).join(", ");

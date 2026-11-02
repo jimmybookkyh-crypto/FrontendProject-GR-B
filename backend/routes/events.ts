@@ -148,7 +148,7 @@ eventsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
     console.error('POST /events failed', { message });
 
     return res.status(500).json({
-      error: { message: 'Fel vid skapande av event' },
+      error: { message: 'Fel vid skapande av evenemang' },
     });
   }
 });
@@ -217,7 +217,7 @@ eventsRouter.patch('/:id', requireAuth, requireAdmin, async (req, res) => {
     console.error('PATCH /events/:id failed', { eventId: id, message });
 
     return res.status(500).json({
-      error: { message: 'Fel vid uppdatering av event' },
+      error: { message: 'Fel vid uppdatering av evenemang' },
     });
   }
 });
@@ -256,7 +256,7 @@ eventsRouter.delete('/:id', requireAuth , requireAdmin, async (req, res) => {
     console.error('DELETE /events/:id failed', { eventId: id, message });
 
     return res.status(500).json({
-      error: { message: 'Fel vid borttagning av event' },
+      error: { message: 'Fel vid borttagning av evenemang' },
     });
   }
 });

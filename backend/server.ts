@@ -25,7 +25,7 @@ app.use('/tickets', ticketsRouter);
 app.use('/users', usersRouter);
 
 app.use((req, res) => {
-  res.status(404).json({ error: 'Not Found' });
+  res.status(404).json( { error: {message: "Sidan hittades inte"}} );
 });
 
 app.listen(process.env.PORT || 3000, () => { console.log('server ok'); }); 

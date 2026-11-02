@@ -50,7 +50,7 @@ showingsRouter.get("/", async (req, res) => {
 
     if (movieId === null) {
       return res.status(400).json({
-        error: { message: "Ogiltigt movieId" },
+        error: { message: "Ogiltigt film-id" },
       });
     }
   }
@@ -114,7 +114,7 @@ showingsRouter.get("/:id", async (req, res, next) => {
 
     if (id === null) {
       return res.status(400).json({
-        error: { message: "Ogiltigt showing id" },
+        error: { message: "Ogiltigt visnings-id" },
       });
     }
 
@@ -124,7 +124,7 @@ showingsRouter.get("/:id", async (req, res, next) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         error: { message: "Visningen finns inte" },
       });
     }
@@ -144,7 +144,7 @@ showingsRouter.get("/:id/seats", async (req, res) => {
     const showingId = parseInt(req.params.id, 10);
 
     if (isNaN(showingId)) {
-      return res.status(400).json({ error: "Ogiltigt showingId" });
+      return res.status(400).json({ error:  { message: "Ogiltigt visning-id" } });
     }
 
     // Hämtar alla seatId direkt från din nyskapade booked_seats_view
@@ -158,8 +158,8 @@ showingsRouter.get("/:id/seats", async (req, res) => {
 
     return res.status(200).json({ data: occupiedSeatIds });
   } catch (error) {
-    console.error("Fel vid hämtning av upptagna stolar från view:", error);
-    return res.status(500).json({ error: "Kunde inte hämta upptagna stolar" });
+    console.error("Kunde inte hämta upptagna sittplatser:", error);
+    return res.status(500).json({ error: { message: "Kunde inte hämta upptagna stolar" } });
   }
 });
 
@@ -179,7 +179,7 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
       [movieId, auditoriumId, date, time, eventId]
     );
 
-    return res.status(201).json(rows[0]);
+    return res.status(201).json({ data: rows[0] });
   } catch (error) {
     console.error("POST /showings failed", error);
 
@@ -268,7 +268,7 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
     }
 
     return res.status(200).json({
-      message: "Visningen är borttagen",
+      message: "Visningen är nu borttagen",
       data: rows[0]
     });
 
@@ -281,7 +281,7 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
     }
 
     if (pgErrorCode(error) === "23503") {
-      return res.status(404).json({ error: { message: "Resursen finns inte" } });
+      return res.status(409).json({ error: { message: "Visningen har bokningar och kan inte tas bort" } });
     }
 
     return res.status(500).json({ error: { message: "Internt serverfel" } });
