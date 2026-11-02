@@ -80,7 +80,7 @@ JOIN public.movies m
 JOIN public.auditoriums a
     ON s."auditoriumId" = a."auditoriumId";
 
-  Stänger vyerna för Supabases publika API (anon/authenticated).
+  /* Stänger vyerna för Supabases publika API (anon/authenticated).
       Backend ansluter som postgres och påverkas inte. */
    revoke all on public.booked_seats_view   from anon, authenticated;
    revoke all on public.event_showings_view from anon, authenticated;
