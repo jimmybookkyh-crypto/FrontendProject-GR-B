@@ -6,19 +6,7 @@ import { requireAuth, requireAdmin } from '../utils/requireAuth.js';
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import { validateShowingInput } from "../utils/validateShowing.js";
 import { validateDate } from "../utils/validateDate.js";
-
-/* Så här ser en rad i svaret från GET /showings ut.
-   Id som är bigint i databasen kommer som text från pg. */
-type ShowingListItem = {
-  showingId: string;
-  date: string; // "2026-10-19"
-  time: string; // "18:00"
-  movieId: number;
-  movieTitle: string;
-  auditoriumId: string;
-  auditoriumName: string;
-  eventId: number | null;
-};
+import type { ShowingListItem } from "../interface/types.js";
 
 const showingsRouter: Router = Router();
 
@@ -86,7 +74,8 @@ showingsRouter.get("/", async (req, res) => {
               m.title AS "movieTitle",
               s."auditoriumId",
               a.name AS "auditoriumName",
-              s."eventId"
+              s."eventId",
+              ((s.date + s."time") <= now()) AS "hasStarted"
        FROM showings s
        JOIN movies m ON m."movieId" = s."movieId"
        JOIN auditoriums a ON a."auditoriumId" = s."auditoriumId"
@@ -118,9 +107,22 @@ showingsRouter.get("/:id", async (req, res, next) => {
       });
     }
 
-    const { rows } = await pool.query(
-      `SELECT * FROM showings WHERE "showingId" = $1`,
-      [id]
+    // Samma form som GET /showings. date::text så att datumet inte skiftar en dag (#301)
+    const { rows } = await pool.query<ShowingListItem>(
+      `SELECT s."showingId",
+              s.date::text AS date,
+              left(s."time"::text, 5) AS "time",
+              s."movieId",
+              m.title AS "movieTitle",
+              s."auditoriumId",
+              a.name AS "auditoriumName",
+              s."eventId",
+              ((s.date + s."time") <= now()) AS "hasStarted"
+       FROM showings s
+       JOIN movies m ON m."movieId" = s."movieId"
+       JOIN auditoriums a ON a."auditoriumId" = s."auditoriumId"
+       WHERE s."showingId" = $1`,
+      [id],
     );
 
     if (rows.length === 0) {
