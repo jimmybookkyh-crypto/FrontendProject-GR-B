@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import screenIcon from "../assets/img/screenIco.png";
 
 export interface Seat {
   seatId: number;
@@ -54,12 +55,9 @@ export default function SeatMap({
       {/* Bioduk-bild */}
       <div className="d-flex justify-content-center w-100 mb-3">
         <img
-          src="/src/assets/img/screenIco.png"
+          src={screenIcon}
           alt="Bioduk"
           className="screen-icon img-fluid"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "../assets/img/screenIco.png";
-          }}
         />
       </div>
 
