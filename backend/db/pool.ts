@@ -8,6 +8,31 @@ dotenv.config({ path: path.join(root, ".env") });
 
 console.log("host", process.env.POSTGRES_HOST);
 
+//BIGINT (in8)
+// Anger egen parser för PostgreSQL-dataypen BIGINT (in8) som annars returneras som sträng
+pg.types.setTypeParser(20, (value) => {
+  const parsed = Number(value);
+
+  if(!Number.isSafeInteger(parsed)) {
+    throw new Error(`BIGINT-värdet är utanför säkert nummerintervall: ${value}`)
+  }
+
+  return parsed;
+})
+
+//NUMERIC
+// Anger egen parser för PostgreSQL-dataypen NUMERIC
+pg.types.setTypeParser(1700, (value) => {
+  const parsed = Number(value);
+
+  //förhindrar NaN och Infinity
+  if(!Number.isFinite(parsed)) {
+    throw new Error(`NOgiltigt NUMERIC-värde: ${value}`);
+  }
+
+  return parsed;
+})
+
 const requiredEnvVars = [
   "POSTGRES_HOST",
   "POSTGRES_PORT",
