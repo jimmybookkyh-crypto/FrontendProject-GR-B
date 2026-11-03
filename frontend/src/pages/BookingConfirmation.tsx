@@ -116,10 +116,8 @@ export default function BookingConfirmation() {
                     <strong>Totalpris:</strong> {totalPrice} kr
                   </h4>
 
-                  {/* TODO - Regeln om 2 timmar tar ni i sprint 4.  */}
                   <p className="mb-1">
-                    <strong>Avbokning:</strong> Du kan avboka fram till att
-                    filmen startar.
+                    <strong>Avbokning:</strong> Du kan avboka fram till 2 timmar före visningen.
                   </p>
                   <p className="mb-4">
                     Är du inloggad avbokar du under Mina sidor.
