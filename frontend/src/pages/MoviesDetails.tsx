@@ -42,6 +42,7 @@ type Showing = {
   auditoriumId: string;
   auditoriumName: string;
   eventId: number | null;
+  hasStarted: boolean; // true = visningen har börjat och kan inte bokas
 };
 
 export default function MovieDetails() {
@@ -244,6 +245,18 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
     error,
   } = useFetch<Showing[]>(`/showings?date=${datum}&movieId=${movieId}`);
 
+  // Passerade visningar visas inte. hasStarted räknas ut i databasen.
+  const upcomingShowings = visningar
+    ? visningar.filter((showing) => !showing.hasStarted)
+    : null;
+
+  // Det fanns visningar det datumet, men alla har redan börjat
+  const allHaveStarted =
+    visningar !== null &&
+    visningar.length > 0 &&
+    upcomingShowings !== null &&
+    upcomingShowings.length === 0;
+
   return (
     <Card className="glass-card">
       <Card.Body className="p-4">
@@ -258,15 +271,19 @@ function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
           <p className="text-center mb-0">Inga visningar detta datum</p>
         )}
 
-        {visningar && visningar.length > 0 && (
+        {allHaveStarted && (
+          <p className="text-center mb-0">Inga fler visningar idag</p>
+        )}
+
+        {upcomingShowings && upcomingShowings.length > 0 && (
           <div className="d-grid gap-3 w-75 mx-auto">
-            {visningar.map((visning) => (
+            {upcomingShowings.map((showing) => (
               <SlotButton
-                key={visning.showingId}
-                auditoriumName={visning.auditoriumName}
-                time={visning.time}
+                key={showing.showingId}
+                auditoriumName={showing.auditoriumName}
+                time={showing.time}
                 // Bokningssidan läser showingId i bokningstasken
-                onClick={() => navigate(`/booking/${visning.showingId}`)}
+                onClick={() => navigate(`/booking/${showing.showingId}`)}
               />
             ))}
           </div>

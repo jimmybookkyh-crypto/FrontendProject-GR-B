@@ -67,3 +67,17 @@ export interface Auditorium {
   auditoriumId: string; // bigint kommer som text från pg
   name: string;
 }
+
+/* En rad i svaret från GET /showings (routes/showings.ts).
+   Id som är bigint i databasen kommer som text från pg. */
+export interface ShowingListItem {
+  showingId: string;
+  date: string; // "2026-10-19"
+  time: string; // "18:00"
+  movieId: number;
+  movieTitle: string;
+  auditoriumId: string;
+  auditoriumName: string;
+  eventId: number | null;
+  hasStarted: boolean; // true = visningen har börjat och kan inte bokas (#289)
+}

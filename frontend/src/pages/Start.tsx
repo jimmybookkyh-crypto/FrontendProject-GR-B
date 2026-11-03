@@ -26,6 +26,7 @@ type Movie = {
    (Svaret från GET /showings innehåller mer, t.ex. tid och salong.) */
 type Showing = {
   movieId: number;
+  hasStarted: boolean; // true = visningen har börjat och kan inte bokas
 };
 
 export default function Start() {
@@ -43,11 +44,15 @@ export default function Start() {
     error: visningsFel,
   } = useFetch<Showing[]>(`/showings?date=${valtDatum}&limit=100`);
 
-  // Behåller bara filmerna som har minst en visning det datumet
+  // Behåller bara filmerna som har minst en visning kvar det datumet (#289)
   const filmerDenDagen =
     filmer && visningar
       ? filmer.filter((film) =>
-          visningar.some((v) => String(v.movieId) === String(film.movieId)),
+          visningar.some(
+            (showing) =>
+              !showing.hasStarted &&
+              String(showing.movieId) === String(film.movieId),
+          ),
         )
       : null;
 

@@ -30,8 +30,14 @@ export async function createBooking(
   try {
     await client.query("BEGIN");
 
-    const showing = await client.query(
-      `select "showingId", "auditoriumId"
+    // Låser visningen och frågar databasen om den redan har börjat.
+    // Jämförelsen görs i SQL med now(), samma som avbokningen, så det blir inga tidszonsfel.
+    const showing = await client.query<{
+      auditoriumId: string;
+      hasStarted: boolean;
+    }>(
+      `select "showingId", "auditoriumId",
+              ((date + "time") <= now()) as "hasStarted"
         from showings
         where "showingId" = $1
         for update`,
@@ -39,7 +45,17 @@ export async function createBooking(
     );
 
     if (showing.rows.length === 0) {
-      throw Object.assign(new Error("Visningen finns ej"), { status: 404 });
+      throw Object.assign(new Error("Den önskad visning finns inte"), {
+        status: 404,
+      });
+    }
+
+    // Passerade visningar går inte att boka
+    if (showing.rows[0].hasStarted) {
+      throw Object.assign(
+        new Error("Visningen har redan börjat och kan därför inte bokas"),
+        { status: 400 },
+      );
     }
 
     const auditoriumId = showing.rows[0].auditoriumId;

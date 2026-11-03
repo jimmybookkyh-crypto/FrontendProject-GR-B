@@ -5,6 +5,7 @@ import type { SlotButtonProps } from "../interface/types";
 export default function SlotButton({
   auditoriumName,
   time,
+  disabled = false,
   onClick,
 }: SlotButtonProps) {
   return (
@@ -12,11 +13,10 @@ export default function SlotButton({
       size="lg"
       className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
       onClick={onClick}
+      disabled={disabled}
     >
       <span>{auditoriumName}</span>
       <span>kl {time}</span>
     </Button>
   );
 }
-
-
