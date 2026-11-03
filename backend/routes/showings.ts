@@ -6,7 +6,7 @@ import { requireAuth, requireAdmin } from '../utils/requireAuth.js';
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import { validateShowingInput, checkShowingOverlap} from "../utils/validateShowing.js";
 import { validateDate } from "../utils/validateDate.js";
-import type { ShowingListItem } from "../interface/types.js";
+import type { ShowingListItem, ExistingShowing } from "../interface/types.js";
 
 const showingsRouter: Router = Router();
 
