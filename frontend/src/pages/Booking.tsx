@@ -4,6 +4,7 @@ import {
   Row,
   Col,
   Card,
+  Badge,
   InputGroup,
   Form,
   Modal,
@@ -40,6 +41,7 @@ interface Showing {
   auditorium_id?: number;
   auditoriumName?: string;
   auditorium_name?: string;
+  hasStarted?: boolean; // true = visningen har börjat och kan inte bokas
 }
 
 interface Movie {
@@ -48,6 +50,10 @@ interface Movie {
   images?: string | string[];
   posterUrl?: string;
   poster_url?: string;
+  productionyear?: number | null;
+  length?: number | null; // minuter
+  genre?: string | null;
+  ageRating?: number | null;
 }
 
 interface TicketType {
@@ -108,13 +114,13 @@ export default function BookingPage() {
     movie?.title ||
     "Laddar...";
 
-const rawImage =
-  showing?.posterUrl ||
-  showing?.poster_url ||
-  showing?.images ||
-  movie?.posterUrl ||
-  movie?.poster_url ||
-  movie?.images;
+  const rawImage =
+    showing?.posterUrl ||
+    showing?.poster_url ||
+    showing?.images ||
+    movie?.posterUrl ||
+    movie?.poster_url ||
+    movie?.images;
 
   const currentImages = typeof rawImage === "string" ? [rawImage] : rawImage;
   const currentDate = formatDate(showing?.date);
@@ -454,6 +460,112 @@ const rawImage =
     return (
       <div className="text-center text-danger p-5">
         {showingError || seatsError}
+      </div>
+    );
+  }
+
+  // Visningen har redan börjat, t.ex. via en gammal länk eller bakåtknappen (#289).
+  // Backend nekar ändå bokningen, men här får besökaren beskedet direkt.
+  if (showing?.hasStarted) {
+    // Speltid som "1 tim 55 min", samma format som filmsidan
+    const lengthText =
+      movie?.length != null
+        ? movie.length >= 60
+          ? `${Math.floor(movie.length / 60)} tim ${movie.length % 60} min`
+          : `${movie.length} min`
+        : null;
+
+    return (
+      <div
+        className="booking-page min-vh-100 text-light d-flex align-items-center py-5"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <Container>
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8} xl={7}>
+              <Card className="glass-card text-center">
+                <Card.Body className="p-4 p-md-5">
+                  {/* Affisch */}
+                  <Row className="justify-content-center mb-4">
+                    <Col xs={10} sm={8} md={7}>
+                      <MovieCard
+                        movieId={currentMovieId || 1}
+                        title={currentTitle}
+                        images={currentImages ?? []}
+                        showDetails={false}
+                      />
+                    </Col>
+                  </Row>
+
+                  {/* Filminformation, samma som på filmsidan */}
+                  <h1
+                    className="text-uppercase mb-1"
+                    style={{ fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
+                  >
+                    {currentTitle}
+                  </h1>
+
+                  {movie?.productionyear != null && (
+                    <p className="fs-5 mb-3">{movie.productionyear}</p>
+                  )}
+
+                  <div className="d-flex justify-content-center flex-wrap gap-2 mb-2">
+                    {movie?.ageRating != null && (
+                      <Badge bg="danger" className="p-2 fs-6">
+                        {movie.ageRating === 0
+                          ? "Barntillåten"
+                          : `${movie.ageRating} år`}
+                      </Badge>
+                    )}
+                    {lengthText && (
+                      <Badge bg="secondary" className="p-2 fs-6">
+                        {lengthText}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {movie?.genre && (
+                    <div className="mb-4">
+                      <Badge
+                        bg="outline-light"
+                        className="border text-white fs-6"
+                      >
+                        {movie.genre}
+                      </Badge>
+                    </div>
+                  )}
+
+                  <hr className="my-4" />
+
+                  {/* Beskedet */}
+                  <h1 className="heading-gold h3 mb-3">
+                    Visningen har redan börjat
+                  </h1>
+                  <p className="fs-5 mb-4">
+                    Den här visningen kan inte längre bokas. Välj en annan tid
+                    för filmen.
+                  </p>
+
+                  <button
+                    type="button"
+                    className="btn checkout-btn rounded-pill py-2 px-5 fw-bold fs-5"
+                    onClick={() =>
+                      navigate(
+                        currentMovieId ? `/movies/${currentMovieId}` : "/",
+                      )
+                    }
+                  >
+                    Välj en annan visning
+                  </button>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

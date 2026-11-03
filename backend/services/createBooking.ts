@@ -1,13 +1,18 @@
 import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
-import { Booking, CreateBookingInput } from "../interface/types.js";
+import {
+  Booking,
+  BookedTicket,
+  CreatedBooking,
+  CreateBookingInput,
+} from "../interface/types.js";
 
 /* userId kommer från token (res.locals.user), aldrig från anropets body.
    null = gästbokning. */
 export async function createBooking(
   input: CreateBookingInput,
   userId: number | null,
-): Promise<Booking & { tickets: CreateBookingInput["tickets"] }> {
+): Promise<CreatedBooking> {
   const { email, showingId, tickets } = input;
 
   // Kolla dubbletter av säten
@@ -25,8 +30,14 @@ export async function createBooking(
   try {
     await client.query("BEGIN");
 
-    const showing = await client.query(
-      `select "showingId", "auditoriumId"
+    // Låser visningen och frågar databasen om den redan har börjat.
+    // Jämförelsen görs i SQL med now(), samma som avbokningen, så det blir inga tidszonsfel.
+    const showing = await client.query<{
+      auditoriumId: string;
+      hasStarted: boolean;
+    }>(
+      `select "showingId", "auditoriumId",
+              ((date + "time") <= now()) as "hasStarted"
         from showings
         where "showingId" = $1
         for update`,
@@ -34,13 +45,23 @@ export async function createBooking(
     );
 
     if (showing.rows.length === 0) {
-      throw Object.assign(new Error("Visningen finns ej"), { status: 404 });
+      throw Object.assign(new Error("Den önskad visning finns inte"), {
+        status: 404,
+      });
+    }
+
+    // Passerade visningar går inte att boka
+    if (showing.rows[0].hasStarted) {
+      throw Object.assign(
+        new Error("Visningen har redan börjat och kan därför inte bokas"),
+        { status: 400 },
+      );
     }
 
     const auditoriumId = showing.rows[0].auditoriumId;
 
     const seats = await client.query(
-      `select "seatId" from seats
+      `select "seatId", "seatsRow", "seatsNumber" from seats
         where "auditoriumId" = $1 and "seatId" = any($2::bigint[])`,
       [auditoriumId, seatIds],
     );
@@ -53,7 +74,7 @@ export async function createBooking(
     }
 
     const types = await client.query(
-      `select "ticketTypeId" from "ticketTypes"
+      `select "ticketTypeId", name, price::float as price from "ticketTypes"
         where "ticketTypeId" = any($1::bigint[])`,
       [ticketTypeIds],
     );
@@ -75,7 +96,8 @@ export async function createBooking(
         new Error("Ett eller flera säten är redan bokade"),
         { status: 409 },
       );
-      (err as any).seatIds = taken.rows.map((row: any) => row.seatId);
+      // pg ger bigint som text ("99"), men vi vill ha tal
+      (err as any).seatIds = taken.rows.map((row: any) => Number(row.seatId));
       throw err;
     }
 
@@ -98,9 +120,42 @@ export async function createBooking(
       );
     }
 
+    // Bygger svaret av det vi redan har läst ovan:
+    // rad och stol från seats, typens namn och pris från ticketTypes.
+    // Allt är kontrollerat ovan, därför kan vi lita på att varje stol och typ finns (!).
+    const seatById = new Map(seats.rows.map((s) => [Number(s.seatId), s]));
+    const typeById = new Map(
+      types.rows.map((t) => [Number(t.ticketTypeId), t]),
+    );
+
+    const bookedTickets: BookedTicket[] = tickets.map((t) => {
+      const seat = seatById.get(t.seatId)!;
+      const type = typeById.get(t.ticketTypeId)!;
+
+      return {
+        seatId: t.seatId,
+        seatsRow: Number(seat.seatsRow),
+        seatsNumber: Number(seat.seatsNumber),
+        ticketTypeId: t.ticketTypeId,
+        ticketType: type.name,
+        price: type.price,
+      };
+    });
+
+    const totalPrice = bookedTickets.reduce((sum, t) => sum + t.price, 0);
+
     await client.query("COMMIT");
 
-    return { ...booking.rows[0], tickets };
+    // pg ger bigint som text ("42"), men typen säger tal. Därför Number().
+    const row = booking.rows[0];
+
+    return {
+      ...row,
+      bookingId: Number(row.bookingId),
+      showingId: Number(row.showingId),
+      tickets: bookedTickets,
+      totalPrice,
+    };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     throw error;
