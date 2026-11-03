@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
-import { parseId, isPositiveInt, toPositiveInt } from "../utils/parseId.js";
+import { parseId, toPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { validateEmail } from "../utils/validateEmail.js";
 import {
@@ -165,7 +165,7 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
     const booking = bookingResult.rows[0];
 
     const ticketsResult = await pool.query(
-      `select tt.name as "ticketTypeName", tt.price::float as price,
+      `select tt.name as "ticketType", tt.price::float as price,
               se."seatsRow", se."seatsNumber"
        from tickets t
        join seats se on se."seatId" = t."seatId"
@@ -262,7 +262,10 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  if (!isPositiveInt(showingId)) {
+  // showingId kan komma som tal eller siffertext ("36"), precis som seatId nedan
+  const cleanShowingId = toPositiveInt(showingId);
+
+  if (cleanShowingId === null) {
     return res.status(400).json({
       error: { message: "showingId måste vara ett heltal större än 0" },
     });
@@ -304,7 +307,7 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
 
   try {
     const result = await createBooking(
-      { email, showingId, tickets: cleanTickets },
+      { email, showingId: cleanShowingId, tickets: cleanTickets },
       userId,
     );
 

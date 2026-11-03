@@ -80,7 +80,8 @@ export async function createBooking(
         new Error("Ett eller flera säten är redan bokade"),
         { status: 409 },
       );
-      (err as any).seatIds = taken.rows.map((row: any) => row.seatId);
+      // pg ger bigint som text ("99"), men vi vill ha tal
+      (err as any).seatIds = taken.rows.map((row: any) => Number(row.seatId));
       throw err;
     }
 
@@ -129,7 +130,16 @@ export async function createBooking(
 
     await client.query("COMMIT");
 
-    return { ...booking.rows[0], tickets: bookedTickets, totalPrice };
+    // pg ger bigint som text ("42"), men typen säger tal. Därför Number().
+    const row = booking.rows[0];
+
+    return {
+      ...row,
+      bookingId: Number(row.bookingId),
+      showingId: Number(row.showingId),
+      tickets: bookedTickets,
+      totalPrice,
+    };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     throw error;
