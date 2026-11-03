@@ -267,9 +267,7 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      data: rows[0],
-    });
+    return res.status(204).send();
 
   } catch (error) {
     console.error("DELETE /showings/:id failed", error);

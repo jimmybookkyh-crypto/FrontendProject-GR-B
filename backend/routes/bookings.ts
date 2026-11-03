@@ -408,7 +408,7 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
 
     await client.query("COMMIT");
 
-    return res.status(200).json({ data: { bookingId: id } });
+    return res.status(204).send();
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
 

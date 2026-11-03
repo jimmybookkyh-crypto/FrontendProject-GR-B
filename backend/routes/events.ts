@@ -244,7 +244,7 @@ eventsRouter.delete('/:id', requireAuth , requireAdmin, async (req, res) => {
       });
     }
 
-    return res.status(200).json({ data: rows[0] });
+    return res.status(204).send();
   } catch (error) {
     if (isForeignKeyError(error)) {
       return res.status(409).json({
