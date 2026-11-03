@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
-import { parseId, isPositiveInt } from "../utils/parseId.js";
+import { parseId, toPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { validateEmail } from "../utils/validateEmail.js";
 import {
@@ -165,7 +165,7 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
     const booking = bookingResult.rows[0];
 
     const ticketsResult = await pool.query(
-      `select tt.name as "ticketTypeName", tt.price::float as price,
+      `select tt.name as "ticketType", tt.price::float as price,
               se."seatsRow", se."seatsNumber"
        from tickets t
        join seats se on se."seatId" = t."seatId"
@@ -256,9 +256,18 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  if (!validateEmail(email) || !isPositiveInt(showingId)) {
+  if (!validateEmail(email)) {
     return res.status(400).json({
-      error: { message: "Ogiltig e-post eller visning" },
+      error: { message: "Ogiltig e-postadress" },
+    });
+  }
+
+  // showingId kan komma som tal eller siffertext ("36"), precis som seatId nedan
+  const cleanShowingId = toPositiveInt(showingId);
+
+  if (cleanShowingId === null) {
+    return res.status(400).json({
+      error: { message: "showingId måste vara ett heltal större än 0" },
     });
   }
 
@@ -268,20 +277,39 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  for (const ticket of tickets as TicketInput[]) {
-    if (
-      !ticket ||
-      !isPositiveInt(ticket.seatId) ||
-      !isPositiveInt(ticket.ticketTypeId)
-    ) {
+  // Kollar varje biljett och gör om seatId och ticketTypeId till tal ("12" blir 12).
+  // Felmeddelandet säger vilken biljett (1, 2, 3 ...) och vilket fält som är fel.
+  const cleanTickets: TicketInput[] = [];
+
+  for (let i = 0; i < tickets.length; i++) {
+    const nr = i + 1;
+    const seatId = toPositiveInt(tickets[i]?.seatId);
+    const ticketTypeId = toPositiveInt(tickets[i]?.ticketTypeId);
+
+    if (seatId === null) {
       return res.status(400).json({
-        error: { message: "Varje biljett måste ha seatId och ticketTypeId" },
+        error: {
+          message: `Biljett ${nr}: seatId måste vara ett heltal större än 0`,
+        },
       });
     }
+
+    if (ticketTypeId === null) {
+      return res.status(400).json({
+        error: {
+          message: `Biljett ${nr}: ticketTypeId måste vara ett heltal större än 0`,
+        },
+      });
+    }
+
+    cleanTickets.push({ seatId, ticketTypeId });
   }
 
   try {
-    const result = await createBooking({ email, showingId, tickets }, userId);
+    const result = await createBooking(
+      { email, showingId: cleanShowingId, tickets: cleanTickets },
+      userId,
+    );
 
     return res.status(201).json({ data: result });
   } catch (error: any) {
