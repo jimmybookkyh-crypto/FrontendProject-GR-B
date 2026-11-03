@@ -279,7 +279,7 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 
     // Hämta den aktiva filmens duration
     const movieRes = await pool.query(
-      `SELECT duration FROM movies WHERE "movieId" = $1`,
+      `SELECT lenght FROM movies WHERE "movieId" = $1`,
       [activeMovieId]
     );
     if (movieRes.rows.length === 0) {
