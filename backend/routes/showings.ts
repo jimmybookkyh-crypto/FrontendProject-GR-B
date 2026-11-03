@@ -268,8 +268,7 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
     }
 
     return res.status(200).json({
-      message: "Visningen är nu borttagen",
-      data: rows[0]
+      data: rows[0],
     });
 
   } catch (error) {
