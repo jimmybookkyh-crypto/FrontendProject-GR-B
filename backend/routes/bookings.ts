@@ -38,7 +38,7 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 
   if (pagination === null) {
     return res.status(400).json({
-      error: { message: "Ogiltig limit eller offset" },
+      error: { message: "Ogiltig gräns eller förskjutning" },
     });
   }
 
@@ -438,7 +438,7 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
 
     await client.query("COMMIT");
 
-    return res.status(200).json({ data: { bookingId: id } });
+    return res.status(204).send();
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
 

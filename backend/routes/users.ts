@@ -23,7 +23,7 @@ usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 
   if (!pagination) {
     return res.status(400).json({
-      error: { message: "Ogiltig limit eller offset" },
+      error: { message: "Ogiltig gräns eller förskjutning" },
     });
   }
   const { limit, offset } = pagination;
@@ -256,9 +256,13 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
 
     await client.query("COMMIT");
 
-    return res.status(200).json({
+    return res.status(204).send();
+    
+    /* Gammal return
+     res.status(200).json({
       data: { ...rows[0], cancelledBookings: upcomingIds.length },
     });
+    */
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     console.error("DELETE /users/:Id failed", error);
