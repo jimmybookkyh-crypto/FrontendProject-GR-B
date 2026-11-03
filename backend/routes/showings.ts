@@ -259,10 +259,17 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   try {
     // Hämta den nuvarande visningen
     const currentRes = await pool.query(
-      `SELECT * FROM showings WHERE "showingId" = $1`,
+      `SELECT 
+     "showingId",
+     "movieId",
+     "auditoriumId",
+     date::text AS date,
+     left("time"::text, 5) AS "time",
+     "eventId"
+   FROM showings 
+   WHERE "showingId" = $1`,
       [id]
     );
-
     if (currentRes.rows.length === 0) {
       return res.status(404).json({ error: { message: "Visningen finns inte" } });
     }
