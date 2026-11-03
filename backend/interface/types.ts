@@ -51,3 +51,21 @@ export interface Auditorium {
   auditoriumId: string; // bigint kommer som text från pg
   name: string;
 }
+
+// Time and overlap validation functions.
+export interface ExistingShowing {
+  showingId: number;
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+}
+
+export interface NewShowingCheck {
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+  cleaningTimeMinutes?: number;
+  showingIdToExclude?: number;
+}

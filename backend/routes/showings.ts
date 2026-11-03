@@ -4,8 +4,9 @@ import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { requireAuth, requireAdmin } from '../utils/requireAuth.js';
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
-import { validateShowingInput, checkShowingOverlap, ExistingShowing } from "../utils/validateShowing.js";
+import { validateShowingInput, checkShowingOverlap} from "../utils/validateShowing.js";
 import { validateDate } from "../utils/validateDate.js";
+import { ExistingShowing } from "../interface/types.ts";
 
 /* Så här ser en rad i svaret från GET /showings ut.
    Id som är bigint i databasen kommer som text från pg. */
@@ -166,7 +167,6 @@ showingsRouter.get("/:id/seats", async (req, res) => {
 showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const body = req.body ?? {};
 
-  // Formatvalidering
   const errorMessage = validateShowingInput(body);
   if (errorMessage) {
     return res.status(400).json({ error: { message: errorMessage } });
@@ -174,8 +174,7 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
 
   const { movieId, auditoriumId, date, time, eventId } = body;
 
-  try {
-    // Hämta filmens speltid 
+  try { 
     const movieRes = await pool.query(
       `SELECT length AS duration FROM movies WHERE "movieId" = $1`,
       [movieId]
@@ -186,7 +185,6 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
     }
     const movieDurationMinutes = movieRes.rows[0].duration;
 
-    // Hämta befintliga visningar
     const existingRes = await pool.query(
       `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.length AS "movieDurationMinutes"
        FROM showings s
@@ -219,7 +217,6 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
       });
     }
 
-    // Spara i databasen
     const { rows } = await pool.query(
       `INSERT INTO showings ("movieId", "auditoriumId", date, "time", "eventId") VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [movieId, auditoriumId, date, time, eventId]
@@ -250,7 +247,6 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
   const body = req.body ?? {};
 
-  // Formatvalidering
   const errorMessage = validateShowingInput(body);
   if (errorMessage) {
     return res.status(400).json({ error: { message: errorMessage } });
@@ -276,7 +272,6 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 
     const current = currentRes.rows[0];
 
-    // Slå ihop inskickade fält med nuvarande värden
     const activeMovieId = body.movieId ?? current.movieId;
     const activeAuditoriumId = body.auditoriumId ?? current.auditoriumId;
     const activeDate = body.date ?? current.date;

@@ -1,3 +1,4 @@
+import { ExistingShowing, NewShowingCheck } from "../interface/types";
 export function isPositiveInt(value: unknown): boolean {
   return typeof value === "number" && Number.isInteger(value) && value > 0;
 }
@@ -52,30 +53,11 @@ export function validateShowingInput(input: {
 
   return null;
 }
-
-// Time and overlap validation functions. 
-export interface ExistingShowing {
-  showingId: number;
-  auditoriumId: number;
-  date: string;
-  time: string;
-  movieDurationMinutes: number;
-}
-
-export interface NewShowingCheck {
-  auditoriumId: number;
-  date: string;
-  time: string;
-  movieDurationMinutes: number;
-  cleaningTimeMinutes?: number; // Cleaning time in minutes 20 min
-  showingIdToExclude?: number; // use during PATH/UPPDATE to exclude it self from the overlap check
-}
-
+ 
 export function parseShowingDateTime(dateStr: string, timeStr: string): Date {
   const cleanTime = timeStr.split("+")[0].split("Z")[0]; // Remove timezone if present
  return new Date(`${dateStr}T${cleanTime}`);
 }
-
 
 export function checkShowingOverlap(
   newShowing: NewShowingCheck,
