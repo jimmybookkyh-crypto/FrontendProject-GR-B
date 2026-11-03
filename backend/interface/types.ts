@@ -19,6 +19,22 @@ export interface TicketInput {
   ticketTypeId: number;
 }
 
+/* En biljett i svaret från POST /bookings: stolen (rad och nummer) och biljettypen (namn och pris) */
+export interface BookedTicket {
+  seatId: number;
+  seatsRow: number;
+  seatsNumber: number;
+  ticketTypeId: number;
+  ticketType: string; // t.ex. "Vuxen"
+  price: number;
+}
+
+/* Svaret från POST /bookings: bokningen, biljetterna och totalpriset */
+export type CreatedBooking = Booking & {
+  tickets: BookedTicket[];
+  totalPrice: number;
+};
+
 export interface Movie {
   movieId: string; // bigint kommer som text från pg
   title: string;

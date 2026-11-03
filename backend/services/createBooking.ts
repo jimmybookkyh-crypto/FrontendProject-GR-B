@@ -1,13 +1,18 @@
 import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
-import { Booking, CreateBookingInput } from "../interface/types.js";
+import {
+  Booking,
+  BookedTicket,
+  CreatedBooking,
+  CreateBookingInput,
+} from "../interface/types.js";
 
 /* userId kommer från token (res.locals.user), aldrig från anropets body.
    null = gästbokning. */
 export async function createBooking(
   input: CreateBookingInput,
   userId: number | null,
-): Promise<Booking & { tickets: CreateBookingInput["tickets"] }> {
+): Promise<CreatedBooking> {
   const { email, showingId, tickets } = input;
 
   // Kolla dubbletter av säten
@@ -40,7 +45,7 @@ export async function createBooking(
     const auditoriumId = showing.rows[0].auditoriumId;
 
     const seats = await client.query(
-      `select "seatId" from seats
+      `select "seatId", "seatsRow", "seatsNumber" from seats
         where "auditoriumId" = $1 and "seatId" = any($2::bigint[])`,
       [auditoriumId, seatIds],
     );
@@ -53,7 +58,7 @@ export async function createBooking(
     }
 
     const types = await client.query(
-      `select "ticketTypeId" from "ticketTypes"
+      `select "ticketTypeId", name, price::float as price from "ticketTypes"
         where "ticketTypeId" = any($1::bigint[])`,
       [ticketTypeIds],
     );
@@ -98,9 +103,33 @@ export async function createBooking(
       );
     }
 
+    // Bygger svaret av det vi redan har läst ovan:
+    // rad och stol från seats, typens namn och pris från ticketTypes.
+    // Allt är kontrollerat ovan, därför kan vi lita på att varje stol och typ finns (!).
+    const seatById = new Map(seats.rows.map((s) => [Number(s.seatId), s]));
+    const typeById = new Map(
+      types.rows.map((t) => [Number(t.ticketTypeId), t]),
+    );
+
+    const bookedTickets: BookedTicket[] = tickets.map((t) => {
+      const seat = seatById.get(t.seatId)!;
+      const type = typeById.get(t.ticketTypeId)!;
+
+      return {
+        seatId: t.seatId,
+        seatsRow: Number(seat.seatsRow),
+        seatsNumber: Number(seat.seatsNumber),
+        ticketTypeId: t.ticketTypeId,
+        ticketType: type.name,
+        price: type.price,
+      };
+    });
+
+    const totalPrice = bookedTickets.reduce((sum, t) => sum + t.price, 0);
+
     await client.query("COMMIT");
 
-    return { ...booking.rows[0], tickets };
+    return { ...booking.rows[0], tickets: bookedTickets, totalPrice };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     throw error;
