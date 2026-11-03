@@ -68,6 +68,23 @@ export interface Auditorium {
   name: string;
 }
 
+// Time and overlap validation functions.
+export interface ExistingShowing {
+  showingId: number;
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+}
+
+export interface NewShowingCheck {
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+  cleaningTimeMinutes?: number;
+  showingIdToExclude?: number;
+}
 /* En rad i svaret från GET /showings (routes/showings.ts).
    Id som är bigint i databasen kommer som text från pg. */
 export interface ShowingListItem {

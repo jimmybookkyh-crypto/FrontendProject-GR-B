@@ -4,7 +4,7 @@ import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { requireAuth, requireAdmin } from '../utils/requireAuth.js';
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
-import { validateShowingInput } from "../utils/validateShowing.js";
+import { validateShowingInput, checkShowingOverlap} from "../utils/validateShowing.js";
 import { validateDate } from "../utils/validateDate.js";
 import type { ShowingListItem } from "../interface/types.js";
 
@@ -175,7 +175,49 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
 
   const { movieId, auditoriumId, date, time, eventId } = body;
 
-  try {
+  try { 
+    const movieRes = await pool.query(
+      `SELECT length AS duration FROM movies WHERE "movieId" = $1`,
+      [movieId]
+    );
+
+    if (movieRes.rows.length === 0) {
+      return res.status(404).json({ error: { message: "Filmen finns inte" } });
+    }
+    const movieDurationMinutes = movieRes.rows[0].duration;
+
+    const existingRes = await pool.query(
+      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.length AS "movieDurationMinutes"
+       FROM showings s
+       JOIN movies m ON m."movieId" = s."movieId"
+       WHERE s."auditoriumId" = $1 AND s.date = $2`,
+      [auditoriumId, date]
+    );
+    const existingShowings: ExistingShowing[] = existingRes.rows.map((r) => ({
+      showingId: Number(r.showingId),
+      auditoriumId: Number(r.auditoriumId),
+      date: r.date,
+      time: r.time,
+      movieDurationMinutes: Number(r.movieDurationMinutes),
+    }));
+
+    // Överlappskontroll (inkl. städtid)
+    const isOverlapping = checkShowingOverlap(
+      {
+        auditoriumId: Number(auditoriumId),
+        date,
+        time,
+        movieDurationMinutes,
+      },
+      existingShowings
+    );
+
+    if (isOverlapping) {
+      return res.status(409).json({
+        error: { message: "Salongen är redan upptagen under denna tid (inklusive städtid)." },
+      });
+    }
+
     const { rows } = await pool.query(
       `INSERT INTO showings ("movieId", "auditoriumId", date, "time", "eventId") VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [movieId, auditoriumId, date, time, eventId]
@@ -210,26 +252,89 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   if (errorMessage) {
     return res.status(400).json({ error: { message: errorMessage } });
   }
-  const { movieId, auditoriumId, date, time, eventId } = body;
 
   try {
-    const { rows } = await pool.query(
-      `UPDATE showings
-       SET "movieId" = COALESCE($2, "movieId"),
-           "auditoriumId" = COALESCE($3, "auditoriumId"),
-           date = COALESCE($4, date),
-           "time" = COALESCE($5, "time"),
-           "eventId" = COALESCE($6, "eventId")
-       WHERE "showingId" = $1
-       RETURNING *`,
-      [id, movieId, auditoriumId, date, time, eventId]
+    // Hämta den nuvarande visningen
+    const currentRes = await pool.query(
+      `SELECT 
+     "showingId",
+     "movieId",
+     "auditoriumId",
+     date::text AS date,
+     left("time"::text, 5) AS "time",
+     "eventId"
+   FROM showings 
+   WHERE "showingId" = $1`,
+      [id]
+    );
+    if (currentRes.rows.length === 0) {
+      return res.status(404).json({ error: { message: "Visningen finns inte" } });
+    }
+
+    const current = currentRes.rows[0];
+
+    const activeMovieId = body.movieId ?? current.movieId;
+    const activeAuditoriumId = body.auditoriumId ?? current.auditoriumId;
+    const activeDate = body.date ?? current.date;
+    const activeTime = body.time ?? current.time;
+    const activeEventId = body.eventId ?? current.eventId;
+
+   
+    const movieRes = await pool.query(
+      `SELECT length AS duration FROM movies WHERE "movieId" = $1`,
+      [activeMovieId]
+    );
+    if (movieRes.rows.length === 0) {
+      return res.status(404).json({ error: { message: "Filmen finns inte" } });
+    }
+    const movieDurationMinutes = movieRes.rows[0].duration;
+
+    const existingRes = await pool.query(
+      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.length AS "movieDurationMinutes"
+       FROM showings s
+       JOIN movies m ON m."movieId" = s."movieId"
+       WHERE s."auditoriumId" = $1 AND s.date = $2`,
+      [activeAuditoriumId, activeDate]
     );
 
-    if (rows.length === 0) {
-      return res.status(404).json({
-        error: { message: "Visningen finns inte" },
+    const existingShowings: ExistingShowing[] = existingRes.rows.map((r) => ({
+      showingId: Number(r.showingId),
+      auditoriumId: Number(r.auditoriumId),
+      date: r.date,
+      time: r.time,
+      movieDurationMinutes: Number(r.movieDurationMinutes),
+    }));
+
+    // Överlappskontroll
+    const isOverlapping = checkShowingOverlap(
+      {
+        auditoriumId: Number(activeAuditoriumId),
+        date: activeDate,
+        time: activeTime,
+        movieDurationMinutes,
+        showingIdToExclude: id,
+      },
+      existingShowings
+    );
+
+    if (isOverlapping) {
+      return res.status(409).json({
+        error: { message: "Uppdateringen misslyckades: Tidsperioden krockar med en annan visning i salongen." },
       });
     }
+
+    // Uppdatera visningen i databasen
+    const { rows } = await pool.query(
+      `UPDATE showings
+      SET "movieId" = $2,
+       "auditoriumId" = $3,
+       date = $4,
+       "time" = $5,
+       "eventId" = $6
+      WHERE "showingId" = $1
+      RETURNING *`,
+      [id, activeMovieId, activeAuditoriumId, activeDate, activeTime, activeEventId]
+    );
 
     return res.status(200).json({ data: rows[0] });
   } catch (error) {
@@ -271,9 +376,8 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
 
     return res.status(200).json({
       message: "Visningen är borttagen",
-      data: rows[0]
+      data: rows[0],
     });
-
   } catch (error) {
     console.error("DELETE /showings/:id failed", error);
 
@@ -289,4 +393,5 @@ showingsRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
     return res.status(500).json({ error: { message: "Internt serverfel" } });
   }
 });
+
 export default showingsRouter;
