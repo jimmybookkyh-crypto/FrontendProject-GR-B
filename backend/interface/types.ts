@@ -20,7 +20,7 @@ export interface TicketInput {
 }
 
 export interface Movie {
-  movieId: string; // bigint kommer som text från pg
+  movieId: number; // bigint kommer som text från pg
   title: string;
   productioncountries: string[] | null;
   productionyear: number | null;
@@ -39,7 +39,7 @@ export interface Movie {
 }
 
 export interface EventRow {
-  eventId: string;
+  eventId: number;
   created_at: string;
   name: string;
   date: string | null;
@@ -48,6 +48,6 @@ export interface EventRow {
 }
 
 export interface Auditorium {
-  auditoriumId: string; // bigint kommer som text från pg
+  auditoriumId: number; // bigint kommer som text från pg
   name: string;
 }
