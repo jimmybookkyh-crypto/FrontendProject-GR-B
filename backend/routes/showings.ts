@@ -124,7 +124,7 @@ showingsRouter.get("/:id", async (req, res, next) => {
     );
 
     if (rows.length === 0) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: { message: "Visningen finns inte" },
       });
     }
