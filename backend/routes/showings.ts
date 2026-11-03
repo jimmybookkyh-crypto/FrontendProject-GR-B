@@ -277,7 +277,7 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     const activeAuditoriumId = body.auditoriumId ?? current.auditoriumId;
     const activeDate = body.date ?? current.date;
     const activeTime = body.time ?? current.time;
-    const activeEventId = body.eventId ?? current.eventId;
+    const activeEventId = "eventId" in body ? body.eventId : current.eventId;
 
    
     const movieRes = await pool.query(
