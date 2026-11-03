@@ -177,7 +177,7 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   try {
     // Hämta filmens speltid 
     const movieRes = await pool.query(
-      `SELECT duration FROM movies WHERE "movieId" = $1`,
+      `SELECT length AS duration FROM movies WHERE "movieId" = $1`,
       [movieId]
     );
 
@@ -186,15 +186,14 @@ showingsRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
     }
     const movieDurationMinutes = movieRes.rows[0].duration;
 
-    // Hämta befintliga visningar för samma salong och datum
+    // Hämta befintliga visningar
     const existingRes = await pool.query(
-      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.duration AS "movieDurationMinutes"
+      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.length AS "movieDurationMinutes"
        FROM showings s
        JOIN movies m ON m."movieId" = s."movieId"
        WHERE s."auditoriumId" = $1 AND s.date = $2`,
       [auditoriumId, date]
     );
-
     const existingShowings: ExistingShowing[] = existingRes.rows.map((r) => ({
       showingId: Number(r.showingId),
       auditoriumId: Number(r.auditoriumId),
@@ -277,9 +276,9 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     const activeTime = body.time ?? current.time;
     const activeEventId = body.eventId ?? current.eventId;
 
-    // Hämta den aktiva filmens duration
+   
     const movieRes = await pool.query(
-      `SELECT lenght FROM movies WHERE "movieId" = $1`,
+      `SELECT length AS duration FROM movies WHERE "movieId" = $1`,
       [activeMovieId]
     );
     if (movieRes.rows.length === 0) {
@@ -287,9 +286,8 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     }
     const movieDurationMinutes = movieRes.rows[0].duration;
 
-    // Hämta befintliga visningar för den aktiva salongen och datumet
     const existingRes = await pool.query(
-      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.duration AS "movieDurationMinutes"
+      `SELECT s."showingId", s."auditoriumId", s.date::text AS date, left(s."time"::text, 5) AS "time", m.length AS "movieDurationMinutes"
        FROM showings s
        JOIN movies m ON m."movieId" = s."movieId"
        WHERE s."auditoriumId" = $1 AND s.date = $2`,
