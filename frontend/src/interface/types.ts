@@ -108,3 +108,10 @@ export type EventShowing = {
   movieTitle: string;
   productionyear: number | null;
 };
+
+export interface Seat {
+  seatId: number;
+  seatsRow: number;
+  seatsNumber: number;
+  auditoriumId: number;
+}
