@@ -9,6 +9,7 @@ import {
   isValidRole,
 } from "../utils/requireAuth.ts";
 import { parsePagination } from "../utils/parsePagination.js";
+import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";
 import bcrypt from "bcryptjs";
 
@@ -105,11 +106,8 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   const { username, role } = req.body;
   const hashedPassword = req.body.passwordHash;
 
-  //uppstår problem om email inte är en sträng vid .toLowerCase(), t.ex. om det är null eller undefined
-  const email =
-    typeof req.body.email === "string"
-      ? req.body.email.toLowerCase()
-      : req.body.email;
+  // Använder normalizeEmail för att säkerställa att email är i korrekt format
+  const email = normalizeEmail(req.body.email);
 
   // Validera endast fält som skickats med
   if (
@@ -162,7 +160,13 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     }
 
     return res.status(200).json({ data: rows[0] });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: { message: "Denna Email finns redan registrerad" },
+      });
+    }
+
     console.error("PATCH /users/:Id failed", error);
     return res.status(500).json({
       error: { message: "Fel vid uppdatering av användare" },
@@ -270,11 +274,8 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
 usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   const username = req.body.username;
 
-  //uppstår problem om email inte är en sträng vid .toLowerCase()
-  const email =
-    typeof req.body.email === "string"
-      ? req.body.email.toLowerCase()
-      : req.body.email;
+  // Normalisera email
+  const email = normalizeEmail(req.body.email);
 
   const hashedPassword = req.body.passwordHash;
 
@@ -328,7 +329,13 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
       [username, hashedPassword, email, "user"],
     );
     return res.status(201).json({ data: rows[0] });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: { message: "Denna Email finns redan registrerad" },
+      });
+    }
+
     console.error("POST /users/auth/register failed", error);
 
     return res.status(500).json({
