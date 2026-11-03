@@ -19,6 +19,22 @@ export interface TicketInput {
   ticketTypeId: number;
 }
 
+/* En biljett i svaret från POST /bookings: stolen (rad och nummer) och biljettypen (namn och pris) */
+export interface BookedTicket {
+  seatId: number;
+  seatsRow: number;
+  seatsNumber: number;
+  ticketTypeId: number;
+  ticketType: string; // t.ex. "Vuxen"
+  price: number;
+}
+
+/* Svaret från POST /bookings: bokningen, biljetterna och totalpriset */
+export type CreatedBooking = Booking & {
+  tickets: BookedTicket[];
+  totalPrice: number;
+};
+
 export interface Movie {
   movieId: number; // bigint kommer som text från pg
   title: string;
@@ -50,4 +66,35 @@ export interface EventRow {
 export interface Auditorium {
   auditoriumId: number; // bigint kommer som text från pg
   name: string;
+}
+
+// Time and overlap validation functions.
+export interface ExistingShowing {
+  showingId: number;
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+}
+
+export interface NewShowingCheck {
+  auditoriumId: number;
+  date: string;
+  time: string;
+  movieDurationMinutes: number;
+  cleaningTimeMinutes?: number;
+  showingIdToExclude?: number;
+}
+/* En rad i svaret från GET /showings (routes/showings.ts).
+   Id som är bigint i databasen kommer som text från pg. */
+export interface ShowingListItem {
+  showingId: string;
+  date: string; // "2026-10-19"
+  time: string; // "18:00"
+  movieId: number;
+  movieTitle: string;
+  auditoriumId: string;
+  auditoriumName: string;
+  eventId: number | null;
+  hasStarted: boolean; // true = visningen har börjat och kan inte bokas (#289)
 }
