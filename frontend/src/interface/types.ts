@@ -115,3 +115,47 @@ export interface Seat {
   seatsNumber: number;
   auditoriumId: number;
 }
+
+export interface Showing {
+  showingId: number;
+  movieId?: number;
+  movie_id?: number;
+  movieTitle?: string;
+  movie_title?: string;
+  title?: string;
+  posterUrl?: string;
+  poster_url?: string;
+  images?: string | string[];
+  date?: string;
+  time?: string;
+  auditoriumId?: number;
+  auditorium_id?: number;
+  auditoriumName?: string;
+  auditorium_name?: string;
+  hasStarted?: boolean; // true = visningen har börjat och kan inte bokas
+}
+
+export interface Movie {
+  movieId: number;
+  title: string;
+  images?: string | string[];
+  posterUrl?: string;
+  poster_url?: string;
+  productionyear?: number | null;
+  length?: number | null; // minuter
+  genre?: string | null;
+  ageRating?: number | null;
+}
+
+export interface TicketType {
+  ticketTypeId?: number;
+  ticket_type_id?: number;
+  id?: number;
+  name: string;
+  price: number;
+}
+
+export interface OccupiedSeat {
+  seatId?: number;
+  seat_id?: number;
+}

@@ -1,68 +1,16 @@
 import { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Badge,
-  InputGroup,
-  Form,
-  Modal,
-} from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, InputGroup, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
 import backgroundImage from "../assets/img/biodukbg.png";
 // @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
-import SeatMap, { type Seat } from "../components/SeatMap";
+import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import { useAuth } from "../utils/authContext";
-import {
-  formatDate,
-  formatTime,
-  calculateTotalPrice,
-  getMaxAllowedTickets,
-} from "../utils/BookingHelpers";
-
-interface Showing {
-  showingId: number;
-  movieId?: number;
-  movie_id?: number;
-  movieTitle?: string;
-  movie_title?: string;
-  title?: string;
-  posterUrl?: string;
-  poster_url?: string;
-  images?: string | string[];
-  date?: string;
-  time?: string;
-  auditoriumId?: number;
-  auditorium_id?: number;
-  auditoriumName?: string;
-  auditorium_name?: string;
-  hasStarted?: boolean; // true = visningen har börjat och kan inte bokas
-}
-
-interface Movie {
-  movieId: number;
-  title: string;
-  images?: string | string[];
-  posterUrl?: string;
-  poster_url?: string;
-  productionyear?: number | null;
-  length?: number | null; // minuter
-  genre?: string | null;
-  ageRating?: number | null;
-}
-
-interface TicketType {
-  ticketTypeId?: number;
-  ticket_type_id?: number;
-  id?: number;
-  name: string;
-  price: number;
-}
+import { formatDate, formatTime, calculateTotalPrice, getMaxAllowedTickets } from "../utils/BookingHelpers";
+import type { Showing, Movie, TicketType, Seat, OccupiedSeat } from "../interface/types";
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -95,16 +43,16 @@ export default function BookingPage() {
     data: showingRaw,
     loading: showingLoading,
     error: showingError,
-  } = useFetch<any>(showingId ? `/showings/${showingId}` : null);
+  } = useFetch<Showing>(showingId ? `/showings/${showingId}` : null);
 
-  const showing: Showing | undefined = showingRaw?.data || showingRaw;
+  const showing = showingRaw;
   const currentMovieId = showing?.movieId ?? showing?.movie_id;
 
   // Hämta filmens detaljer om visningen saknar JOIN med movies
-  const { data: movieRaw } = useFetch<any>(
+  const { data: movieRaw } = useFetch<Movie>(
     currentMovieId ? `/movies/${currentMovieId}` : null,
   );
-  const movie: Movie | undefined = movieRaw?.data || movieRaw;
+  const movie = movieRaw;
 
   // Säkerställt att rätt titel och bild väljs för den aktuella filmen
   const currentTitle =
@@ -151,31 +99,23 @@ export default function BookingPage() {
     data: seatsRaw,
     loading: seatsLoading,
     error: seatsError,
-  } = useFetch<any>(
+  } = useFetch<Seat[]>(
     currentAuditoriumId ? `/seats?auditoriumId=${currentAuditoriumId}` : null,
   );
 
-  const rawSeatsList = seatsRaw?.data || seatsRaw || [];
-  const seats: Seat[] = Array.isArray(rawSeatsList)
-    ? rawSeatsList.map((s: any) => ({
-        seatId: Number(s.seatId ?? s.seat_id),
-        seatsRow: Number(s.seatsRow ?? s.seats_row ?? s.row),
-        seatsNumber: Number(s.seatsNumber ?? s.seats_number ?? s.number),
-        auditoriumId: Number(s.auditoriumId ?? s.auditorium_id),
-      }))
-    : [];
-
+  const seats: Seat[] = seatsRaw || [];
+  
   // Hämta upptagna stolar för den aktuella visningen (inkluderar seatRefreshKey för automatisk reload)
-  const { data: occupiedSeatsRaw } = useFetch<any>(
+  const { data: occupiedSeatsRaw } = useFetch<OccupiedSeat[]>(
     showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null,
   );
 
-  const rawList = occupiedSeatsRaw?.data || occupiedSeatsRaw || [];
+  const rawList = occupiedSeatsRaw || [];
 
   // Säkerställer att alla upptagna stolar konverteras till rena NUMMER
   const occupiedSeats: number[] = Array.isArray(rawList)
     ? rawList
-        .map((item: any) => {
+        .map((item) => {
           if (typeof item === "object" && item !== null) {
             return Number(item.seatId ?? item.seat_id);
           }
@@ -185,8 +125,8 @@ export default function BookingPage() {
     : [];
 
   // Hämta biljetttyper från API:et
-  const { data: ticketTypesRaw } = useFetch<any>("/tickets/ticketTypes");
-  const ticketTypes: TicketType[] = ticketTypesRaw?.data ||
+  const { data: ticketTypesRaw } = useFetch<TicketType[]>("/tickets/ticketTypes");
+  const ticketTypes: TicketType[] =
     ticketTypesRaw || [
       { ticketTypeId: 1, name: "Vuxen", price: 140 },
       { ticketTypeId: 2, name: "Barn", price: 80 },
@@ -602,7 +542,7 @@ export default function BookingPage() {
                       <MovieCard
                         movieId={currentMovieId || 1}
                         title={currentTitle}
-                        images={currentImages}
+                        images={currentImages ?? []}
                         showDetails={false}
                       />
                     )}
