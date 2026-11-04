@@ -85,9 +85,13 @@ create table public.bookings (
   email text not null,
   "showingId" bigint not null,
   "userId" integer,
+  status text not null default 'confirmed',
+  "cancelledAt" timestamp with time zone,
   constraint booking_pkey primary key ("bookingId"),
   constraint "booking_showingId_fkey" foreign KEY ("showingId") references showings ("showingId"),
-  constraint "booking_userId_fkey" foreign KEY ("userId") references users ("userId")
+  constraint "booking_userId_fkey" foreign KEY ("userId") references users ("userId"),
+  constraint bookings_status_check check (status in ('confirmed', 'cancelled')),
+  constraint bookings_cancelled_at_check check ((status = 'cancelled') = ("cancelledAt" is not null))
 );
 
 create table public.tickets (
