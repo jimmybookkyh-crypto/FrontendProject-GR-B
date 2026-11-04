@@ -5,7 +5,6 @@ import useFormData from "../utils/useFormData.ts";
 import { useAuth } from "../utils/authContext.tsx";
 import { emailError, hasErrors, passwordError, requiredError, usernameError, type FieldErrors } from "../utils/validateUtil.ts";
 import PasswordInput from "../components/PasswordInput.tsx";
-import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -102,7 +101,7 @@ export default function Register() {
                                 )}
                             </Form.Group>
 
-                            {error && <Alert variant="danger" className="py-2 mt-4 mb-0">{error}</Alert>}
+                            {error && <div className="invalid-feedback d-block mt-4">{error}</div>}
 
                             <button className="mypage-btn mypage-btn-outline mt-4" type="submit" disabled={loading}>
                                 {loading ? "Rigistreras..." : "Bli medlem"}
