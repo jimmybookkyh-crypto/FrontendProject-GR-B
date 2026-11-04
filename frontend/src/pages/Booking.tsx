@@ -621,7 +621,7 @@ export default function BookingPage() {
         </Row>
 
         <Row className="g-4 justify-content-center align-items-start">
-          <Col xs={12} lg={7}>
+          <Col xs={12} md={7} lg={8}>
             <Card className="glass-card overflow-x-auto">
               <Card.Body className="p-3 p-md-4">
                 <SeatMap
@@ -635,7 +635,7 @@ export default function BookingPage() {
             </Card>
           </Col>
 
-          <Col xs={12} lg={5}>
+          <Col xs={12} md={5} lg={4}>
             <Card className="glass-card">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
