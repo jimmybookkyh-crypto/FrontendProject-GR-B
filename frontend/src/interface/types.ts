@@ -108,3 +108,10 @@ export type EventShowing = {
   movieTitle: string;
   productionyear: number | null;
 };
+
+export type FieldErrors = {
+  username?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
+};
