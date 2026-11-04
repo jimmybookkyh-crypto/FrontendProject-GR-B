@@ -7,6 +7,13 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function requiredError(value: string, message = "Obligatoriskta fält måste fyllas i.") {
   return value.trim() === "" ? message : undefined;
 }
+// Validerar att användarnamnet inte är tomt och är minst 3 tecken.
+export function usernameError(username: string) {
+  if (username.trim() === "") return "Fyll i användarnamn.";
+  if (username.trim().length < 3)
+    return "Användarnamnet måste vara minst 3 tecken.";
+  return undefined;
+}
 // Validerar att det är en giltig e-postadress.
 export function emailError(email: string) {
   if (email.trim() === "") return "Fyll i din e-postadress.";

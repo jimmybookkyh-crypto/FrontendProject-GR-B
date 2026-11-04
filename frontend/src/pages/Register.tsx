@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import type { ChangeEvent, SubmitEvent } from "react";
 import useFormData from "../utils/useFormData.ts";
 import { useAuth } from "../utils/authContext.tsx";
-import { emailError, hasErrors, passwordError, requiredError, type FieldErrors } from "../utils/validateUtil.ts";
+import { emailError, hasErrors, passwordError, requiredError, usernameError, type FieldErrors } from "../utils/validateUtil.ts";
 import PasswordInput from "../components/PasswordInput.tsx";
 import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
@@ -47,7 +47,7 @@ export default function Register() {
 
         setError("");
         const found: FieldErrors<"username" | "email" | "password"> = {
-            username: requiredError(formData.username, "Fyll i användarnamn."),
+            username: usernameError(formData.username),
             email: emailError(formData.email),
             password:
                 requiredError(formData.password, "Fyll i lösenord.") ??
