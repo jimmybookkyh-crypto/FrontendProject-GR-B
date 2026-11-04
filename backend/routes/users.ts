@@ -396,7 +396,7 @@ usersRouter.post("/auth/login", async (req, res) => {
     
     if (!user || !match) {
       return res.status(401).json({
-        error: { message: "Ogiltig användarnamn eller lösenord" },
+        error: { message: "Fel användarnamn eller lösenord" },
       });
     }
 
