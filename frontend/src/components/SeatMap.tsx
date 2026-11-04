@@ -68,13 +68,6 @@ export default function SeatMap({
             key={`row-${rowIndex + 1}`}
             className="d-flex flex-nowrap justify-content-center align-items-center mb-1"
           >
-            {/* Radnummer till vänster */}
-            <span
-              className="me-2 text-muted small"
-              style={{ width: "25px", textAlign: "right" }}
-            >
-              R{row[0]?.seatsRow}
-            </span>
 
             {/* Stolsknappar */}
             {row.map((seat) => {
