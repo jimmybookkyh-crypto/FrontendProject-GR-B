@@ -593,18 +593,20 @@ export default function BookingPage() {
 
       <Container className="pb-5">
         <Row className="justify-content-center mb-4">
-          <Col xs={12} lg={8} xl={7}>
-            <Card className="glass-card">
+          <Col xs={12} lg={8} xl={8}>
+            <Card className="glass-card wider-card">
               <Card.Body className="p-3 p-md-4">
                 <Row className="align-items-center g-3 g-md-4">
                   <Col xs={5} md={4} className="text-center">
                     {showing && (
-                      <MovieCard
-                        movieId={currentMovieId || 1}
-                        title={currentTitle}
-                        images={currentImages}
-                        showDetails={false}
-                      />
+                      <div className="showing-movie-wrapper">
+                        <MovieCard
+                          movieId={currentMovieId || 1}
+                          title={currentTitle}
+                          images={currentImages}
+                          showDetails={false}
+                        />
+                      </div>
                     )}
                   </Col>
 
