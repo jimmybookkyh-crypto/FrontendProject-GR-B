@@ -1,12 +1,13 @@
 import React from "react";
 import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
+import AgeBadge from "./AgeBadge";
 
 export interface MovieCardProps {
   movieId: number | string;
   title: string;
   images: string[] | string;
-  ageRating?: number;
+  ageRating?: number | null;
   showDetails?: boolean;
   datum?: string;
 }
@@ -53,19 +54,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
           alt={title}
         />
 
-        {ageRating !== undefined && ageRating !== null && (
-          <div
-            className="position-absolute top-0 end-0 m-2 d-flex align-items-center justify-content-center fw-bold text-white bg-dark bg-opacity-75 rounded-circle border border-light"
-            style={{
-              width: "36px",
-              height: "36px",
-              fontSize: "0.85rem",
-              zIndex: 2,
-            }}
-          >
-            {ageRating}+
-          </div>
-        )}
+        {/* Åldersmärkning uppe i högra hörnet (#484) */}
+        <AgeBadge
+          ageRating={ageRating}
+          className="position-absolute top-0 end-0 m-2 z-2"
+        />
       </Link>
 
       {showDetails && (

@@ -8,6 +8,7 @@ import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
+import AgeBadge from "../components/AgeBadge";
 import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
@@ -320,6 +321,7 @@ export default function BookingPage() {
           movieId: Number(currentMovieId),
           movieTitle: currentTitle,
           images: currentImages,
+          ageRating: movie?.ageRating ?? null,
           date: currentDate,
           time: currentTime,
           auditoriumName: currentAuditoriumName,
@@ -411,14 +413,8 @@ export default function BookingPage() {
                     <p className="fs-5 mb-3">{movie.productionyear}</p>
                   )}
 
-                  <div className="d-flex justify-content-center flex-wrap gap-2 mb-2">
-                    {movie?.ageRating != null && (
-                      <Badge bg="danger" className="p-2 fs-6">
-                        {movie.ageRating === 0
-                          ? "Barntillåten"
-                          : `${movie.ageRating} år`}
-                      </Badge>
-                    )}
+                  <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-2">
+                    <AgeBadge ageRating={movie?.ageRating} />
                     {lengthText && (
                       <Badge bg="secondary" className="p-2 fs-6">
                         {lengthText}
@@ -492,14 +488,13 @@ export default function BookingPage() {
                 <Row className="align-items-center g-3 g-md-4">
                   <Col xs={5} md={4} className="text-center">
                     {showing && (
-                      <div className="showing-movie-wrapper">
-                        <MovieCard
-                          movieId={currentMovieId || 1}
-                          title={currentTitle}
-                          images={currentImages}
-                          showDetails={false}
-                        />
-                      </div>
+                      <MovieCard
+                        movieId={currentMovieId || 1}
+                        title={currentTitle}
+                        images={currentImages}
+                        ageRating={movie?.ageRating}
+                        showDetails={false}
+                      />
                     )}
                   </Col>
 

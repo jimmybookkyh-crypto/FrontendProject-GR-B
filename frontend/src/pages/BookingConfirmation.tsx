@@ -11,6 +11,7 @@ type ConfirmationState = {
   movieId: number;
   movieTitle: string;
   images: string[];
+  ageRating?: number | null;
   date: string;
   time: string;
   auditoriumName: string;
@@ -72,6 +73,7 @@ export default function BookingConfirmation() {
                         movieId={booking.movieId}
                         title={booking.movieTitle}
                         images={booking.images}
+                        ageRating={booking.ageRating}
                         showDetails={false}
                         datum={booking.date}
                       />

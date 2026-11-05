@@ -10,7 +10,8 @@ FROM public.tickets t
 JOIN public.bookings b
   ON t."bookingId" = b."bookingId"
 JOIN public.seats s
-  ON t."seatId" = s."seatId";
+  ON t."seatId" = s."seatId"
+WHERE b.status = 'confirmed';
 
 /* GET /showings/:id/bookings - Get all bookings for a specific showing */
 CREATE OR REPLACE VIEW public.showing_bookings_view AS

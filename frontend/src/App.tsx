@@ -1,6 +1,7 @@
 import { Outlet, ScrollRestoration } from "react-router";
 import Header from "./Partials/Header.tsx";
 import Footer from "./Partials/Footer.tsx";
+import CookieBanner from "./components/CookieBanner.tsx";
 
 export default function App() {
   return (
@@ -10,7 +11,7 @@ export default function App() {
         <Outlet />
       </main>
       <Footer />
-      {/* Scrolls to the top on every page change, and restores the position on back/forward */}
+      <CookieBanner />
       <ScrollRestoration />
     </>
   );
