@@ -45,6 +45,11 @@ export interface TicketButtonProps {
   onClick?: () => void;
 }
 
+
+export interface CookieConsent {
+  statistics: boolean;
+  date: string;
+}
 // Visningar från backend
 export interface Showings {
   showingId: number;
