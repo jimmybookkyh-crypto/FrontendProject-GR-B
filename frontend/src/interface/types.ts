@@ -193,3 +193,8 @@ export type FieldErrors = {
   currentPassword?: string;
   newPassword?: string;
 };
+
+export interface AgeBadgeProps {
+  ageRating: number | null | undefined;
+  className?: string;
+}
