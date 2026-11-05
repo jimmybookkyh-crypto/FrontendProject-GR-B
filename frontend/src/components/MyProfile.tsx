@@ -6,29 +6,15 @@ import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../utils/authContext.tsx";
 import { userService } from "../utils/userService.ts";
 import PasswordInput from "./PasswordInput.tsx";
+import { emailError, hasErrors, passwordError, requiredError } from "../utils/validateUtil.ts";
 import type { AuthUser } from "../interface/types.ts";
+import type { FieldErrors } from "../interface/types.ts";
 
 /* Mina uppgifter, Byt lösenord och Radera konto (T126 / #330).
    Fälten är låsta tills man klickar "Ändra mina uppgifter".
    Nuvarande lösenord krävs för att spara – det kontrolleras genom en ny inloggning,
    eftersom backend inte kontrollerar det själv än (T168, sprint 4). */
 
-type FieldErrors = {
-  username?: string;
-  email?: string;
-  currentPassword?: string;
-  newPassword?: string;
-};
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/* Samma regler som backend (hashPassword.ts): minst 8 tecken och högst 72 byte */
-function passwordError(password: string): string | undefined {
-  if (password.length < 8) return "Lösenordet måste vara minst 8 tecken.";
-  if (new TextEncoder().encode(password).length > 72)
-    return "Lösenordet är för långt.";
-  return undefined;
-}
 
 export default function MyProfile({ user }: { user: AuthUser }) {
   const { updateUser, logout } = useAuth();
@@ -72,13 +58,14 @@ export default function MyProfile({ user }: { user: AuthUser }) {
       email.trim().toLowerCase() !== (user.email ?? "").toLowerCase() ||
       newPassword !== "";
 
-    if (username.trim() === "") found.username = "Fyll i ditt användarnamn.";
-    if (!EMAIL_PATTERN.test(email.trim()))
-      found.email = "Fyll i en giltig e-postadress, t.ex. namn@exempel.se.";
+    found.username = requiredError(username, "Fyll i användarnamn.");
+    found.email = emailError(email);
     if (newPassword !== "") found.newPassword = passwordError(newPassword);
-    if (currentPassword === "")
-      found.currentPassword = "Fyll i ditt nuvarande lösenord för att spara.";
-    if (!changed && Object.values(found).every((e) => !e))
+    found.currentPassword = requiredError(
+      currentPassword,
+      "Fyll i ditt nuvarande lösenord för att spara.",
+    );
+    if (!changed && !hasErrors(found))
       found.username = "Du har inte ändrat något än.";
 
     return found;
@@ -91,7 +78,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
 
     const found = validate();
     setErrors(found);
-    if (Object.values(found).some(Boolean)) return;
+    if (hasErrors(found)) return;
 
     setSaving(true);
     try {

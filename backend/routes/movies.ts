@@ -6,6 +6,7 @@ import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
 import type { Movie } from "../interface/types.js";
 import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
 import { sendMovies, MOVIE_COLUMNS } from "../services/sendMovies.js";
+import { validateMovieData } from "../utils/validateMovie.js";
 
 const moviesRouter = Router();
 
@@ -47,7 +48,7 @@ moviesRouter.get("/", (req, res) => {
   const pagination = parsePagination(req.query);
 
   if (pagination === null) {
-    return res.status(400).json({ error: { message: "Ogiltig limit eller offset" } });
+    return res.status(400).json({ error: { message: "Ogiltig gräns eller förskjutning" } });
   }
 
   return sendMovies(res, "GET /movies", "Fel vid hämtning av filmer", "", [], pagination);
@@ -130,10 +131,17 @@ moviesRouter.get("/:id", async (req, res) => {
 
 // POST /movies  (movieId skapas av databasen; fält som inte får vara null kontrolleras av databasen)
 moviesRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
+  const validationError = validateMovieData(req.body ?? {});
+
+  if (validationError) {
+    return res.status(400).json({
+      error: { message: validationError },
+    });
+  }
   const entries = pickMovieFields(req.body ?? {});
 
   if (entries.length === 0) {
-    return res.status(400).json({ error: { message: "Skicka minst title" } });
+    return res.status(400).json({ error: { message: "Ange minst en titel" } });
   }
 
   const columns = entries.map((e) => `"${e.column}"`).join(", ");
@@ -183,6 +191,16 @@ moviesRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     return res.status(400).json({ error: { message: "Ogiltigt film-id" } });
   }
 
+  const validationError = validateMovieData(
+    req.body ?? {},
+    true,
+  );
+
+  if (validationError) {
+    return res.status(400).json({
+      error: { message: validationError },
+    });
+  }
   const entries = pickMovieFields(req.body ?? {});
 
   if (entries.length === 0) {
@@ -242,7 +260,7 @@ moviesRouter.delete("/:id", requireAuth, requireAdmin,async (req, res) => {
       return res.status(404).json({ error: { message: "Filmen finns inte" } });
     }
 
-    return res.status(200).json({ data: rows[0] });
+    return res.status(204).send();
   } catch (error) {
     // 23503 = foreign key: filmen används av visningar
     if (pgErrorCode(error) === "23503") {
