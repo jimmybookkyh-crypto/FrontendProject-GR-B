@@ -128,6 +128,20 @@
   gap: 4px;
 }
 
+/* Tar bort input spinners */
+
+/* Chrome, Edge, Safari */
+.ticket-input::-webkit-inner-spin-button,
+.ticket-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+.ticket-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 @media (max-width: 767px) {
   .seat {
     width: clamp(24px, 6.5vw, 30px);
