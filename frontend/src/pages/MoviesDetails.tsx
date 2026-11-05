@@ -161,7 +161,11 @@ function FilmInfo({ film }: { film: Movie }) {
         <hr className="border-secondary my-3" />
 
         {film.description && (
-          <p className="film-beskrivning mb-4">{film.description}</p>
+          <div className="film-beskrivning mb-4">
+            {film.description.split(/\n\s*\n/).map((paragraph, index) => (
+              <p key={index}>{paragraph.trim()}</p>
+            ))}
+          </div>
         )}
 
         <hr className="border-secondary my-3" />
