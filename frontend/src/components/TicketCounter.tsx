@@ -14,10 +14,11 @@ export default function TicketCounter({
 }: TicketCounterProps) {
   return (
     <div className="d-flex justify-content-between align-items-center mb-3">
-      <span>
-        {label} : {price} kr
+      <span className="ticket-info">
+        <span> {label} :</span>
+        <span className="ticket-price"> {price} kr </span>
       </span>
-      <InputGroup style={{ maxWidth: 140 }}>
+      <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
         <button
           className="btn btn-outline-light"
           type="button"
@@ -28,7 +29,7 @@ export default function TicketCounter({
         </button>
         <Form.Control
           type="number"
-          className="text-center"
+          className="text-center ticket-input"
           value={count}
           onChange={(e) => onChange(e.target.value)}
           min={0}

@@ -45,6 +45,11 @@ export interface TicketButtonProps {
   onClick?: () => void;
 }
 
+
+export interface CookieConsent {
+  statistics: boolean;
+  date: string;
+}
 // Visningar från backend
 export interface Showings {
   showingId: number;
@@ -194,3 +199,8 @@ export type FieldErrors = {
   currentPassword?: string;
   newPassword?: string;
 };
+
+export interface AgeBadgeProps {
+  ageRating: number | null | undefined;
+  className?: string;
+}
