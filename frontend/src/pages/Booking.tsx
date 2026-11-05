@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Badge, InputGroup, Form, Modal } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
 import backgroundImage from "../assets/img/biodukbg.png";
@@ -8,9 +8,22 @@ import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
+import TicketCounter from "../components/TicketCounter";
+import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
-import { formatDate, formatTime, calculateTotalPrice, getMaxAllowedTickets } from "../utils/BookingHelpers";
-import type { Showing, Movie, TicketType, Seat, OccupiedSeat } from "../interface/types";
+import {
+  formatDate,
+  formatTime,
+  calculateTotalPrice,
+  getMaxAllowedTickets,
+} from "../utils/BookingHelpers";
+import type {
+  Showing,
+  Movie,
+  TicketType,
+  Seat,
+  Booking,
+} from "../interface/types";
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -46,55 +59,23 @@ export default function BookingPage() {
   } = useFetch<Showing>(showingId ? `/showings/${showingId}` : null);
 
   const showing = showingRaw;
-  const currentMovieId = showing?.movieId ?? showing?.movie_id;
+  const currentMovieId = showing?.movieId;
 
-  // Hämta filmens detaljer om visningen saknar JOIN med movies
-  const { data: movieRaw } = useFetch<Movie>(
+  // Hämta filmens detaljer (affisch, speltid, åldersgräns m.m.)
+  const { data: movie } = useFetch<Movie>(
     currentMovieId ? `/movies/${currentMovieId}` : null,
   );
-  const movie = movieRaw;
 
-  // Säkerställt att rätt titel och bild väljs för den aktuella filmen
-  const currentTitle =
-    showing?.movieTitle ||
-    showing?.movie_title ||
-    showing?.title ||
-    movie?.title ||
-    "Laddar...";
-
-  const rawImage =
-    showing?.posterUrl ||
-    showing?.poster_url ||
-    showing?.images ||
-    movie?.posterUrl ||
-    movie?.poster_url ||
-    movie?.images;
-
-  const currentImages = typeof rawImage === "string" ? [rawImage] : rawImage;
+  // Titeln finns redan i visningen, filmens titel är reserv
+  const currentTitle = showing?.movieTitle || movie?.title || "Laddar...";
+  const currentImages = movie?.images ?? [];
   const currentDate = formatDate(showing?.date);
   const currentTime = formatTime(showing?.time);
 
-  // Konvertera alltid ID:t till ett siffervärde med Number()
-  const currentAuditoriumId = Number(
-    showing?.auditoriumId ?? showing?.auditorium_id ?? 0,
-  );
+  const currentAuditoriumId = showing?.auditoriumId ?? 0;
+  const currentAuditoriumName = showing?.auditoriumName || "Salong";
 
-  const getAuditoriumName = (id?: number) => {
-    if (id === 1) return "Stora Salongen";
-    if (id === 2) return "Lilla Salongen";
-
-    // Om backend skickar med namnet direkt i objektet (t.ex. från JOIN)
-    if (showing?.auditoriumName) return showing.auditoriumName;
-    if (showing?.auditorium_name) return showing.auditorium_name;
-
-    return "Salong";
-  };
-  const currentAuditoriumName =
-    showing?.auditoriumName ||
-    showing?.auditorium_name ||
-    getAuditoriumName(currentAuditoriumId);
-
-  // Hämta alla stolar för salongen från /seats och normalisera fälten
+  // Hämta alla stolar för salongen från /seats
   const {
     data: seatsRaw,
     loading: seatsLoading,
@@ -104,34 +85,23 @@ export default function BookingPage() {
   );
 
   const seats: Seat[] = seatsRaw || [];
-  
+
   // Hämta upptagna stolar för den aktuella visningen (inkluderar seatRefreshKey för automatisk reload)
-  const { data: occupiedSeatsRaw } = useFetch<OccupiedSeat[]>(
+  // Backend svarar med en lista av stol-id:n, t.ex. [28, 29, 30]
+  const { data: occupiedSeatsRaw } = useFetch<number[]>(
     showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null,
   );
-
-  const rawList = occupiedSeatsRaw || [];
-
-  // Säkerställer att alla upptagna stolar konverteras till rena NUMMER
-  const occupiedSeats: number[] = Array.isArray(rawList)
-    ? rawList
-        .map((item) => {
-          if (typeof item === "object" && item !== null) {
-            return Number(item.seatId ?? item.seat_id);
-          }
-          return Number(item);
-        })
-        .filter((id) => !isNaN(id) && id > 0)
-    : [];
+  const occupiedSeats: number[] = occupiedSeatsRaw ?? [];
 
   // Hämta biljetttyper från API:et
-  const { data: ticketTypesRaw } = useFetch<TicketType[]>("/tickets/ticketTypes");
-  const ticketTypes: TicketType[] =
-    ticketTypesRaw || [
-      { ticketTypeId: 1, name: "Vuxen", price: 140 },
-      { ticketTypeId: 2, name: "Barn", price: 80 },
-      { ticketTypeId: 3, name: "Pensionär", price: 120 },
-    ];
+  const { data: ticketTypesRaw } = useFetch<TicketType[]>(
+    "/tickets/ticketTypes",
+  );
+  const ticketTypes: TicketType[] = ticketTypesRaw || [
+    { ticketTypeId: 1, name: "Vuxen", price: 140 },
+    { ticketTypeId: 2, name: "Barn", price: 80 },
+    { ticketTypeId: 3, name: "Pensionär", price: 120 },
+  ];
 
   const adultType =
     ticketTypes.find((t) => t.name.toLowerCase().includes("vuxen")) ||
@@ -221,24 +191,9 @@ export default function BookingPage() {
     }> = [];
     let seatIndex = 0;
 
-    const adultTypeId = Number(
-      adultType?.ticketTypeId ||
-        adultType?.ticket_type_id ||
-        adultType?.id ||
-        1,
-    );
-    const childTypeId = Number(
-      childType?.ticketTypeId ||
-        childType?.ticket_type_id ||
-        childType?.id ||
-        2,
-    );
-    const seniorTypeId = Number(
-      seniorType?.ticketTypeId ||
-        seniorType?.ticket_type_id ||
-        seniorType?.id ||
-        3,
-    );
+    const adultTypeId = adultType?.ticketTypeId ?? 1;
+    const childTypeId = childType?.ticketTypeId ?? 2;
+    const seniorTypeId = seniorType?.ticketTypeId ?? 3;
 
     // Koppla vuxenbiljetter
     for (let i = 0; i < adultTickets; i++) {
@@ -328,7 +283,8 @@ export default function BookingPage() {
         body: JSON.stringify(bookingBody),
       });
 
-      const result = await response.json();
+      const result: { data?: Booking; error?: { message?: string } } =
+        await response.json();
 
       if (!response.ok) {
         if (response.status === 409) {
@@ -345,13 +301,15 @@ export default function BookingPage() {
         );
       }
 
+      if (!result.data) {
+        throw new Error("Kunde inte genomföra bokningen.");
+      }
+
       setShowEmailModal(false);
 
       // Biljettypens namn utifrån id, t.ex. 1 -> "Vuxen"
       const ticketTypeName = (id: number) =>
-        ticketTypes.find(
-          (t) => Number(t.ticketTypeId ?? t.ticket_type_id ?? t.id) === id,
-        )?.name ?? "Biljett";
+        ticketTypes.find((t) => t.ticketTypeId === id)?.name ?? "Biljett";
 
       // Navigera till bekräftelsesidan och skicka med bokningen i state.
       // replace: true gör att bakåtknappen inte leder tillbaka till bokningsformuläret.
@@ -435,7 +393,7 @@ export default function BookingPage() {
                       <MovieCard
                         movieId={currentMovieId || 1}
                         title={currentTitle}
-                        images={currentImages ?? []}
+                        images={currentImages}
                         showDetails={false}
                       />
                     </Col>
@@ -519,13 +477,8 @@ export default function BookingPage() {
         backgroundPosition: "center",
       }}
     >
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3"
-      >
-        ← Tillbaka
-      </button>
+      {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
+      <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 
       <h1 className="h4 fw-bold text-center mb-4 heading-gold">
         BOKA BILJETTER
@@ -542,7 +495,7 @@ export default function BookingPage() {
                       <MovieCard
                         movieId={currentMovieId || 1}
                         title={currentTitle}
-                        images={currentImages ?? []}
+                        images={currentImages}
                         showDetails={false}
                       />
                     )}
@@ -582,125 +535,48 @@ export default function BookingPage() {
                   BILJETTER
                 </h3>
 
-                {/* Vuxen */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {adultType?.name || "Vuxen"} : {adultPrice} kr
-                  </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setAdultTickets, adultTickets, -1)
-                      }
-                    >
-                      −
-                    </button>
-                    <Form.Control
-                      type="number"
-                      className="text-center"
-                      value={adultTickets}
-                      onChange={(e) =>
-                        handleInputChange(
-                          e.target.value,
-                          setAdultTickets,
-                          adultTickets,
-                        )
-                      }
-                      min={0}
-                    />
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setAdultTickets, adultTickets, 1)
-                      }
-                    >
-                      +
-                    </button>
-                  </InputGroup>
-                </div>
-
-                {/* Barn */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {childType?.name || "Barn"} : {childPrice} kr
-                  </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setChildTickets, childTickets, -1)
-                      }
-                    >
-                      −
-                    </button>
-                    <Form.Control
-                      type="number"
-                      className="text-center"
-                      value={childTickets}
-                      onChange={(e) =>
-                        handleInputChange(
-                          e.target.value,
-                          setChildTickets,
-                          childTickets,
-                        )
-                      }
-                      min={0}
-                    />
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setChildTickets, childTickets, 1)
-                      }
-                    >
-                      +
-                    </button>
-                  </InputGroup>
-                </div>
-
-                {/* Pensionär */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {seniorType?.name || "Pensionär"} : {seniorPrice} kr
-                  </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setSeniorTickets, seniorTickets, -1)
-                      }
-                    >
-                      −
-                    </button>
-                    <Form.Control
-                      type="number"
-                      className="text-center"
-                      value={seniorTickets}
-                      onChange={(e) =>
-                        handleInputChange(
-                          e.target.value,
-                          setSeniorTickets,
-                          seniorTickets,
-                        )
-                      }
-                      min={0}
-                    />
-                    <button
-                      className="btn btn-outline-light"
-                      type="button"
-                      onClick={() =>
-                        adjustTickets(setSeniorTickets, seniorTickets, 1)
-                      }
-                    >
-                      +
-                    </button>
-                  </InputGroup>
-                </div>
+                <TicketCounter
+                  label={adultType?.name || "Vuxen"}
+                  price={adultPrice}
+                  count={adultTickets}
+                  onDecrease={() =>
+                    adjustTickets(setAdultTickets, adultTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setAdultTickets, adultTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setAdultTickets, adultTickets)
+                  }
+                />
+                <TicketCounter
+                  label={childType?.name || "Barn"}
+                  price={childPrice}
+                  count={childTickets}
+                  onDecrease={() =>
+                    adjustTickets(setChildTickets, childTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setChildTickets, childTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setChildTickets, childTickets)
+                  }
+                />
+                <TicketCounter
+                  label={seniorType?.name || "Pensionär"}
+                  price={seniorPrice}
+                  count={seniorTickets}
+                  onDecrease={() =>
+                    adjustTickets(setSeniorTickets, seniorTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setSeniorTickets, seniorTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setSeniorTickets, seniorTickets)
+                  }
+                />
 
                 <div className="mb-3">
                   <p className="mb-1 fw-bold">

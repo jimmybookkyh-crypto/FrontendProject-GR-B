@@ -154,11 +154,6 @@ export interface Seat {
   auditoriumId: number;
 }
 
-// En upptagen stol från GET /showings/:id/seats
-export interface OccupiedSeat {
-  seatId: number;
-}
-
 // En salong
 export interface Auditorium {
   auditoriumId: number;
