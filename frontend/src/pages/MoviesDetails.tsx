@@ -9,7 +9,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
 import Datumremsa from "../components/Datumremsa";
 import SlotButton from "../components/slotButton";
-import BackButton from "../components/backButton";
+import BackButton from "../components/BackButton";
 import { giltigtDatum, langtDatum } from "../utils/datum";
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
@@ -84,8 +84,7 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <BackButton onClick={tillbaka} /> {/* components/backButton.tsx */}
-
+      <BackButton onClick={tillbaka} /> {/* components/BackButton.tsx */}
       <Container className="pb-5">
         {/* gemensam laddning och felruta */}
         {loading && <LoadingSpinner text="Hämtar film…" />}
