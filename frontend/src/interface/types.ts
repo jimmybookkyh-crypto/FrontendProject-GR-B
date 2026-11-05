@@ -84,7 +84,8 @@ export interface MyBooking {
   isUpcoming: boolean;
   totalPrice: number;
   tickets: MyBookingTicket[];
-  status?: "confirmed" | "cancelled"; // kommer med avbokning som status (T113)
+  canCancel: boolean;
+  status: "confirmed" | "cancelled";
 }
 
 // Mina sidor (T126): svaret från GET /bookings/me
