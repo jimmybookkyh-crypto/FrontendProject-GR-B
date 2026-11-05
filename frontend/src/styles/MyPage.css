@@ -106,7 +106,7 @@
 }
 
 .mypage .form-control::placeholder {
-  color: rgba(245, 247, 250, 0.4);
+  color: rgba(245, 247, 250, 0.55);
 }
 
 .mypage .invalid-feedback {
@@ -391,4 +391,14 @@
 
 .mypage-modal .btn-close {
   filter: invert(1);
+}
+
+.mypage a {
+  color: var(--mp-guld);
+  text-decoration: none;
+}
+
+.mypage a:hover,
+.mypage a:focus {
+  text-decoration: underline;
 }

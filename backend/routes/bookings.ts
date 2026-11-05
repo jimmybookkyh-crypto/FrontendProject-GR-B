@@ -377,9 +377,9 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
-// Ägaren (om visningen inte har börjat) eller admin (T126d)
-bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
+// PATCH /bookings/:id/cancel (avboka: sätter status = "cancelled" bokningen och biljetterna sparas)
+// Ägaren fram till 2 timmar före visningen, admin när som helst
+bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
   if (id === null) {
@@ -398,8 +398,8 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
     await client.query("BEGIN");
 
     // Låser bokningen och kollar ägare och om visningen redan har börjat
-    const found = await client.query<{ hasStarted: boolean }>(
-      `select ((sh.date + sh."time") <= now()) as "hasStarted"
+    const found = await client.query<{ status: string; tooLate: boolean }>(
+      `select b.status, ((sh.date + sh."time") - interval '2 hours' <= now()) as "tooLate"
         from bookings b
         join showings sh on sh."showingId" = b."showingId"
         where b."bookingId" = $1
@@ -415,38 +415,45 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
       });
     }
 
-    if (found.rows[0].hasStarted && !isAdmin) {
+    if (found.rows[0].status === "cancelled") {
       await client.query("ROLLBACK");
-      return res.status(400).json({
-        error: { message: "Visningen har redan börjat och kan inte avbokas" },
+      return res.status(409).json({
+        error: { message: "Bokningen är redan avbokad" },
       });
     }
 
-    await client.query(`delete from tickets where "bookingId" = $1`, [id]);
+    if (found.rows[0].tooLate && !isAdmin) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: {
+          message: "Avbokning går bara fram till 2 timmar före visningen",
+        },
+      });
+    }
 
     const result = await client.query(
-      `delete from bookings where "bookingId" = $1 returning "bookingId"`,
+      `update bookings
+        set status = 'cancelled', "cancelledAt" = now()
+        where "bookingId" = $1
+        returning "bookingId", status, "cancelledAt"`,
       [id],
     );
 
-    if (result.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
-      });
-    }
-
     await client.query("COMMIT");
 
-    return res.status(204).send();
+    return res.status(200).json({ data: result.rows[0] });
+    
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
 
     const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("DELETE /bookings/:id failed", { bookingId: id, message });
+    console.error("PATCH /bookings/:id/cancel failed", {
+      bookingId: id,
+      message,
+    });
 
     return res.status(500).json({
-      error: { message: "Fel vid borttagning av bokning" },
+      error: { message: "Fel vid avbokning" },
     });
   } finally {
     client.release();

@@ -1,13 +1,8 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import screenIcon from "../assets/img/screenIco.png";
+import type { Seat } from "../interface/types";
 
-export interface Seat {
-  seatId: number;
-  seatsRow: number;
-  seatsNumber: number;
-  auditoriumId: number;
-}
-
+// används endast i seatmap därför får den ligga kvar 
 interface SeatMapProps {
   auditoriumName: string;
   seats: Seat[];
@@ -31,7 +26,7 @@ export const groupSeatsByRow = (seats: Seat[]): Seat[][] => {
 
   return Array.from(rowsMap.entries())
     .sort(([a], [b]) => a - b)
-    .map(([_, rowSeats]) =>
+    .map(([, rowSeats]) => //oxlint klagade på _ 
       rowSeats.sort((a, b) => a.seatsNumber - b.seatsNumber)
     );
 };
