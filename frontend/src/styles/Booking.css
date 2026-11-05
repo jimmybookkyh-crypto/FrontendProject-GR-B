@@ -148,6 +148,10 @@
     height: clamp(24px, 6.5vw, 30px);
     font-size: clamp(9px, 2.4vw, 13px);
   }
+  .glass-card {
+    margin-left: -2px;
+    margin-right: -2px;
+  }
 }
 
 @media (min-width: 767px) and (max-width: 960px) {
