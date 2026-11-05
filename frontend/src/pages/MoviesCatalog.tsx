@@ -96,7 +96,7 @@ function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
             active={aktivtFilter === "allaFilmer"}
             onClick={() => onValjFilter("allaFilmer")}
           >
-            Alla Filmer
+            Visas nu
           </Button>
         </Col>
 
