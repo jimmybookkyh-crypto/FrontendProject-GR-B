@@ -87,7 +87,9 @@ export async function createBooking(
       `select t."seatId"
         from tickets t
         join bookings b on b."bookingId" = t."bookingId"
-        where b."showingId" = $1 and t."seatId" = any($2::bigint[])`,
+        where b."showingId" = $1
+          and b.status = 'confirmed'
+          and t."seatId" = any($2::bigint[])`,
       [showingId, seatIds],
     );
 
