@@ -611,10 +611,18 @@ export default function BookingPage() {
                   </Col>
 
                   <Col xs={7} md={8}>
-                    <h2 className="h5 fw-bold mb-3">{currentTitle}</h2>
-                    <p className="mb-1">Datum: {currentDate}</p>
-                    <p className="mb-1">Tid: {currentTime}</p>
-                    <p className="mb-0">Salong: {currentAuditoriumName}</p>
+                    <div className="film-krediter mt-1">
+                      <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
+                      <div className="mb-1">
+                        <strong className="text-white">Datum: </strong> {currentDate}
+                      </div>
+                      <div className="mb-1">
+                        <strong className="text-white">Tid: </strong> {currentTime}
+                      </div>
+                      <div className="mb-1">
+                        <strong className="text-white">Salong: </strong> {currentAuditoriumName}
+                      </div>
+                    </div>
                   </Col>
                 </Row>
               </Card.Body>

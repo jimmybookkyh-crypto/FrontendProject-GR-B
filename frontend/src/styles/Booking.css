@@ -16,8 +16,10 @@
 .booking-page h1,
 .booking-page h3 {
   color: #dfa213 !important;
+  text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
 }
+
 .booking-page .glass-card.card,
 .booking-page .card.glass-card {
   --bs-card-bg: transparent !important;
@@ -128,6 +130,12 @@
   gap: 4px;
 }
 
+.film-krediter {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: rgba(245, 247, 250, 0.9);
+}
 
 /* Tar bort input spinners */
 
@@ -152,6 +160,9 @@
   .glass-card {
     margin-left: -2px;
     margin-right: -2px;
+  }
+  .film-krediter {
+    font-size: 1rem;
   }
 }
 
