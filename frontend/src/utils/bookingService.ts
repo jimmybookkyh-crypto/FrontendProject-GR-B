@@ -12,12 +12,12 @@ export const MY_BOOKINGS_PATH = "/bookings/me";
 export const bookingService = {
   getMyBookings: () => apiRequest<MyBookingsResponse>("bookings/me"),
 
-  /* Avbokar en bokning (DELETE /bookings/:id).
-     Backend tillåter bara ägaren (eller admin) och bara om visningen inte har börjat.
-     Bokningen raderas och platserna blir lediga. Status "Avbokad" kommer i sprint 4 (T113). */
+  /* Avbokar en bokning (PATCH /bookings/:id/cancel).
+     Backend tillåter bara ägaren (eller admin) och bara fram till 2 timmar före visningen.
+     Bokningen och biljetterna sparas med status "cancelled". */
   cancelBooking: (bookingId: string | number) =>
     apiRequest<{ bookingId: number }>(
-      `bookings/${encodeURIComponent(String(bookingId))}`,
-      { method: "DELETE" },
+      `bookings/${encodeURIComponent(String(bookingId))}/cancel`,
+      { method: "PATCH" },
     ),
 };

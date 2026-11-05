@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
-import { parseId, isPositiveInt } from "../utils/parseId.js";
+import { parseId, toPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
+import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";
 import {
   Booking,
@@ -37,7 +38,7 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
 
   if (pagination === null) {
     return res.status(400).json({
-      error: { message: "Ogiltig limit eller offset" },
+      error: { message: "Ogiltig gräns eller förskjutning" },
     });
   }
 
@@ -165,7 +166,7 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
     const booking = bookingResult.rows[0];
 
     const ticketsResult = await pool.query(
-      `select tt.name as "ticketTypeName", tt.price::float as price,
+      `select tt.name as "ticketType", tt.price::float as price,
               se."seatsRow", se."seatsNumber"
        from tickets t
        join seats se on se."seatId" = t."seatId"
@@ -242,7 +243,8 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 // Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
 bookingsRouter.post("/", optionalAuth, async (req, res) => {
   const body = (req.body ?? {}) as Partial<CreateBookingInput>;
-  const { email, showingId, tickets } = body;
+  const { showingId, tickets } = body;
+  const email = normalizeEmail(body.email);
 
   //Varför parseId(user.userId)? I token är id:t text ("3"),
   // men kolumnen userId i databasen är ett heltal. parseId gör om det
@@ -256,9 +258,18 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  if (!validateEmail(email) || !isPositiveInt(showingId)) {
+  if (!validateEmail(email)) {
     return res.status(400).json({
-      error: { message: "Ogiltig e-post eller visning" },
+      error: { message: "Ogiltig e-postadress" },
+    });
+  }
+
+  // showingId kan komma som tal eller siffertext ("36"), precis som seatId nedan
+  const cleanShowingId = toPositiveInt(showingId);
+
+  if (cleanShowingId === null) {
+    return res.status(400).json({
+      error: { message: "showingId måste vara ett heltal större än 0" },
     });
   }
 
@@ -268,20 +279,39 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  for (const ticket of tickets as TicketInput[]) {
-    if (
-      !ticket ||
-      !isPositiveInt(ticket.seatId) ||
-      !isPositiveInt(ticket.ticketTypeId)
-    ) {
+  // Kollar varje biljett och gör om seatId och ticketTypeId till tal ("12" blir 12).
+  // Felmeddelandet säger vilken biljett (1, 2, 3 ...) och vilket fält som är fel.
+  const cleanTickets: TicketInput[] = [];
+
+  for (let i = 0; i < tickets.length; i++) {
+    const nr = i + 1;
+    const seatId = toPositiveInt(tickets[i]?.seatId);
+    const ticketTypeId = toPositiveInt(tickets[i]?.ticketTypeId);
+
+    if (seatId === null) {
       return res.status(400).json({
-        error: { message: "Varje biljett måste ha seatId och ticketTypeId" },
+        error: {
+          message: `Biljett ${nr}: seatId måste vara ett heltal större än 0`,
+        },
       });
     }
+
+    if (ticketTypeId === null) {
+      return res.status(400).json({
+        error: {
+          message: `Biljett ${nr}: ticketTypeId måste vara ett heltal större än 0`,
+        },
+      });
+    }
+
+    cleanTickets.push({ seatId, ticketTypeId });
   }
 
   try {
-    const result = await createBooking({ email, showingId, tickets }, userId);
+    const result = await createBooking(
+      { email, showingId: cleanShowingId, tickets: cleanTickets },
+      userId,
+    );
 
     return res.status(201).json({ data: result });
   } catch (error: any) {
@@ -313,7 +343,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
     });
   }
 
-  const { email } = req.body ?? {};
+  const email = normalizeEmail(req.body?.email);
 
   if (!validateEmail(email)) {
     return res.status(400).json({
@@ -347,9 +377,9 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /bookings/:id  (avboka: tar bort biljetterna och bokningen)
-// Ägaren (om visningen inte har börjat) eller admin (T126d)
-bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
+// PATCH /bookings/:id/cancel (avboka: sätter status = "cancelled" bokningen och biljetterna sparas)
+// Ägaren fram till 2 timmar före visningen, admin när som helst
+bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
   if (id === null) {
@@ -368,8 +398,8 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
     await client.query("BEGIN");
 
     // Låser bokningen och kollar ägare och om visningen redan har börjat
-    const found = await client.query<{ hasStarted: boolean }>(
-      `select ((sh.date + sh."time") <= now()) as "hasStarted"
+    const found = await client.query<{ status: string; tooLate: boolean }>(
+      `select b.status, ((sh.date + sh."time") - interval '2 hours' <= now()) as "tooLate"
         from bookings b
         join showings sh on sh."showingId" = b."showingId"
         where b."bookingId" = $1
@@ -385,38 +415,45 @@ bookingsRouter.delete("/:id", requireAuth, async (req, res) => {
       });
     }
 
-    if (found.rows[0].hasStarted && !isAdmin) {
+    if (found.rows[0].status === "cancelled") {
       await client.query("ROLLBACK");
-      return res.status(400).json({
-        error: { message: "Visningen har redan börjat och kan inte avbokas" },
+      return res.status(409).json({
+        error: { message: "Bokningen är redan avbokad" },
       });
     }
 
-    await client.query(`delete from tickets where "bookingId" = $1`, [id]);
+    if (found.rows[0].tooLate && !isAdmin) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: {
+          message: "Avbokning går bara fram till 2 timmar före visningen",
+        },
+      });
+    }
 
     const result = await client.query(
-      `delete from bookings where "bookingId" = $1 returning "bookingId"`,
+      `update bookings
+        set status = 'cancelled', "cancelledAt" = now()
+        where "bookingId" = $1
+        returning "bookingId", status, "cancelledAt"`,
       [id],
     );
 
-    if (result.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
-      });
-    }
-
     await client.query("COMMIT");
 
-    return res.status(200).json({ data: { bookingId: id } });
+    return res.status(200).json({ data: result.rows[0] });
+    
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
 
     const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("DELETE /bookings/:id failed", { bookingId: id, message });
+    console.error("PATCH /bookings/:id/cancel failed", {
+      bookingId: id,
+      message,
+    });
 
     return res.status(500).json({
-      error: { message: "Fel vid borttagning av bokning" },
+      error: { message: "Fel vid avbokning" },
     });
   } finally {
     client.release();
