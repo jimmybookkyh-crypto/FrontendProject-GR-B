@@ -644,10 +644,11 @@ export default function BookingPage() {
 
                 {/* Vuxen */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {adultType?.name || "Vuxen"} : {adultPrice} kr
+                  <span className="ticket-info">
+                    <span> {adultType?.name || "Vuxen"} :</span>
+                    <span className="ticket-price"> {adultPrice} kr </span>
                   </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
+                  <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
                     <button
                       className="btn btn-outline-light"
                       type="button"
@@ -659,7 +660,7 @@ export default function BookingPage() {
                     </button>
                     <Form.Control
                       type="number"
-                      className="text-center"
+                      className="text-center ticket-input"
                       value={adultTickets}
                       onChange={(e) =>
                         handleInputChange(
@@ -684,10 +685,11 @@ export default function BookingPage() {
 
                 {/* Barn */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {childType?.name || "Barn"} : {childPrice} kr
+                  <span className="ticket-info">
+                    <span> {childType?.name || "Barn"} :</span>
+                    <span className="ticket-price"> {childPrice} kr </span>
                   </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
+                  <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
                     <button
                       className="btn btn-outline-light"
                       type="button"
@@ -699,7 +701,7 @@ export default function BookingPage() {
                     </button>
                     <Form.Control
                       type="number"
-                      className="text-center"
+                      className="text-center ticket-input"
                       value={childTickets}
                       onChange={(e) =>
                         handleInputChange(
@@ -724,10 +726,11 @@ export default function BookingPage() {
 
                 {/* Pensionär */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span>
-                    {seniorType?.name || "Pensionär"} : {seniorPrice} kr
+                  <span className="ticket-info">
+                    <span> {seniorType?.name || "Pensionär"} :</span>
+                    <span className="ticket-price"> {seniorPrice} kr </span>
                   </span>
-                  <InputGroup style={{ maxWidth: 140 }}>
+                  <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
                     <button
                       className="btn btn-outline-light"
                       type="button"
@@ -739,7 +742,7 @@ export default function BookingPage() {
                     </button>
                     <Form.Control
                       type="number"
-                      className="text-center"
+                      className="text-center ticket-input"
                       value={seniorTickets}
                       onChange={(e) =>
                         handleInputChange(

@@ -123,6 +123,11 @@
   box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
 }
 
+.ticket-info {
+  display: flex;
+  gap: 4px;
+}
+
 @media (max-width: 767px) {
   .seat {
     width: clamp(24px, 6.5vw, 30px);
@@ -136,6 +141,20 @@
     width: clamp(20px, 3.5vw, 25px);
     height: clamp(20px, 3.5vw, 25px);
     font-size: clamp(8px, 2vw, 10px);
+  }
+  .ticket-info {
+    flex-direction: column;
+    gap: 0;
+  }
+  .ticket-input {
+    max-width: 45px;
+    padding: 4px;
+    font-size: 14px;
+  }
+  .ticket-input-group {
+    width: 140px;
+    flex: 0 0 140px;
+    margin-left: auto;
   }
 }
 
