@@ -14,8 +14,9 @@ export default function TicketCounter({
 }: TicketCounterProps) {
   return (
     <div className="d-flex justify-content-between align-items-center mb-3">
-      <span>
-        {label} : {price} kr
+      <span className="ticket-info">
+        <span> {label} :</span>
+        <span className="ticket-price"> {price} kr </span>
       </span>
       <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
         <button
