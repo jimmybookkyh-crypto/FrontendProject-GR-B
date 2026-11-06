@@ -65,9 +65,18 @@ export function AuthProvider({children}: AuthProviderProps) {
         setUser(response.user);
     }
 
-    //registrera en ny användare (utan att automatiskt logga in)
-    async function register(username: string, email: string, password: string) {
+    //registrerar en ny användare och loggar in direkt med samma användarnamn och lösenord.
+    //Ger true om användaren blev inloggad, false om kontot skapades men inloggningen misslyckades.
+    //Fel vid själva registreringen (t.ex. upptaget användarnamn) kastas vidare till formuläret.
+    async function register(username: string, email: string, password: string): Promise<boolean> {
         await authService.register(username, email, password);
+
+        try {
+            await login(username, password);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     //uppdaterar användarens uppgifter i appen efter ändring på Mina sidor (T126)

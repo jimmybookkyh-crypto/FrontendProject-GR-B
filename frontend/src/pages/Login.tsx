@@ -1,11 +1,13 @@
 
 import { useState } from 'react';
-import { useNavigate, Link  } from "react-router";
+import { useLocation, useNavigate, Link  } from "react-router";
 import type { ChangeEvent, SubmitEvent } from "react";
 import useFormData from "../utils/useFormData.ts";
 import { useAuth } from "../utils/authContext.tsx";
 import { hasErrors, requiredError, type FieldErrors } from "../utils/validateUtil.ts";
 import PasswordInput from "../components/PasswordInput.tsx";
+import { getReturnTo } from "../utils/returnTo.ts";
+import Alert from "react-bootstrap/Alert";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -23,6 +25,13 @@ export default function Login() {
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    //sidan man kom ifrån (t.ex. Mina sidor), annars startsidan
+    const from = getReturnTo(location.state);
+
+    //meddelande från registreringen om kontot skapades men inloggningen misslyckades
+    const notice: string = typeof location.state?.notice === "string" ? location.state.notice : "";
 
     const [error, setError] = useState("");
     const [errors, setErrors] = useState<FieldErrors<"username" | "password">>({});
@@ -56,7 +65,7 @@ export default function Login() {
         try {
             await login(formData.username, formData.password);
             resetForm();
-            navigate("/"); //går till startsida, kanske byta till "min profil"
+            navigate(from, { replace: true }); //tillbaka till sidan man kom ifrån, annars startsidan
         } catch (error) {
             setError(
                 error instanceof Error 
@@ -75,6 +84,8 @@ export default function Login() {
                 <Col xs={12} lg={4}>
                     <Form noValidate onSubmit={handleSubmit} className="mypage-panel">
                         <h2 className="mypage-panel-title">Logga in</h2>                        
+                            {notice && <Alert variant="success" role="status" className="mt-4 mb-0">{notice}</Alert>}
+
                             <Form.Group className="mt-4" controlId="login-username">
                                 <Form.Label>Användarnamn</Form.Label>
                                 <Form.Control className="mt-2" {...field("username")} isInvalid={!!errors.username} placeholder="användarnamn" type="text" autoComplete="username" />
@@ -98,7 +109,7 @@ export default function Login() {
                             </button>                   
                             <Form.Text id="login-help" className="mypage-help d-block mt-3">
                                 Inte redan medlem?
-                                <Link className="ms-2" to="/bli-medlem">Bli medlem här</Link>
+                                <Link className="ms-2" to="/bli-medlem" state={{ from }}>Bli medlem här</Link>
                             </Form.Text>
                     </Form>                    
                 </Col>

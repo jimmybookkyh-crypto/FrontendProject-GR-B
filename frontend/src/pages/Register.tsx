@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import type { ChangeEvent, SubmitEvent } from "react";
 import useFormData from "../utils/useFormData.ts";
 import { useAuth } from "../utils/authContext.tsx";
 import { emailError, hasErrors, passwordError, requiredError, usernameError, type FieldErrors } from "../utils/validateUtil.ts";
 import PasswordInput from "../components/PasswordInput.tsx";
+import { getReturnTo } from "../utils/returnTo.ts";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -23,6 +24,10 @@ export default function Register() {
 
     const { register } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    //sidan man kom ifrån (t.ex. Mina sidor), annars startsidan
+    const from = getReturnTo(location.state);
 
     const [error, setError] = useState("");
     const [errors, setErrors] = useState<FieldErrors<"username" | "email" | "password">>({});
@@ -58,9 +63,19 @@ export default function Register() {
         setLoading(true);
 
         try {
-            await register(formData.username, formData.email, formData.password);
+            const loggedIn = await register(formData.username, formData.email, formData.password);
             resetForm();
-            navigate("/login");
+
+            if (loggedIn) {
+                //inloggad direkt: tillbaka dit man var (annars startsidan), med välkomstmeddelande
+                navigate(from, { replace: true, state: { welcome: true } });
+            } else {
+                //kontot är skapat men inloggningen misslyckades: till /login med ett meddelande
+                navigate("/login", {
+                    replace: true,
+                    state: { from, notice: "Ditt konto är skapat. Logga in för att fortsätta." },
+                });
+            }
         } catch (error) {
             setError(
                 error instanceof Error 
