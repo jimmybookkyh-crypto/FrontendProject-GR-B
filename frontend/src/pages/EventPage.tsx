@@ -6,51 +6,11 @@ import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import type { EventRow, EventShowing } from "../interface/types";
 import backgroundImage from "../assets/img/biodukbg.png";
-//placeholder bilder för event tills de finns i databasen
-import Spindel from "../assets/Spindel.jpg";
-import Batman1 from "../assets/Batman1.jpg";
-import Doomsday from "../assets/Doomsday.jpg";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 
-/* mock data för bild och tagline ligger kvar i frontend tills de finns i databasen. */
-type EventMockData = {
-  tagline: string;
-  src: string;
-  alt: string;
-  position?: string;
-};
-
-const eventMockData: Record<string, EventMockData> = {
-  "avengers assemble": {
-    tagline: "Samla hjältarna",
-    src: Doomsday,
-    alt: "Marvels hjältar samlade inför Avengers: Doomsday",
-    position: "center 40%",
-  },
-  spindelveckan: {
-    tagline: "Din vänliga hjälte i grannskapet",
-    src: Spindel,
-    alt: "Spider-Man hänger i sitt nät",
-  },
-  "mörkrets riddare": {
-    tagline: "Gotham glömmer aldrig",
-    src: Batman1,
-    alt: "Batman i mörkret över Gotham",
-  },
-};
-/* TODO: Retur för mock data till bild och tagline, ska städas upp senare*/
-function getEventMockData(name: string): EventMockData {
-  return (
-    eventMockData[name.trim().toLowerCase()] ?? {
-      tagline: "",
-      src: backgroundImage,
-      alt: "",
-    }
-  );
-}
 
 /* Svensk datumformatering: "26–30 oktober" eller "30 oktober–2 november" */
 const dateMonth = new Intl.DateTimeFormat("sv-SE", {
@@ -111,15 +71,16 @@ function EventCard({ event }: { event: EventRow }) {
   const headingId = `event-heading-${event.eventId}`;
   const moviesId = `event-movies-${event.eventId}`;
 
-  const eventDetails = getEventMockData(event.name);
   const paragraphs = parseEventInfo(event.info);
-  const { movies, start, end } = groupShowings(data ?? []);
+  const { movies } = groupShowings(data ?? []);
 
-  // Saknas showings används eventets eget datum, och saknas det visas ingen dateRange
-  const periodStart = start ?? event.date;
-  const periodEnd = end ?? event.date;
+  // Datum kommer från eventets perioder, saknas de visas ingen dateRange
   const dateRange =
-    periodStart && periodEnd ? formatDatePeriod(periodStart, periodEnd) : null;
+    event.periods.length > 0
+      ? event.periods
+          .map((p) => formatDatePeriod(p.startDate, p.endDate))
+          .join(", ")
+      : null;
 
   return (
     <article className="event-card" aria-labelledby={headingId}>
@@ -128,13 +89,8 @@ function EventCard({ event }: { event: EventRow }) {
           <div className="event-image-border">
             <img
               className="event-image"
-              src={eventDetails.src}
-              alt={eventDetails.alt}
-              style={
-                eventDetails.position
-                  ? { objectPosition: eventDetails.position }
-                  : undefined
-              }
+              src={event.image ?? backgroundImage}
+              alt={event.altText ?? ""}
             />
           </div>
         </Col>
@@ -147,8 +103,8 @@ function EventCard({ event }: { event: EventRow }) {
             <h2 id={headingId} className="event-title">
               {event.name}
             </h2>
-            {eventDetails.tagline && (
-              <p className="event-tagline">{eventDetails.tagline}</p>
+            {event.tagline && (
+              <p className="event-tagline">{event.tagline}</p>
             )}
             {paragraphs.map((paragraph) => (
               <p key={paragraph} className="event-text">
@@ -196,11 +152,10 @@ function EventCard({ event }: { event: EventRow }) {
 export default function EventPage() {
   const { data, loading, error } = useFetch<EventRow[]>("/events");
 
-  // TODO: filtrera på slutdatum när events tabell byggs om (idag finns bara ett datum).
-  // Tills vidare visas aktuella event (current = true), sorterade på datum.
-  const upcomingEvents = (data ?? [])
-    .filter((e) => e.current)
-    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+  // Sorterade på första periodens startdatum
+  const upcomingEvents = (data ?? []).sort((a, b) =>
+    (a.periods[0]?.startDate ?? "").localeCompare(b.periods[0]?.startDate ?? ""),
+  );
 
   return (
     <div
