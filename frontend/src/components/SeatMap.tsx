@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import screenIcon from "../assets/img/screenIco.png";
 import type { Seat } from "../interface/types";
 
+import findBestSeats from "../utils/seats";
+
 // används endast i seatmap därför får den ligga kvar 
 interface SeatMapProps {
   auditoriumName: string;
@@ -41,6 +43,12 @@ export default function SeatMap({
   // Grupperar stolarna rad för rad
   const rows = useMemo(() => groupSeatsByRow(seats), [seats]);
 
+  console.log("name:", auditoriumName);
+  
+  //bästa platser funktion
+  const bestSeats = findBestSeats(seats, occupiedSeats, auditoriumName);
+
+  console.log("bestSeats:", bestSeats);
   return (
     <div className="seat-map-container">
       <h3 className="h5 fw-bold heading-gold mb-3 text-center text-uppercase">
