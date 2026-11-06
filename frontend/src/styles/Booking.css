@@ -166,7 +166,7 @@
   }
 }
 
-@media (min-width: 767px) and (max-width: 960px) {
+@media (min-width: 767px) and (max-width: 1200px) {
   .seat {
     width: clamp(20px, 3.5vw, 25px);
     height: clamp(20px, 3.5vw, 25px);
