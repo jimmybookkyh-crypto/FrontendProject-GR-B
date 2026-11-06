@@ -42,13 +42,20 @@ export default function SeatMap({
 }: SeatMapProps) {
   // Grupperar stolarna rad för rad
   const rows = useMemo(() => groupSeatsByRow(seats), [seats]);
-
-  console.log("name:", auditoriumName);
   
   //bästa platser funktion
-  const bestSeats = findBestSeats(seats, occupiedSeats, auditoriumName);
+  const bestSeats = useMemo(
+    () => findBestSeats(
+      seats, 
+      occupiedSeats,
+      selectedSeats, 
+      auditoriumName
+    ),
+    [seats, occupiedSeats, selectedSeats, auditoriumName]
+  );
 
   console.log("bestSeats:", bestSeats);
+
   return (
     <div className="seat-map-container">
       <h3 className="h5 fw-bold heading-gold mb-3 text-center text-uppercase">
@@ -82,6 +89,10 @@ export default function SeatMap({
               const isSelected = selectedSeats.some(
                 (s) => Number(s.seatId) === Number(seat.seatId)
               );
+              // ✅ 1.1 Ser om bestSeats är definierad innan vi försöker jämföra
+              const isRecommended =
+                bestSeats !== null &&
+                Number(bestSeats.seatId) === Number(seat.seatId);
 
               return (
                 <button
@@ -92,11 +103,15 @@ export default function SeatMap({
                       ? "occupied seat-occupied"
                       : isSelected
                         ? "selected seat-selected"
-                        : "available seat-available"
+                        : isRecommended
+                          ? "recommended seat-recommended"
+                          : "available seat-available"
                     }`}
                   disabled={isOccupied}
                   onClick={() => !isOccupied && onSeatClick(seat)}
-                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber}`}
+                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber} 
+                  ${isRecommended ? " - Reccomenderad plats" : ""
+                  }`}
                 >
                   {seat.seatsNumber}
                 </button>
@@ -111,6 +126,7 @@ export default function SeatMap({
         <span>⚪ Ledig</span>
         <span>⚫ Upptagen</span>
         <span>🟡 Vald</span>
+        <span>🟢 Reccomenderad</span>
       </div>
     </div>
   );

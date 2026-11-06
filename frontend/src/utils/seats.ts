@@ -2,24 +2,62 @@
 import type { Seat } from "../interface/types";
 
 //konfigurering för olika auditorier, 
-// för att prioritera vissa rader framför andra
+// för att prioritera vissa rader framför andra 
+//optimalStart = vart den optimala startplatsen är i salongen. 0.00 = längst fram, 1.00 = längst bak
+//optimalEnd = vart den optimala slutplatsen är i salongen. 0.00 = längst fram, 1.00 = längst bak
+//rowWeight = prioriterar en bredare placering och vikt hoss mitten raderna (0-1)
+//seatWeight = priotiering av mitten av raden (0-1)
 const CONFIG = {
     "Stora Salongen": {
-        targetRowPosition: 0.55,
-        rowWeight: 0.65,
-        seatWeight: 0.35,
+        optimalStart: 0.55, 
+        optimalEnd: 0.80,
+        rowWeight: 0.60,
+        seatWeight: 0.70,
     },
     "Lilla Salongen": {
-        targetRowPosition: 0.65,
-        rowWeight: 0.65,
-        seatWeight: 0.35,
+        optimalStart: 0.80,
+        optimalEnd: 0.99,
+        rowWeight: 0.55,
+        seatWeight: 0.90,
     }
 };
 
-export default function findBestSeats(seats : Seat[], bookedSeatsId: number[], auditoriumName: string) {
+function calculateRowPenalty(
+    rowPosition: number,
+    optimalStart: number,
+    optimalEnd: number
+): number {
 
-    //gå igenom alla stolar och filtrera bort de som är bokade
-    const availableSeats = seats.filter((seat) => !bookedSeatsId.includes(seat.seatId));
+    if(rowPosition >= optimalStart &&
+        rowPosition <= optimalEnd) 
+        {
+        return 0;
+    }
+    
+    if(rowPosition < optimalStart) {
+        return (optimalStart - rowPosition) / optimalStart;
+    }
+
+    return (rowPosition - optimalEnd) / (1 - optimalEnd); 
+};
+
+export default function findBestSeats(
+    seats : Seat[],
+    bookedSeatsId: number[],
+    selectedSeats: Seat[], 
+    auditoriumName: string
+    ): Seat | null {
+
+    // samla alla bokade och valda stolar
+    const allOccupiedSeatsId = new Set([
+        ...bookedSeatsId,
+        ...selectedSeats.map((seat) => seat.seatId),
+    ]);
+
+    //filtrera bort  som är bokade
+    const availableSeats = seats.filter(
+        (seat) => !allOccupiedSeatsId.has(Number(seat.seatId))
+    );
 
     //early return
     if (availableSeats.length === 0 || auditoriumName === undefined || auditoriumName === null) {
@@ -32,11 +70,6 @@ export default function findBestSeats(seats : Seat[], bookedSeatsId: number[], a
 
     //konfigurera efter autidioriumName, för att prioritera vissa rader framför andra
     const config = CONFIG[auditoriumName as keyof typeof CONFIG]; 
-
-    //beräkna vilket rad som är optimal
-    const targetRowIndex = (rows.length -1) * config.targetRowPosition;
-
-    const maxRowDistance = Math.max(rows.length -1, 1);
 
     //gruppera alla stolar efter rad
     const seatsByRow = new Map<number, Seat[]>();
@@ -60,8 +93,17 @@ export default function findBestSeats(seats : Seat[], bookedSeatsId: number[], a
             (s) => s.seatId === seat.seatId
         );
 
+        const rowPosition = 
+            rows.length === 1
+                ? 0.5
+                : rowIndex / (rows.length - 1);
+
         // beräkna avstånd från salongens optimala rad
-        const rowPenalty = Math.abs(rowIndex - targetRowIndex) / maxRowDistance;
+        const rowPenalty = calculateRowPenalty(
+            rowPosition,
+            config.optimalStart,
+            config.optimalEnd
+        );
 
         //beräkna asvtånd från radens mitt
         const centerIndex = (rowSeats.length -1) / 2;
@@ -80,6 +122,5 @@ export default function findBestSeats(seats : Seat[], bookedSeatsId: number[], a
         }
     }
 
-    // returnera stolen
     return bestSeat;
 }
