@@ -518,9 +518,9 @@ export default function BookingPage() {
           </Col>
         </Row>
 
-        <Row className="g-4 justify-content-center align-items-start">
-          <Col xs={12} md={7} lg={8}>
-            <Card className="glass-card overflow-x-auto">
+        <Row className="g-4 justify-content-center align-items-stretch">
+          <Col xs={12} md={7} lg={8} className="d-flex">
+            <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
@@ -533,8 +533,8 @@ export default function BookingPage() {
             </Card>
           </Col>
 
-          <Col xs={12} md={5} lg={4}>
-            <Card className="glass-card">
+          <Col xs={12} md={5} lg={4} className="d-flex">
+            <Card className="glass-card w-100">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
                   BILJETTER
