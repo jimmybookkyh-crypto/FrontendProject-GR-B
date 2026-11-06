@@ -62,8 +62,18 @@
 }
 
 .film-sida .film-beskrivning {
-  font-size: 1.25rem;
-  line-height: 1.7;
+  font-size: 1.1rem;
+  line-height: 1.75;
+  max-width: 68ch; 
+}
+
+.film-sida .film-beskrivning p {
+  margin-bottom: 1rem;
+  text-wrap: pretty; 
+}
+
+.film-sida .film-beskrivning p:last-child {
+  margin-bottom: 0;
 }
 
 .film-sida .film-krediter {
