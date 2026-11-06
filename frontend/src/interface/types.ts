@@ -20,7 +20,7 @@ export interface AuthContextType {
     username: string,
     email: string,
     password: string,
-  ) => Promise<void>;
+  ) => Promise<boolean>; // true = inloggad direkt efter registreringen
 }
 // Backknapp
 export interface BackButtonProps {
