@@ -1,0 +1,33 @@
+/* Cookiesidan (P12 #416) – on/off-knappar i den grafiska profilens färger.
+   Färgvariablerna (--mp-…) kommer från .mypage i MyPage.css. */
+
+.cookies-switch .form-check-input {
+  width: 3rem;
+  height: 1.5rem;
+  cursor: pointer;
+  background-color: rgba(245, 247, 250, 0.15);
+  border: 1.5px solid rgba(245, 247, 250, 0.55);
+  /* Ljus kula, så att knappen syns mot den mörka panelen */
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f5f7fa'/%3e%3c/svg%3e");
+}
+
+.cookies-switch .form-check-input:checked {
+  background-color: var(--mp-guld);
+  border-color: var(--mp-guld);
+}
+
+.cookies-switch .form-check-input:focus {
+  border-color: var(--mp-guld);
+  box-shadow: 0 0 0 0.2rem rgba(223, 162, 19, 0.3);
+}
+
+/* "Nödvändigt" är alltid på och går inte att ändra */
+.cookies-switch .form-check-input:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.cookies-updated {
+  color: var(--mp-dampad);
+  font-size: 0.95rem;
+}

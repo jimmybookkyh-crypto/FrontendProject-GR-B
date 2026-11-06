@@ -279,7 +279,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
         <Modal.Body>
           <p>Det här går inte att ångra.</p>
           <ul className="mb-0">
-            <li>Dina kommande bokningar avbokas och platserna blir lediga.</li>
+            <li>Har du kommande bokningar måste du måste avboka dom först.</li>
             <li>
               Din bokningshistorik sparas utan koppling till dig (anonymiseras).
             </li>

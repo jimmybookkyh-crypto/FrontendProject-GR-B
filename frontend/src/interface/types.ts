@@ -45,6 +45,11 @@ export interface TicketButtonProps {
   onClick?: () => void;
 }
 
+
+export interface CookieConsent {
+  statistics: boolean;
+  date: string;
+}
 // Visningar från backend
 export interface Showings {
   showingId: number;
@@ -84,7 +89,8 @@ export interface MyBooking {
   isUpcoming: boolean;
   totalPrice: number;
   tickets: MyBookingTicket[];
-  status?: "confirmed" | "cancelled"; // kommer med avbokning som status (T113)
+  canCancel: boolean;
+  status: "confirmed" | "cancelled";
 }
 
 // Mina sidor (T126): svaret från GET /bookings/me
@@ -193,3 +199,8 @@ export type FieldErrors = {
   currentPassword?: string;
   newPassword?: string;
 };
+
+export interface AgeBadgeProps {
+  ageRating: number | null | undefined;
+  className?: string;
+}
