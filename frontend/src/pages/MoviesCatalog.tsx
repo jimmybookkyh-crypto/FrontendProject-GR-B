@@ -2,41 +2,44 @@ import { useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 import backgroundImage from "../assets/img/biodukbg.png";
-import useFetch from "../hooks/useFetch"; // #319
-import LoadingSpinner from "../components/LoadingSpinner"; // #320
-import ErrorMessage from "../components/ErrorMessage"; // #320
+import useFetch from "../hooks/useFetch";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage"; 
 import MovieGrid from "../components/MovieGrid";
+import FilterButtons, { type FilterTab } from "../components/FilterButtons";
+import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit"; 
 
-/* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
-   Fälten heter som i backend (backend/interface/types.ts).
-   Ersätt med: import type { Movie } from "../interface/types"; */
+
 type Movie = {
   movieId: string;
   title: string;
+  ageRating?: number;
 };
 
 type Filter = "allaFilmer" | "kommandeFilmer";
 
-/* #319: Vilken endpoint i backend varje filterknapp hämtar från.
-   current = true  -> filmen visas just nu
-   current = false -> filmen visas inte just nu (t.ex. kommande) */
 const FILTER_PATH: Record<Filter, string> = {
   allaFilmer: "/movies/current",
   kommandeFilmer: "/movies/not-current",
 };
 
-export default function MovieCatalog() {
-  const [aktivtFilter, setAktivFilter] = useState<Filter>("allaFilmer");
+const FILTER_TABS: FilterTab<Filter>[] = [
+  { value: "allaFilmer", label: "Visas nu" },
+  { value: "kommandeFilmer", label: "Kommande Filmer" },
+];
 
-  // #319: hämtar filmerna från databasen i stället för hårdkodad testdata
-  const {
-    data: filmer,
-    loading,
-    error,
-  } = useFetch<Movie[]>(FILTER_PATH[aktivtFilter]);
+export default function MovieCatalog() {
+  const [activeFilter, setActiveFilter] = useState<Filter>("allaFilmer");
+  const [ageLimit, setAgeLimit] = useAgeLimit(); 
+
+    const {
+      data: filmer,
+      loading,
+      error,
+    } = useFetch<Movie[]>(FILTER_PATH[activeFilter]);
+
+    const visibleMovies = filmer ? filterByAgeLimit(filmer, ageLimit) : null;
 
   return (
     <>
@@ -48,12 +51,14 @@ export default function MovieCatalog() {
           backgroundPosition: "center",
         }}
       >
-        <FilterKnappar
-          aktivtFilter={aktivtFilter}
-          onValjFilter={setAktivFilter}
+        <FilterButtons
+          tabs={FILTER_TABS}
+          activeFilter={activeFilter}
+          onSelectFilter={setActiveFilter}
+          ageLimit={ageLimit}
+          onSelectAgeLimit={setAgeLimit}
         />
         <Container className="filmkatalog">
-          {/* #320: gemensam laddning och felruta */}
           {loading && <LoadingSpinner text="Hämtar filmer…" />}
           {error && <ErrorMessage message={error} />}
 
@@ -62,58 +67,28 @@ export default function MovieCatalog() {
               Inga filmer att visa just nu.
             </p>
           )}
-          
-          {/* Skicka med showDetails baserat på om filtret inte är kommandeFilmer */}
-          {filmer && filmer.length > 0 && (
+
+          {filmer && filmer.length > 0 && visibleMovies?.length === 0 && (
+            <div className="inga-visningar">
+              <h3>Inga filmer för vald åldersgräns</h3>
+              <Button
+                className="filter-knapp"
+                onClick={() => setAgeLimit(null)}
+              >
+                Visa alla åldrar
+              </Button>
+            </div>
+          )}
+
+          {visibleMovies && visibleMovies.length > 0 && (
             <MovieGrid
-              movies={filmer}
-              showDetails={aktivtFilter !== "kommandeFilmer"}
+              movies={visibleMovies}
+              showDetails={activeFilter !== "kommandeFilmer"}
             />
           )}
         </Container>
       </div>
     </>
-  );
-}
-
-/* 2 filterknappar – staplas på mobil, i rad på läsplatta/desktop */
-
-type FilterKnapparProps = {
-  aktivtFilter: Filter;
-  onValjFilter: (filter: Filter) => void;
-};
-
-function FilterKnappar({ aktivtFilter, onValjFilter }: FilterKnapparProps) {
-  return (
-    <Container className="filter-sektion">
-      <Row className="g-2 g-md-5 d-flex justify-content-center">
-        <Col xs={12} md={5}>
-          <Button
-            style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
-            variant="outline-dark"
-            size="lg"
-            className="w-100 filter-knapp"
-            active={aktivtFilter === "allaFilmer"}
-            onClick={() => onValjFilter("allaFilmer")}
-          >
-            Visas nu
-          </Button>
-        </Col>
-
-        <Col xs={12} md={5}>
-          <Button
-            style={{ backgroundColor: "#8e1733", borderColor: "#8e1733" }}
-            variant="outline-dark"
-            size="lg"
-            className="w-100 filter-knapp"
-            active={aktivtFilter === "kommandeFilmer"}
-            onClick={() => onValjFilter("kommandeFilmer")}
-          >
-            Kommande Filmer
-          </Button>
-        </Col>
-      </Row>
-    </Container>
   );
 }
 

@@ -99,6 +99,7 @@
 /* ---------- Filterknappar: Idag / Imorgon / Kalender ---------- */
 .filter-sektion {
   padding-top: 1.5rem;
+    scroll-margin-top: 4rem; /* P19.2: plats för sticky header vid skroll */
   padding-bottom: 0.5rem;
 }
 
