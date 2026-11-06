@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Carousel from "react-bootstrap/Carousel";
@@ -7,12 +7,14 @@ import Biodukbg from "../assets/img/biodukbg.png";
 import Spiderman from "../assets/Spiderman.jpeg";
 import Superman from "../assets/Superman.jpg";
 import Ninja from "../assets/Ninja.jpg";
-import useFetch from "../hooks/useFetch"; // #319
-import LoadingSpinner from "../components/LoadingSpinner"; // #320
-import ErrorMessage from "../components/ErrorMessage"; // #320
+import useFetch from "../hooks/useFetch";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 import Datumremsa from "../components/Datumremsa";
 import { langtDatum, plusDagar } from "../utils/datum";
 import MovieGrid from "../components/MovieGrid";
+import FilterButtons from "../components/FilterButtons";
+import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -20,6 +22,7 @@ import MovieGrid from "../components/MovieGrid";
 type Movie = {
   movieId: string;
   title: string;
+  ageRating?: number;
 };
 
 /* Det Start behöver veta om en visning: vilken film den gäller.
@@ -32,6 +35,19 @@ type Showing = {
 export default function Start() {
   const idag = plusDagar(0);
   const [valtDatum, setValtDatum] = useState(idag); // sidan börjar på idag
+  const [ageLimit, setAgeLimit] = useAgeLimit(); // P19.2: sparas i URL:en
+  const filterSectionRef = useRef<HTMLDivElement>(null); // P19.2
+
+  // P19.2: byter datum och skrollar ner så att Välj datum, åldersfiltret
+  // och dagens filmer syns
+  const selectDate = (date: string) => {
+    setValtDatum(date);
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches
+      ? "auto"
+      : "smooth";
+    filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
+  };
 
   // Alla filmer som går just nu (current = true)
   const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
@@ -44,7 +60,6 @@ export default function Start() {
     error: visningsFel,
   } = useFetch<Showing[]>(`/showings?date=${valtDatum}&limit=100`);
 
-  // Behåller bara filmerna som har minst en visning kvar det datumet (#289)
   const filmerDenDagen =
     filmer && visningar
       ? filmer.filter((film) =>
@@ -55,7 +70,9 @@ export default function Start() {
           ),
         )
       : null;
-
+  const visibleMovies = filmerDenDagen
+    ? filterByAgeLimit(filmerDenDagen, ageLimit)
+    : null;
   const laddar = loading || laddarVisningar;
   const fel = error ?? visningsFel;
 
@@ -66,9 +83,10 @@ export default function Start() {
         style={{ backgroundImage: `url(${Biodukbg})` }}
       >
         <HeroCarousel />
-        <Container className="filter-sektion">
-          <Datumremsa valtDatum={valtDatum} onByt={setValtDatum} />
+        <Container className="filter-sektion" ref={filterSectionRef}>
+          <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
         </Container>
+        <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
         <Container className="filmkatalog">
           <h2 className="datum-rubrik">
             {valtDatum === idag ? "Idag · " : ""}
@@ -86,8 +104,22 @@ export default function Start() {
               }
             />
           )}
-          {filmerDenDagen && filmerDenDagen.length > 0 && (
-            <MovieGrid movies={filmerDenDagen} datum={valtDatum} />
+          {filmerDenDagen &&
+            filmerDenDagen.length > 0 &&
+            visibleMovies?.length === 0 && (
+              <div className="inga-visningar">
+                <h3>Inga filmer för vald åldersgräns</h3>
+                <p>Välj en annan åldersgräns eller ett annat datum.</p>
+                <Button
+                  className="filter-knapp"
+                  onClick={() => setAgeLimit(null)}
+                >
+                  Visa alla åldrar
+                </Button>
+              </div>
+            )}
+          {visibleMovies && visibleMovies.length > 0 && (
+            <MovieGrid movies={visibleMovies} datum={valtDatum} />
           )}
         </Container>
       </div>
@@ -153,8 +185,6 @@ function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
     </div>
   );
 }
-
-
 
 Start.route = {
   path: "/",
