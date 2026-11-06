@@ -155,16 +155,22 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                   >
                     Visa bokning
                   </button>
-                  <button
-                    type="button"
-                    className="mypage-btn mypage-btn-red"
-                    onClick={() => {
-                      setCancelError(null);
-                      setToCancel(booking);
-                    }}
-                  >
-                    Avboka
-                  </button>
+                  {booking.canCancel ? (
+                    <button
+                      type="button"
+                      className="mypage-btn mypage-btn-red"
+                      onClick={() => {
+                        setCancelError(null);
+                        setToCancel(booking);
+                      }}
+                    >
+                      Avboka
+                    </button>
+                  ) : (
+                    <span className="mypage-cancel-closed">
+                      Avbokning stängd 2 tim före visning
+                    </span>
+                  )}
                   <small>Betalas i kassan</small>
                 </div>
               </li>
@@ -176,7 +182,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
       {/* ---------- Tidigare ---------- */}
       <section aria-labelledby="mypage-past" className="mt-4">
         <h2 id="mypage-past" className="mypage-section-title">
-          Tidigare <span className="mypage-count">Filmer du har sett</span>
+          Tidigare
         </h2>
 
         {past.length === 0 ? (
@@ -193,8 +199,9 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 <span className="mypage-past-price">
                   {formatPris(booking.totalPrice)}
                 </span>
-                {/* "Avbokad" kommer när bokningar får status (T113, sprint 4) */}
-                <span className="mypage-badge">Sedd</span>
+                <span className="mypage-badge">
+                  {booking.status === "cancelled" ? "Avbokad" : "Sedd"}
+                </span>
               </li>
             ))}
           </ul>

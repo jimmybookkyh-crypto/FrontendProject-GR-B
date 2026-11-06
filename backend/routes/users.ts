@@ -213,23 +213,34 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
         from bookings b
         join showings sh on sh."showingId" = b."showingId"
         where b."userId" = $1
-          and (sh.date + sh."time") > now()
+        and b.status = 'confirmed'
+        and (sh.date + sh."time") > now()
         for update of b`,
       [userId],
     );
 
     const upcomingIds = upcoming.rows.map((row) => row.bookingId);
 
-    if (upcomingIds.length > 0) {
-      await client.query(
-        `delete from tickets where "bookingId" = any($1::bigint[])`,
-        [upcomingIds],
-      );
-      await client.query(
-        `delete from bookings where "bookingId" = any($1::bigint[])`,
-        [upcomingIds],
-      );
+    const isAdmin = res.locals.user.role === "admin";
+
+    if (upcomingIds.length > 0 && !isAdmin) {
+      await client.query("ROLLBACK");
+      return res.status(409).json({
+        error: {
+          message:
+            "Du har kommande bokningar. Avboka dem först, eller vänta tills visningarna har varit, innan du raderar kontot.",
+        },
+      });
     }
+
+   if (upcomingIds.length > 0) {
+     await client.query(
+       `update bookings
+          set status = 'cancelled', "cancelledAt" = now()
+          where "bookingId" = any($1::bigint[])`,
+       [upcomingIds],
+     );
+   }
 
     // 2. Anonymisera tidigare bokningar
     await client.query(

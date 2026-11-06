@@ -24,6 +24,8 @@ export type MyBooking = {
   isUpcoming: boolean;
   totalPrice: number;
   tickets: MyBookingTicket[];
+  canCancel: boolean;
+  status: "confirmed" | "cancelled";
 };
 
 export type MyBookings = {
@@ -47,6 +49,7 @@ export async function getMyBookings(userId: number): Promise<MyBookings> {
         b."bookingId",
         b."bookingNumber",
         b.created_at as "createdAt",
+        b.status,
         sh."showingId",
         m."movieId",
         m.title as "movieTitle",
@@ -55,7 +58,8 @@ export async function getMyBookings(userId: number): Promise<MyBookings> {
         sh.date::text as date,
         left(sh."time"::time::text, 5) as "time",
         a.name as "auditoriumName",
-        ((sh.date + sh."time") > now()) as "isUpcoming",
+        (b.status = 'confirmed' and (sh.date + sh."time") > now()) as "isUpcoming",
+        (b.status = 'confirmed' and (sh.date + sh."time") - interval '2 hours' > now()) as "canCancel",
         coalesce(sum(tt.price), 0)::int as "totalPrice",
         coalesce(
           json_agg(
