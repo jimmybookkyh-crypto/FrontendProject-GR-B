@@ -261,6 +261,11 @@
   text-align: center;
 }
 
+/* Bara en knapp (Adminportalen): knappen i full bredd, även på mobil */
+.mypage-booking-actions-single {
+  grid-template-columns: 1fr;
+}
+
 .mypage-booking-actions small {
   grid-column: 1 / -1;
   color: var(--mp-dampad);
@@ -401,4 +406,9 @@
 .mypage a:hover,
 .mypage a:focus {
   text-decoration: underline;
+}
+
+/* Adminportalen: bokningsnumret skrivs med versaler, men inte exempeltexten */
+.mypage .form-control.text-uppercase::placeholder {
+  text-transform: none;
 }
