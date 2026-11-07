@@ -4,15 +4,6 @@ import TicketButton from "./ticketButton";
 import AgeBadge from "./AgeBadge";
 import "../styles/HeroSection.css";
 
-/* ---------- Herosektionen (P28, #438) ----------
-   Hämtar allt från databasen och byter event av sig själv:
-   1. Väljer det aktuella eventet (current = true) vars nästa visning kommer först.
-   2. Eventbilden: namn, period, text ur events.info och knapp till eventet
-      på eventsidan. Affischen kommer från eventets nyaste film.
-   3. Filmbilder: upp till tre av eventets filmer med kommande visningar,
-      med knapp till filmens närmaste visning.
-   4. Finns inget event med kommande visningar visas filmer som går nu. */
-
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000; // hur länge varje bild visas
 
@@ -25,8 +16,8 @@ type HeroEvent = {
 
 type HeroEventShowing = {
   showingId: string;
-  date: string; // "2026-11-08"
-  time: string; // "19:00:00+01"
+  date: string;
+  time: string;
   movieId: string;
   movieTitle: string;
 };
@@ -44,14 +35,13 @@ type HeroSlideData = {
   key: string;
   label: string;
   title: string;
-  ageRating?: number | null; // bara filmbilder, eventbilden har flera filmer
+  ageRating?: number | null;
   text: string;
   poster: string;
   buttonTo: string;
   buttonLabel: string;
 };
 
-/* Första värdet i en lista från databasen (kan vara en JSON-sträng eller en lista) */
 function getFirstValue(value?: string[] | string): string {
   if (!value) return "";
   try {
@@ -62,7 +52,6 @@ function getFirstValue(value?: string[] | string): string {
   }
 }
 
-/* Första meningen i första stycket, t.ex. ur filmens beskrivning */
 function getFirstSentence(text?: string | null): string {
   if (!text) return "";
   const firstParagraph = text.split(/\n+/)[0].trim();
@@ -75,7 +64,6 @@ function getFirstParagraph(text?: string | null): string {
   return text ? text.split(/\n+/)[0].trim() : "";
 }
 
-/* "2026-11-08T19:00" för att jämföra visningar med nu */
 function getShowingKey(showing: { date: string; time: string }): string {
   return `${showing.date}T${showing.time.slice(0, 5)}`;
 }
@@ -86,7 +74,6 @@ function getNowKey(): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
-/* "tis 10 nov" */
 const shortDateFormat = new Intl.DateTimeFormat("sv-SE", {
   weekday: "short",
   day: "numeric",
@@ -99,7 +86,6 @@ function formatShortDate(date: string): string {
     .replace(/\./g, "");
 }
 
-/* "2–15 nov" eller "30 okt–2 nov" */
 const dayMonthFormat = new Intl.DateTimeFormat("sv-SE", {
   day: "numeric",
   month: "short",
@@ -118,7 +104,6 @@ function formatPeriod(start: string, end: string): string {
   return `${clean(dayMonthFormat.format(startDate))}–${endText}`;
 }
 
-/* Bilderna för ett event: först eventet, sedan dess filmer */
 function buildEventSlides(
   event: HeroEvent,
   showings: HeroEventShowing[],
@@ -131,12 +116,10 @@ function buildEventSlides(
   );
   const hasStarted = getShowingKey(showings[0]) <= getNowKey();
 
-  // Nyast först
   const byNewest = (a: string, b: string) =>
     (movieById.get(b)?.productionyear ?? 0) -
     (movieById.get(a)?.productionyear ?? 0);
 
-  // Eventets filmer, och den nyaste av dem till eventbilden
   const eventMovieIds = [
     ...new Set(showings.map((s) => String(s.movieId))),
   ].sort(byNewest);
@@ -152,7 +135,6 @@ function buildEventSlides(
     buttonLabel: "Läs om eventet →",
   };
 
-  // Filmer med kommande visningar, de nyaste först (inte eventbildens film)
   const upcomingMovieIds = [...new Set(upcoming.map((s) => String(s.movieId)))]
     .filter((id) => id !== eventMovieId)
     .sort(byNewest)
@@ -176,7 +158,6 @@ function buildEventSlides(
   return [eventSlide, ...movieSlides];
 }
 
-/* Reserv om inget event har kommande visningar: filmer som visas nu */
 function buildFallbackSlides(movies: HeroMovie[]): HeroSlideData[] {
   return movies
     .filter((movie) => getFirstValue(movie.images))
@@ -193,7 +174,6 @@ function buildFallbackSlides(movies: HeroMovie[]): HeroSlideData[] {
     }));
 }
 
-/* Hämtar event, filmer och visningar och bygger herobilderna */
 function useHeroSlides(): HeroSlideData[] {
   const [slides, setSlides] = useState<HeroSlideData[]>([]);
 
@@ -219,7 +199,6 @@ function useHeroSlides(): HeroSlideData[] {
       );
       const nowKey = getNowKey();
 
-      // Varje aktuellt event med sina visningar och de som inte har börjat
       const candidates = await Promise.all(
         (events ?? [])
           .filter((event) => event.current)
@@ -236,7 +215,6 @@ function useHeroSlides(): HeroSlideData[] {
       );
       if (controller.signal.aborted) return;
 
-      // Eventet vars nästa visning kommer först
       const chosen = candidates
         .filter((candidate) => candidate.upcoming.length > 0)
         .sort((a, b) =>
@@ -263,7 +241,6 @@ function useHeroSlides(): HeroSlideData[] {
   return slides;
 }
 
-/* Har besökaren valt "minska rörelse" startar bildspelet pausat */
 function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -272,7 +249,6 @@ export default function HeroSection() {
   const slides = useHeroSlides();
   const [isPaused, setIsPaused] = useState(prefersReducedMotion);
 
-  // Medan bilderna laddas: en tom herobild, så att sidan inte hoppar
   if (slides.length === 0) {
     return (
       <div className="hero-carousel">
@@ -290,48 +266,58 @@ export default function HeroSection() {
         nextLabel="Nästa"
         indicatorLabels={slides.map((slide) => `Visa ${slide.title}`)}
       >
-        {slides.map((slide) => (
-          <Carousel.Item key={slide.key}>
-            <div className="hero-slide">
-              {slide.poster && (
-                <>
-                  {/* Affischen suddig som bakgrund */}
-                  <div
-                    className="hero-slide-bg"
-                    style={{ backgroundImage: `url(${slide.poster})` }}
-                    aria-hidden="true"
-                  />
-                  {/* Affischen skarp till höger (dold på mobil) */}
-                  <img
-                    className="hero-slide-poster"
-                    src={slide.poster}
-                    alt={`Affisch: ${slide.title}`}
-                  />
-                </>
-              )}
+        {slides.map((slide, index) => {
+          const isFirst = index === 0;
+          const Heading = isFirst ? "h1" : "h2";
 
-              <div className="hero-slide-content">
-                <p className="hero-slide-label">{slide.label}</p>
-                {/* Åldersgränsen bredvid namnet syns även på mobil */}
-                <div className="hero-slide-title-row">
-                  <h2 className="hero-slide-title">{slide.title}</h2>
-                  <AgeBadge
-                    ageRating={slide.ageRating}
-                    className="hero-slide-age"
-                  />
-                </div>
-                {slide.text && <p className="hero-slide-text">{slide.text}</p>}
+          return (
+            <Carousel.Item key={slide.key}>
+              <div className="hero-slide">
+                {slide.poster && (
+                  <>
+                    <div
+                      className="hero-slide-bg"
+                      style={{ backgroundImage: `url(${slide.poster})` }}
+                      aria-hidden="true"
+                    />
+                    <img
+                      className="hero-slide-poster"
+                      src={slide.poster}
+                      alt={`Affisch: ${slide.title}`}
+                      fetchPriority={isFirst ? "high" : "auto"}
+                      loading={isFirst ? "eager" : "lazy"}
+                    />
+                  </>
+                )}
 
-                <div className="hero-slide-ticket">
-                  <TicketButton to={slide.buttonTo} label={slide.buttonLabel} />
+                <div className="hero-slide-content">
+                  <p className="hero-slide-label">{slide.label}</p>
+                  <div className="hero-slide-title-row">
+                    <Heading className="hero-slide-title">
+                      {slide.title}
+                    </Heading>
+                    <AgeBadge
+                      ageRating={slide.ageRating}
+                      className="hero-slide-age"
+                    />
+                  </div>
+                  {slide.text && (
+                    <p className="hero-slide-text">{slide.text}</p>
+                  )}
+
+                  <div className="hero-slide-ticket">
+                    <TicketButton
+                      to={slide.buttonTo}
+                      label={slide.buttonLabel}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Carousel.Item>
-        ))}
+            </Carousel.Item>
+          );
+        })}
       </Carousel>
 
-      {/* Paus-knapp (WCAG 2.2.2): stoppar och startar bildspelet */}
       {slides.length > 1 && (
         <button
           type="button"
