@@ -27,17 +27,17 @@ export default function Login() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    //sidan man kom ifrån (t.ex. Mina sidor), annars startsidan
     const from = getReturnTo(location.state);
-
-    //meddelande från registreringen om kontot skapades men inloggningen misslyckades
-    const notice: string = typeof location.state?.notice === "string" ? location.state.notice : "";
+    
+    const notice: string =
+      typeof location.state?.notice === "string" ? location.state.notice : "";
 
     const [error, setError] = useState("");
-    const [errors, setErrors] = useState<FieldErrors<"username" | "password">>({});
+    const [errors, setErrors] = useState<FieldErrors<"username" | "password">>(
+      {},
+    );
     const [loading, setLoading] = useState(false);
-    
-    // Validerar formulärdata och uppdaterar felmeddelanden.
+        
     function field(name: "username" | "password") {
     const attributes = formAttribute(name);
     return {
@@ -65,7 +65,7 @@ export default function Login() {
         try {
             await login(formData.username, formData.password);
             resetForm();
-            navigate(from, { replace: true }); //tillbaka till sidan man kom ifrån, annars startsidan
+            navigate(from, { replace: true, state: { justLoggedIn: true } }); 
         } catch (error) {
             setError(
                 error instanceof Error 
