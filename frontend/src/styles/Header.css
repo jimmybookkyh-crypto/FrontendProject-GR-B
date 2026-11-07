@@ -391,12 +391,17 @@ a.fv-login:focus-visible {
 
 /* Inloggad: namnet (eller ADMIN) bredvid ikonen, även på mobil.
    Mindre text på mobil, och långa namn kortas med … */
+.fv-account-name {
+  display: inline-block;
+  max-width: 10rem; /* P32: långa namn kortas med … även på dator */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 991.98px) {
   .fv-account-name {
     font-size: 1.1rem;
     max-width: 6.5rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }

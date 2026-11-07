@@ -6,7 +6,7 @@ import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../utils/authContext.tsx";
 import { userService } from "../utils/userService.ts";
 import PasswordInput from "./PasswordInput.tsx";
-import { emailError, hasErrors, passwordError, requiredError } from "../utils/validateUtil.ts";
+import { emailError, hasErrors, passwordError, requiredError, usernameError } from "../utils/validateUtil.ts";
 import type { AuthUser } from "../interface/types.ts";
 import type { FieldErrors } from "../interface/types.ts";
 
@@ -58,7 +58,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
       email.trim().toLowerCase() !== (user.email ?? "").toLowerCase() ||
       newPassword !== "";
 
-    found.username = requiredError(username, "Fyll i användarnamn.");
+    found.username = usernameError(username); // P32: 3–20 tecken, samma som Bli medlem
     found.email = emailError(email);
     if (newPassword !== "") found.newPassword = passwordError(newPassword);
     found.currentPassword = requiredError(
