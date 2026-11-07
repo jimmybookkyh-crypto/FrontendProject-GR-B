@@ -1,12 +1,8 @@
 import { useRef, useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
-import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
 import Biodukbg from "../assets/img/biodukbg.png";
-import Spiderman from "../assets/Spiderman.jpeg";
-import Superman from "../assets/Superman.jpg";
-import Ninja from "../assets/Ninja.jpg";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -15,6 +11,7 @@ import { langtDatum, plusDagar } from "../utils/datum";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
+import HeroSection from "../components/HeroSection";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -23,6 +20,7 @@ type Movie = {
   movieId: string;
   title: string;
   ageRating?: number;
+  images?: string[] | string;
 };
 
 /* Det Start behöver veta om en visning: vilken film den gäller.
@@ -82,7 +80,7 @@ export default function Start() {
         className="sida-innehall min-vh-100"
         style={{ backgroundImage: `url(${Biodukbg})` }}
       >
-        <HeroCarousel />
+        <HeroSection />
         <Container className="filter-sektion" ref={filterSectionRef}>
           <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
         </Container>
@@ -124,46 +122,6 @@ export default function Start() {
         </Container>
       </div>
     </>
-  );
-}
-/* Hero-section med slides.
-   Statiska bilder med flit – inte en del av #319.
-   Ev. koppling till filmer/event görs i egen task. i sprint 4 */
-
-function HeroCarousel() {
-  return (
-    <Carousel className="hero-carousel">
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Ninja}
-          alt="Första bilden"
-        />
-        <Carousel.Caption>
-          <h3>Teenage Mutant Ninja Turtles</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Spiderman}
-          alt="Andra bilden"
-        />
-        <Carousel.Caption>
-          <h3>Spiderman</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Superman}
-          alt="Tredje bilden"
-        />
-        <Carousel.Caption>
-          <h3>Superman</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-    </Carousel>
   );
 }
 
