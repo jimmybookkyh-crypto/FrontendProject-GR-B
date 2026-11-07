@@ -175,8 +175,10 @@
   flex: none;
 }
 
-.fv-login:hover,
-.fv-login:focus-visible {
+/* Bara länken Logga in blir vit vid hover. Inloggad är .fv-login en ruta med
+   ikon, namn och Logga ut, och då ska de behålla sin gula färg */
+a.fv-login:hover,
+a.fv-login:focus-visible {
   color: #fff;
 }
 
@@ -378,4 +380,23 @@
   outline: 2px solid #fff;
   outline-offset: 4px;
   border-radius: 2rem;
+}
+
+/* Dropdownens omslag som flex, så att ikonen och namnet hamnar mitt i höjd
+   med Logga ut (annars lägger webbläsaren till luft under, som för text) */
+.fv-account {
+  display: flex;
+  align-items: center;
+}
+
+/* Inloggad: namnet (eller ADMIN) bredvid ikonen, även på mobil.
+   Mindre text på mobil, och långa namn kortas med … */
+@media (max-width: 991.98px) {
+  .fv-account-name {
+    font-size: 1.1rem;
+    max-width: 6.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

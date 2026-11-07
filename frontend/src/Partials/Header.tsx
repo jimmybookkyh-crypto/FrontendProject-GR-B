@@ -43,7 +43,7 @@ export default function Header() {
                   <AccountIcon />
                 </NavLink>
 
-                <span className="d-none d-lg-inline">{user.username}</span>
+                <span className="fv-account-name" title={user.username}>{firstName(user.username)}</span>
               </>
             )}
 
@@ -126,6 +126,11 @@ export default function Header() {
   );
 }
 
+/* Bara förnamnet i headern: "Polly Fun" -> "Polly" (samma som hälsningen på Mina sidor) */
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? "";
+}
+
 function AccountIcon() {
   return (
     <svg className="fv-mypage-icon" viewBox="0 0 48 48" aria-hidden="true">
@@ -185,8 +190,8 @@ function AdminAccountMenu({ username }: { username: string }) {
         <span className={`fv-mypage-link${onAccountPage ? " active" : ""}`}>
           <AccountIcon />
         </span>
-        <span className="d-none d-lg-inline">
-          {inAdmin ? "ADMIN" : username}
+        <span className="fv-account-name" title={inAdmin ? undefined : username}>
+          {inAdmin ? "ADMIN" : firstName(username)}
         </span>
       </Dropdown.Toggle>
 
