@@ -42,6 +42,41 @@
   outline-offset: 3px;
 }
 
+/* Ljudknapp (P28.1): till vänster om paus-knappen, bara när en trailer spelas */
+.hero-sound-toggle {
+  position: absolute;
+  right: calc(1.5rem + 44px + 0.75rem);
+  bottom: 1.25rem;
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(253, 252, 250, 0.5);
+  background: rgba(16, 14, 28, 0.65);
+  color: var(--fv-offwhite);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hero-sound-toggle:hover,
+.hero-sound-toggle:focus-visible,
+.hero-sound-toggle[aria-pressed="true"] {
+  color: var(--fv-guldgul);
+  border-color: var(--fv-guldgul);
+}
+
+.hero-sound-toggle:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
 .hero-carousel {
   width: 100%;
   margin: 0 auto;
@@ -94,6 +129,51 @@
     opacity 1.2s ease,
     filter 1.2s ease,
     transform 1.2s ease;
+}
+
+/* ---------- Trailer i herobilden (P28.1) ---------- */
+
+/* Affischen löses upp när trailern tonas in */
+.hero-slide-bg.is-hidden {
+  opacity: 0;
+}
+
+.hero-slide-poster.is-hidden {
+  opacity: 0;
+  filter: blur(6px);
+  transform: scale(1.04);
+}
+
+.hero-slide-video {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.hero-slide-video.is-visible {
+  opacity: 1;
+}
+
+/* Snabb uttoning strax före slutet, innan YouTube visar paus-ikonen */
+.hero-slide-video.is-ending {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Spelaren är alltid 1920 × 1080 (så att YouTube väljer HD).
+   Skalan räknas ut i HeroMedia så att videon täcker herobilden. */
+.hero-slide-video iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  max-width: none;
+  border: 0;
+  transform-origin: center;
 }
 
 /* ---------- Text och knapp i herobilden ---------- */
