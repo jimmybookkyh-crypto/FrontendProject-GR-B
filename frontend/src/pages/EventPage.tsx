@@ -13,7 +13,6 @@ import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 
 
-/* Svensk datumformatering: "26–30 oktober" eller "30 oktober–2 november" */
 const dateMonth = new Intl.DateTimeFormat("sv-SE", {
   day: "numeric",
   month: "long",
@@ -30,8 +29,6 @@ function formatDatePeriod(start: string, end: string) {
   return `${dateMonth.format(startDate)}–${endText}`;
 }
 
-/* En rad per film ("Titel (2008)") i visningsordning, samt första och sista
-   visningsdatum. Backend sorterar på datum och tid. */
 function groupShowings(showings: EventShowing[]) {
   const processedMovieIds = new Set<string>();
   const movies: string[] = [];
@@ -55,7 +52,6 @@ function groupShowings(showings: EventShowing[]) {
   };
 }
 
-/* Event.info är en enda textsträng. Varje rad blir paragraph. */
 function parseEventInfo(info: string | null): string[] {
   if (!info) return [];
   return info
@@ -69,7 +65,6 @@ function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) 
     `/events/${event.eventId}/showings`,
   );
 
-  // Samma event kan visas flera gånger (en per period), så id:t måste vara unikt per kort
   const cardId = `${event.eventId}-${period.startDate}`;
   const headingId = `event-heading-${cardId}`;
   const moviesId = `event-movies-${cardId}`;
@@ -152,14 +147,11 @@ export default function EventPage() {
   const { data, loading, error } = useFetch<EventRow[]>("/events");
   const { hash } = useLocation();
 
-  // P28 (#438): knappen i herosektionen länkar till /event#event-{id}.
-  // Eventen hämtas först, så vi skrollar till rätt event när listan har laddats.
   useEffect(() => {
     if (loading || !hash) return;
     const target = document.getElementById(hash.slice(1));
     if (!target) return;
 
-    // Headern ligger fast högst upp, så vi stannar en bit under den
     const scrollToTarget = (behavior: ScrollBehavior) => {
       const headerHeight =
         document.querySelector(".fv-navbar")?.getBoundingClientRect().height ??
@@ -174,13 +166,11 @@ export default function EventPage() {
     ).matches;
     scrollToTarget(reduceMotion ? "auto" : "smooth");
 
-    // Korten ovanför hämtar sina visningar efteråt och ändrar höjd.
-    // Då justerar vi läget, tills sidan har landat eller besökaren själv skrollar.
     const list = target.closest("ul") ?? document.body;
     let isFirstCall = true;
     const observer = new ResizeObserver(() => {
       if (isFirstCall) {
-        isFirstCall = false; // anropas direkt vid start, då har vi redan skrollat
+        isFirstCall = false; 
         return;
       }
       scrollToTarget("auto");
@@ -202,7 +192,6 @@ export default function EventPage() {
     };
   }, [hash, loading]);
 
-  // Ett kort per period, alla sorterade på startdatum
   const upcomingCards = (data ?? [])
     .flatMap((event) => event.periods.map((period) => ({ event, period })))
     .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
@@ -218,7 +207,7 @@ export default function EventPage() {
     >
       <Container className="event-page-container">
         <header className="event-header">
-          <h1>Kommande evenemanger</h1>
+          <h1>Kommande event</h1>
           <p>Hjälteveckor på Filmvisarna: flera filmer, en hjälte, en vecka.</p>
         </header>
 
