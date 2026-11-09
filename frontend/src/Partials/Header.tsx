@@ -45,7 +45,7 @@ export default function Header() {
                     >
                       <AccountIcon />
                     </span>
-                    <span className="fv-account-name">
+                    <span className="fv-account-name" title={user.username}>
                       {firstName(user.username)}
                     </span>
                   </>
