@@ -11,7 +11,7 @@ import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Datumremsa from "../components/Datumremsa";
-import { langtDatum, plusDagar } from "../utils/datum";
+import { langtDatum, plusDagar } from "../utils/date";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";

@@ -1,6 +1,6 @@
 /* Gemensam formatering med svenska inställningar.
    Använd samma funktioner på Mina sidor och bekräftelsesidan, så ser det likadant ut. */
-import { kortDatum } from "./datum.ts";
+import { kortDatum } from "./date.ts";
 
 const prisFormat = new Intl.NumberFormat("sv-SE", {
   style: "currency",

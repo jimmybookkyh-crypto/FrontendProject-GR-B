@@ -9,7 +9,7 @@ import {
   formatPris,
   formatVisning,
 } from "../utils/format.ts";
-import { kortDatum } from "../utils/datum.ts";
+import { kortDatum } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
 
 /* Kommande och Tidigare bokningar på Mina sidor (T126f / #330).

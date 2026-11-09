@@ -21,7 +21,9 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   color: #f5f7fa;
 }
-
+.film-sida .film-stack>.card {
+  margin-bottom: 0 !important;
+}
 /* Vinröda knappar utan hover-effekt. Bootstrap-variablerna sätts om så att
    samma färg gäller i alla lägen (hover, tryck och fokus). */
 .film-sida .tid-knapp,
@@ -95,4 +97,37 @@
 
 .film-sida .datum-vit {
   color: #fff;
+  text-transform: capitalize;
+}
+
+.film-sida .visningar-rubrik {
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+}
+
+@media (min-width: 768px) {
+  .film-sida .visningar-datum {
+    flex: 0 0 auto;
+    min-width: 12rem;
+    padding-right: 1.5rem;
+    border-right: 1px solid rgba(253, 252, 250, 0.28);
+  }
+}
+
+@media (min-width: 768px) {
+  .film-sida .ratio-16x9 {
+    --bs-aspect-ratio: 40%;
+  }
+}
+
+/* ---------- Visningsknappen: salong och tid på en rad ---------- */
+.film-sida .tid-knapp {
+  white-space: nowrap;
+}
+
+/* Bara på mobil: lite mindre text så att längre salongsnamn ryms.
+   På iPad och desktop behåller knappen sin vanliga storlek. */
+@media (max-width: 767.98px) {
+  .film-sida .tid-knapp {
+    font-size: 1rem;
+  }
 }

@@ -11,12 +11,12 @@ export default function SlotButton({
   return (
     <Button
       size="lg"
-      className="tid-knapp rounded-pill py-2 px-4 fw-bold d-flex justify-content-between align-items-center"
+      className="tid-knapp rounded-pill py-2 px-3 px-md-4 fw-bold d-flex justify-content-between align-items-center gap-3"
       onClick={onClick}
       disabled={disabled}
     >
       <span>{auditoriumName}</span>
-      <span>kl {time}</span>
+      <span>{time}</span>
     </Button>
   );
 }

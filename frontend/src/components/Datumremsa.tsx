@@ -4,7 +4,7 @@ import Col from "react-bootstrap/Col";
 import Collapse from "react-bootstrap/Collapse";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { kortDatum, plusDagar } from "../utils/datum";
+import { kortDatum, plusDagar } from "../utils/date";
 
 /* Datumremsan: Idag, Imorgon, fem dagar till och en Kalender-knapp.
    Sidan som använder den äger valt datum (valtDatum) och får veta
