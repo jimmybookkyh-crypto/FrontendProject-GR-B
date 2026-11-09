@@ -311,9 +311,15 @@
 .mypage-badge {
   justify-self: start;
   padding: 0.1rem 1rem;
-  border: 1.5px dashed var(--mp-text);
+  border: 1.5px solid var(--mp-text);
   border-radius: 6px;
   font-size: 0.9rem;
+}
+
+.mypage-badge-cancelled {
+  background: var(--mp-vinrod);
+  border: 1.5px solid var(--mp-vinrod);
+  color: #fff;
 }
 
 /* Mobil: titel + pris överst, datum och biljetter under */
