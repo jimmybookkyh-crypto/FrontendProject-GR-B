@@ -18,12 +18,11 @@
   --fv-bg: #0d0d14;
   --fv-panel: #222226;
   --fv-line: #2c2c3a;
-  --fv-active-shadow: #ffffff; /* skugga/ram på vald flik (HEM) */
+  --fv-active-shadow: #ffffff; 
 
   background: var(--fv-bg);
-  border-bottom: 1px solid var(--fv-line);
-  /* höger padding växer med skärmbredden så Logga in inte klistrar i kanten */
-  padding: 0.7rem clamp(1rem, 5vw, 4.5rem) 0.7rem 0.5rem;
+  border-bottom: 1px solid var(--fv-line); 
+  padding: 0.7rem clamp(1rem, 2.5vw, 2rem) 0.7rem 0.5rem;
   font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
 }
 
@@ -33,7 +32,7 @@
 }
 
 .fv-logo {
-  height: 72px; /* logotypens storlek, ändra här */
+  height: 72px; 
   width: auto;
   display: block;
 }
@@ -42,7 +41,7 @@
 
 .fv-navbar .fv-nav {
   align-items: center;
-  gap: 2.4rem; /* skevningen äter ~1.3rem, så synligt avstånd blir ca 1rem */
+  gap: 2.4rem; 
 }
 
 .fv-navbar .nav-link,
@@ -54,41 +53,37 @@
   text-transform: uppercase;
   color: #fff;
   position: relative;
-  width: 11rem; /* alla flikar exakt lika breda */
+  width: 11rem; 
   padding: 0.8rem 0;
   text-align: center;
   z-index: 0;
 }
 
-/* Sned flik med gul ram, som i Figma */
 .fv-navbar .nav-link::before {
   content: "";
   position: absolute;
   inset: 0;
   transform: skewX(-20deg);
   background: var(--fv-panel);
-  box-shadow: 3px 3px 0 var(--fv-yellow); /* linje nedanför + till höger */
+  box-shadow: 3px 3px 0 var(--fv-yellow); 
   transition: background-color 0.15s ease;
   z-index: -1;
 }
 
-/* Ljusare grå ruta: vid tryck/tangentbordsfokus (funkar även på touch/mobil) ... */
 .fv-navbar .nav-link:focus-visible::before,
 .fv-navbar .nav-link:active::before {
   background: #2e2e34;
 }
 
-/* ... och vid hover med mus. Mobiler har ingen riktig hover, därför bara när den finns */
 @media (hover: hover) {
   .fv-navbar .nav-link:hover::before {
     background: #2e2e34;
   }
 }
 
-/* Vald flik: fylld gul */
 .fv-navbar .fv-nav .nav-link.active,
 .fv-navbar .fv-nav .nav-link.show {
-  color: #000; /* svart text på vald flik */
+  color: #000; 
 }
 
 .fv-navbar .nav-link.active::before,
@@ -97,7 +92,6 @@
   box-shadow: 3px 3px 0 var(--fv-active-shadow);
 }
 
-/* När Om oss-dropdownen är öppen ska bara Om oss vara markerad (inte t.ex. Hem) */
 .fv-navbar .fv-nav.om-oss-open .nav-link.active:not(.dropdown-toggle) {
   color: #fff;
 }
@@ -129,7 +123,6 @@
   margin-top: 5px;
 }
 
-/* Osynlig brygga över glappet så menyn inte stänger när musen går ner */
 @media (min-width: 992px) {
   .fv-navbar .dropdown-menu::before {
     content: "";
@@ -182,8 +175,10 @@
   flex: none;
 }
 
-.fv-login:hover,
-.fv-login:focus-visible {
+/* Bara länken Logga in blir vit vid hover. Inloggad är .fv-login en ruta med
+   ikon, namn och Logga ut, och då ska de behålla sin gula färg */
+a.fv-login:hover,
+a.fv-login:focus-visible {
   color: #fff;
 }
 
@@ -193,11 +188,7 @@
 }
 
 /* ---------- Desktop: flikarna centrerade med mer avstånd ---------- */
-/* Skevningen äter ca 1.3rem av gapet, så synligt avstånd = gap - 1.3rem */
-
-/* 992-1199 px: minst plats, flikarna centreras mellan logga och Logga in */
 @media (min-width: 992px) {
-  /* Logga in ligger i koden före menyn (för mobil), så vi sorterar om på desktop */
   .fv-navbar .navbar-collapse {
     order: 1;
   }
@@ -218,7 +209,7 @@
 
   .fv-login {
     margin-left: 0;
-    margin-right: 1cm;
+    margin-right: 0; /* avståndet till kanten kommer från headerns padding */
   }
 }
 
@@ -360,5 +351,52 @@
   .fv-login .fv-auth-button {
     font-size: 1.1rem;
     padding: 0.2rem 0.55rem;
+  }
+}
+
+/* ---------- Kontomenyn för admin (P13, #417) ---------- */
+/* Ikon + namn/ADMIN som en knapp. Menyn får samma stil som Om oss-menyn. */
+.fv-account-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fv-account-toggle:hover .fv-mypage-link,
+.fv-account-toggle:focus-visible .fv-mypage-link {
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.fv-account-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+  border-radius: 2rem;
+}
+
+/* Dropdownens omslag som flex, så att ikonen och namnet hamnar mitt i höjd
+   med Logga ut (annars lägger webbläsaren till luft under, som för text) */
+.fv-account {
+  display: flex;
+  align-items: center;
+}
+
+/* Inloggad: namnet (eller ADMIN) bredvid ikonen, även på mobil.
+   Mindre text på mobil, och långa namn kortas med … */
+@media (max-width: 991.98px) {
+  .fv-account-name {
+    font-size: 1.1rem;
+    max-width: 6.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
