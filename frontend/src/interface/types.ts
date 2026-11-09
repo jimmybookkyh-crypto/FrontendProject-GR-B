@@ -99,12 +99,16 @@ export interface MyBookingsResponse {
   past: MyBooking[]; // senaste först
 }
 
+export type EventPeriod = { startDate: string; endDate: string };
+
 export type EventRow = {
   eventId: string;
   name: string;
-  date: string | null; // "YYYY-MM-DD"
-  current: boolean;
   info: string | null;
+  image: string | null;
+  altText: string | null;
+  tagline: string | null;
+  periods: EventPeriod[];
 };
 
 export type EventShowing = {

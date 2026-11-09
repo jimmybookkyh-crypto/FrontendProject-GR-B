@@ -5,53 +5,13 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
-import type { EventRow, EventShowing } from "../interface/types";
+import type { EventPeriod, EventRow, EventShowing } from "../interface/types";
 import backgroundImage from "../assets/img/biodukbg.png";
-//placeholder bilder för event tills de finns i databasen
-import Spindel from "../assets/Spindel.jpg";
-import Batman1 from "../assets/Batman1.jpg";
-import Doomsday from "../assets/Doomsday.jpg";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 
-/* mock data för bild och tagline ligger kvar i frontend tills de finns i databasen. */
-type EventMockData = {
-  tagline: string;
-  src: string;
-  alt: string;
-  position?: string;
-};
-
-const eventMockData: Record<string, EventMockData> = {
-  "avengers assemble": {
-    tagline: "Samla hjältarna",
-    src: Doomsday,
-    alt: "Marvels hjältar samlade inför Avengers: Doomsday",
-    position: "center 40%",
-  },
-  spindelveckan: {
-    tagline: "Din vänliga hjälte i grannskapet",
-    src: Spindel,
-    alt: "Spider-Man hänger i sitt nät",
-  },
-  "mörkrets riddare": {
-    tagline: "Gotham glömmer aldrig",
-    src: Batman1,
-    alt: "Batman i mörkret över Gotham",
-  },
-};
-/* TODO: Retur för mock data till bild och tagline, ska städas upp senare*/
-function getEventMockData(name: string): EventMockData {
-  return (
-    eventMockData[name.trim().toLowerCase()] ?? {
-      tagline: "",
-      src: backgroundImage,
-      alt: "",
-    }
-  );
-}
 
 /* Svensk datumformatering: "26–30 oktober" eller "30 oktober–2 november" */
 const dateMonth = new Intl.DateTimeFormat("sv-SE", {
@@ -103,24 +63,21 @@ function parseEventInfo(info: string | null): string[] {
     .map((s) => s.trim())
     .filter(Boolean);
 }
-function EventCard({ event }: { event: EventRow }) {
+function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) {
   const [showMovies, setShowMovies] = useState(false);
   const { data, loading, error } = useFetch<EventShowing[]>(
     `/events/${event.eventId}/showings`,
   );
 
-  const headingId = `event-heading-${event.eventId}`;
-  const moviesId = `event-movies-${event.eventId}`;
+  // Samma event kan visas flera gånger (en per period), så id:t måste vara unikt per kort
+  const cardId = `${event.eventId}-${period.startDate}`;
+  const headingId = `event-heading-${cardId}`;
+  const moviesId = `event-movies-${cardId}`;
 
-  const eventDetails = getEventMockData(event.name);
   const paragraphs = parseEventInfo(event.info);
-  const { movies, start, end } = groupShowings(data ?? []);
+  const { movies } = groupShowings(data ?? []);
 
-  // Saknas showings används eventets eget datum, och saknas det visas ingen dateRange
-  const periodStart = start ?? event.date;
-  const periodEnd = end ?? event.date;
-  const dateRange =
-    periodStart && periodEnd ? formatDatePeriod(periodStart, periodEnd) : null;
+  const dateRange = formatDatePeriod(period.startDate, period.endDate);
 
   return (
     <article
@@ -133,27 +90,20 @@ function EventCard({ event }: { event: EventRow }) {
           <div className="event-image-border">
             <img
               className="event-image"
-              src={eventDetails.src}
-              alt={eventDetails.alt}
-              style={
-                eventDetails.position
-                  ? { objectPosition: eventDetails.position }
-                  : undefined
-              }
+              src={event.image ?? backgroundImage}
+              alt={event.altText ?? ""}
             />
           </div>
         </Col>
 
         <Col lg={7}>
           <div className="event-content">
-            {!loading && dateRange && (
-              <p className="event-date-range">{dateRange}</p>
-            )}
+            <p className="event-date-range">{dateRange}</p>
             <h2 id={headingId} className="event-title">
               {event.name}
             </h2>
-            {eventDetails.tagline && (
-              <p className="event-tagline">{eventDetails.tagline}</p>
+            {event.tagline && (
+              <p className="event-tagline">{event.tagline}</p>
             )}
             {paragraphs.map((paragraph) => (
               <p key={paragraph} className="event-text">
@@ -252,11 +202,10 @@ export default function EventPage() {
     };
   }, [hash, loading]);
 
-  // TODO: filtrera på slutdatum när events tabell byggs om (idag finns bara ett datum).
-  // Tills vidare visas aktuella event (current = true), sorterade på datum.
-  const upcomingEvents = (data ?? [])
-    .filter((e) => e.current)
-    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+  // Ett kort per period, alla sorterade på startdatum
+  const upcomingCards = (data ?? [])
+    .flatMap((event) => event.periods.map((period) => ({ event, period })))
+    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
 
   return (
     <div
@@ -276,18 +225,18 @@ export default function EventPage() {
         {loading && <LoadingSpinner text="Hämtar event…" />}
         {error && <ErrorMessage message={error} />}
 
-        {!loading && !error && upcomingEvents.length === 0 && (
+        {!loading && !error && upcomingCards.length === 0 && (
           <p className="event-empty">
             Just nu finns inga kommande event. Titta in igen snart, eller se vad
             som visas idag på startsidan.
           </p>
         )}
 
-        {!loading && !error && upcomingEvents.length > 0 && (
+        {!loading && !error && upcomingCards.length > 0 && (
           <ul className="event-list">
-            {upcomingEvents.map((event) => (
-              <li key={event.eventId}>
-                <EventCard event={event} />
+            {upcomingCards.map(({ event, period }) => (
+              <li key={`${event.eventId}-${period.startDate}`}>
+                <EventCard event={event} period={period} />
               </li>
             ))}
           </ul>

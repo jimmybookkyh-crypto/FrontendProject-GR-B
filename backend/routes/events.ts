@@ -3,13 +3,13 @@ import { pool } from '../db/pool.js';
 import { parseId } from '../utils/parseId.js';
 import { parsePagination } from '../utils/parsePagination.js';
 import { requireAuth, requireAdmin } from '../utils/requireAuth.ts';
-import type { EventRow } from '../interface/types.js';
+import type { EventRow, EventWithPeriods } from '../interface/types.js';
 import { isForeignKeyError } from '../utils/pgError.js';
 import { validateDate } from '../utils/validateDate.js';
 
 const eventsRouter = Router();
 
-const EVENT_COLUMNS = `"eventId", created_at, name, date::text as date, current, info`;
+const EVENT_COLUMNS = `"eventId", created_at, name, date::text as date, current, info, image, "altText", tagline`;
 
 
 /* Kollar fälten i en POST/PATCH. Returnerar felmeddelande eller null.
@@ -32,7 +32,7 @@ function validateEventBody(body: Record<string, unknown>, partial: boolean): str
   return null;
 }
 
-/* GET /events */
+/* GET /events event med kommande perioder slutdatum idag eller senare */
 eventsRouter.get('/', async (req, res) => {
   const pagination = parsePagination(req.query);
 
@@ -45,10 +45,18 @@ eventsRouter.get('/', async (req, res) => {
   const { limit, offset } = pagination;
 
   try {
-    const { rows } = await pool.query<EventRow>(
-      `select ${EVENT_COLUMNS}
-        from events
-        order by "eventId" limit $1 offset $2`, [limit, offset]);
+    const { rows } = await pool.query<EventWithPeriods>(
+      `select e."eventId", e.name, e.info, e.image, e."altText", e.tagline,
+              json_agg(
+                json_build_object('startDate', p."startDate"::text, 'endDate', p."endDate"::text)
+                order by p."startDate"
+              ) as periods
+        from events e
+        join "eventPeriods" p on p."eventId" = e."eventId"
+        where p."endDate" >= (now() at time zone 'Europe/Stockholm')::date
+        group by e."eventId"
+        order by min(p."startDate")
+        limit $1 offset $2`, [limit, offset]);
 
     return res.status(200).json({ data: rows });
   } catch (error) {
