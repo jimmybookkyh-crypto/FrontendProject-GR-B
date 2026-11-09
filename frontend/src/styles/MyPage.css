@@ -115,6 +115,7 @@
 
 .mypage-help {
   color: var(--mp-dampad) !important;
+   font-size: 1rem;
 }
 
 /* ---------- Knappar ---------- */
