@@ -12,15 +12,11 @@ import {
 import { kortDatum } from "../utils/datum.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
 
-/* Kommande och Tidigare bokningar på Mina sidor (T126f / #330).
-   Data kommer från GET /bookings/me (T126c), redan uppdelad och sorterad i backend. */
-
 type MyBookingsProps = {
   bookings: MyBookingsResponse;
-  onCancelled: (message: string) => void; // MyPage hämtar om listan
+  onCancelled: (message: string) => void;
 };
 
-/* images kan vara en lista, en JSON-text eller en vanlig sökväg (samma som MovieCard) */
 function posterUrl(images: MyBooking["images"]): string {
   if (!images) return "";
   try {
@@ -31,7 +27,6 @@ function posterUrl(images: MyBooking["images"]): string {
   }
 }
 
-/* "Rad 5: stol 6, 7, 8" -> "Rad 5 · stol 6, 7, 8" (som i skissen) */
 function platserText(booking: MyBooking): string {
   return formatPlatser(booking.tickets)
     .map((rad) => rad.replace(":", " ·"))
@@ -63,7 +58,6 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
 
   const { upcoming, past } = bookings;
 
-  /* Bekräftelsesidan läser bokningen från navigate-state (T077) */
   function showBooking(booking: MyBooking) {
     navigate("/bookingconfirmation", {
       state: {
@@ -131,6 +125,10 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 <Poster booking={booking} />
 
                 <div className="mypage-booking-info">
+                  <p className="mypage-bookingnr">
+                    Bokningsnummer
+                    <span>{booking.bookingNumber}</span>
+                  </p>
                   <h3 className="mypage-movie-title">{booking.movieTitle}</h3>
                   <p className="mb-1">
                     {formatVisning(booking.date, booking.time)} ·{" "}
@@ -141,9 +139,9 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                   </p>
                   <p className="mypage-total">
                     Totalt {formatPris(booking.totalPrice)}
-                  </p>
-                  <p className="mypage-bookingnr">
-                    Bokningsnummer: <span>{booking.bookingNumber}</span>
+                    <small className="mypage-pay-note">
+                      , betalas i kassan.
+                    </small>
                   </p>
                 </div>
 
@@ -171,7 +169,6 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                       Avbokning stängd 2 tim före visning
                     </span>
                   )}
-                  <small>Betalas i kassan</small>
                 </div>
               </li>
             ))}
@@ -199,7 +196,13 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 <span className="mypage-past-price">
                   {formatPris(booking.totalPrice)}
                 </span>
-                <span className="mypage-badge">
+                <span
+                  className={
+                    booking.status === "cancelled"
+                      ? "mypage-badge mypage-badge-cancelled"
+                      : "mypage-badge"
+                  }
+                >
                   {booking.status === "cancelled" ? "Avbokad" : "Sedd"}
                 </span>
               </li>
