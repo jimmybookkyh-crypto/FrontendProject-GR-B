@@ -126,7 +126,7 @@ export default function SeatMap({
         <span>⚪ Ledig</span>
         <span>⚫ Upptagen</span>
         <span>🟡 Vald</span>
-        <span>🟢 Reccomenderad</span>
+        <span>🟢 För bästa upplevelse</span>
       </div>
     </div>
   );
