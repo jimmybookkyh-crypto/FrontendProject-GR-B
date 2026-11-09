@@ -59,7 +59,15 @@ function parseEventInfo(info: string | null): string[] {
     .map((s) => s.trim())
     .filter(Boolean);
 }
-function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) {
+function EventCard({
+  event,
+  period,
+  isFirstPeriod,
+}: {
+  event: EventRow;
+  period: EventPeriod;
+  isFirstPeriod: boolean;
+}) {
   const [showMovies, setShowMovies] = useState(false);
   const { data, loading, error } = useFetch<EventShowing[]>(
     `/events/${event.eventId}/showings`,
@@ -76,7 +84,7 @@ function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) 
 
   return (
     <article
-      id={`event-${event.eventId}`}
+      id={isFirstPeriod ? `event-${event.eventId}` : undefined}
       className="event-card"
       aria-labelledby={headingId}
     >
@@ -97,9 +105,7 @@ function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) 
             <h2 id={headingId} className="event-title">
               {event.name}
             </h2>
-            {event.tagline && (
-              <p className="event-tagline">{event.tagline}</p>
-            )}
+            {event.tagline && <p className="event-tagline">{event.tagline}</p>}
             {paragraphs.map((paragraph) => (
               <p key={paragraph} className="event-text">
                 {paragraph}
@@ -193,7 +199,13 @@ export default function EventPage() {
   }, [hash, loading]);
 
   const upcomingCards = (data ?? [])
-    .flatMap((event) => event.periods.map((period) => ({ event, period })))
+    .flatMap((event) =>
+      event.periods.map((period, index) => ({
+        event,
+        period,
+        isFirstPeriod: index === 0,
+      })),
+    )
     .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
 
   return (
@@ -223,9 +235,13 @@ export default function EventPage() {
 
         {!loading && !error && upcomingCards.length > 0 && (
           <ul className="event-list">
-            {upcomingCards.map(({ event, period }) => (
+            {upcomingCards.map(({ event, period, isFirstPeriod }) => (
               <li key={`${event.eventId}-${period.startDate}`}>
-                <EventCard event={event} period={period} />
+                <EventCard
+                  event={event}
+                  period={period}
+                  isFirstPeriod={isFirstPeriod}
+                />
               </li>
             ))}
           </ul>
