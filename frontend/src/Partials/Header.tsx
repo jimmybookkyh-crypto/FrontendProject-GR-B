@@ -33,18 +33,24 @@ export default function Header() {
             {user.role === "admin" ? (
               <AdminAccountMenu username={user.username} />
             ) : (
-              <>
-                <NavLink
-                  to="/mypage"
-                  className="fv-mypage-link"
-                  aria-label="Mina sidor"
-                  title="Mina sidor"
-                >
-                  <AccountIcon />
-                </NavLink>
-
-                <span className="fv-account-name" title={user.username}>{firstName(user.username)}</span>
-              </>
+              <NavLink
+                to="/mypage"
+                className="fv-account-link"
+                title="Mina sidor"
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={`fv-mypage-link${isActive ? " active" : ""}`}
+                    >
+                      <AccountIcon />
+                    </span>
+                    <span className="fv-account-name">
+                      {firstName(user.username)}
+                    </span>
+                  </>
+                )}
+              </NavLink>
             )}
 
             <button
