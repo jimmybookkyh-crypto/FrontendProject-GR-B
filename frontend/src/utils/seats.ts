@@ -1,6 +1,10 @@
 
 import type { Seat } from "../interface/types";
 
+// Poängbaserad rekommendationsalgoritm
+// Den går igenom alla lediga stolar, 
+//  beräknar ett poängvärde för varje stol och returnerar den stol som får lägst poäng.
+
 //konfigurering för olika auditorier, 
 // för att prioritera vissa rader framför andra 
 //optimalStart = vart den optimala startplatsen är i salongen. 0.00 = längst fram, 1.00 = längst bak
@@ -22,6 +26,8 @@ const CONFIG = {
     }
 };
 
+// räknar ut hur långt en rad ligger från det optimala området
+// ju längre bak desto högre priorietering får raden
 function calculateRowPenalty(
     rowPosition: number,
     optimalStart: number,
@@ -64,16 +70,17 @@ export default function findBestSeats(
         return null;
     }
 
-    //hämta alla rader, även om de är upptagna och sorta de efter storleksordning
+    //hämta alla rader, även om de är upptagna och sortera efter storleksordning
     const rows = [ ...new Set(seats.map((seat) => seat.seatsRow))]
     .sort((a, b) => a - b);
 
-    //konfigurera efter autidioriumName, för att prioritera vissa rader framför andra
+    //konfigurera efter autidioriumName, för att prioritera vissa rader och stolar före andra
     const config = CONFIG[auditoriumName as keyof typeof CONFIG]; 
 
     //gruppera alla stolar efter rad
     const seatsByRow = new Map<number, Seat[]>();
 
+    // behövs för att kunna beräkna var mitten av varje rad ligger
     for (const seat of seats) {
         const rowSeats = seatsByRow.get(seat.seatsRow) ?? [];
         rowSeats.push(seat);
@@ -82,6 +89,9 @@ export default function findBestSeats(
 
     let bestSeat: Seat | null = null;
     let bestScore = Infinity;
+    // Eftersom alla beräknade poäng är lägre än oändlighet 
+    //  kommer den första tillgängliga stolen alltid att bli den första kandidaten
+
 
     for (const seat of availableSeats) {
         const rowIndex = rows.indexOf(seat.seatsRow);
