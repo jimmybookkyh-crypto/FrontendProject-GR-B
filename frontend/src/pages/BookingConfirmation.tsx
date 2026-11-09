@@ -121,8 +121,11 @@ export default function BookingConfirmation() {
                   <p className="mb-1">
                     <strong>Avbokning:</strong> Du kan avboka fram till 2 timmar före visningen.
                   </p>
-                  <p className="mb-4">
+                  <p className="mb-2">
                     Är du inloggad avbokar du under Mina sidor.
+                  </p>
+                  <p className="mb-4">
+                    <em>Vi har skickat en bekräftelse till din e-post.</em>
                   </p>
                   <div className="d-flex justify-content-between mt-4">
                     <button

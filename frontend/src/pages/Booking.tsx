@@ -12,6 +12,7 @@ import AgeBadge from "../components/AgeBadge";
 import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
+import { emailError } from "../utils/validateUtil.ts";
 import {
   formatDate,
   formatTime,
@@ -126,6 +127,8 @@ export default function BookingPage() {
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  // Fel som visas direkt vid e-postfältet i modalen
+  const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const totaltTickets = adultTickets + childTickets + seniorTickets;
@@ -248,8 +251,9 @@ export default function BookingPage() {
 
   // POST-anrop för att spara bokningen i databasen
   const handleCheckout = async () => {
-    if (!email || !email.includes("@")) {
-      setBookingError("Vänligen ange en giltig e-postadress.");
+    const emailProblem = emailError(email);
+    if (emailProblem) {
+      setEmailFieldError(emailProblem);
       return;
     }
 
@@ -348,6 +352,7 @@ export default function BookingPage() {
   const handleCloseModal = () => {
     setShowEmailModal(false);
     setBookingError(null);
+    setEmailFieldError(undefined);
     // Triggar omhämtning av stolarna när modalen stängs
     setSeatRefreshKey((prev) => prev + 1);
   };
@@ -636,12 +641,21 @@ export default function BookingPage() {
                         )}
                       </Form.Label>
                       <Form.Control
+                        size="lg"
                         type="email"
+                        autoComplete="email"
                         placeholder="din.epost@example.se"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailFieldError(undefined);
+                        }}
+                        isInvalid={!!emailFieldError}
                         disabled={isSubmitting || !!user} // Inaktiverar ändring om inloggad
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {emailFieldError}
+                      </Form.Control.Feedback>
                       {user && (
                         <Form.Text className="text-muted">
                           Bokningsbekräftelsen kopplas till ditt konto (
@@ -655,7 +669,7 @@ export default function BookingPage() {
                       type="button"
                       className="cta-btn checkout-btn fw-bold py-2 px-4"
                       onClick={handleCheckout}
-                      disabled={isSubmitting || !email}
+                      disabled={isSubmitting}
                     >
                       {isSubmitting ? "Bokar..." : "SLUTFÖR BOKNING"}
                     </button>
