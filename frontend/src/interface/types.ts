@@ -93,6 +93,31 @@ export interface MyBooking {
   status: "confirmed" | "cancelled";
 }
 
+// Adminportalen (P13): en bokning från GET /bookings/number/:bookingNumber
+export interface AdminBookingTicket {
+  seatsRow: number;
+  seatsNumber: number;
+  ticketType: string; // "Vuxen", "Pensionär", "Barn"
+  price: number;
+}
+
+export interface AdminBooking {
+  bookingId: string | number;
+  bookingNumber: string;
+  email: string;
+  status: "confirmed" | "cancelled";
+  cancelledAt: string | null;
+  movieId: string | number;
+  movieTitle: string;
+  images: string[] | string | null;
+  date: string; // "2026-11-08"
+  time: string; // "18:30"
+  auditoriumName: string;
+  hasStarted: boolean; // visningen har börjat, då går den inte att avboka
+  totalPrice: number;
+  tickets: AdminBookingTicket[];
+}
+
 // Mina sidor (T126): svaret från GET /bookings/me
 export interface MyBookingsResponse {
   upcoming: MyBooking[]; // närmast först
@@ -203,4 +228,4 @@ export type FieldErrors = {
 export interface AgeBadgeProps {
   ageRating: number | null | undefined;
   className?: string;
-}
+}

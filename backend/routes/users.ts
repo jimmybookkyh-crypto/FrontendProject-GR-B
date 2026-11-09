@@ -11,6 +11,10 @@ import {
 import { parsePagination } from "../utils/parsePagination.js";
 import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";
+import {
+  isUsernameTooLong,
+  USERNAME_TOO_LONG_MESSAGE,
+} from "../utils/validateUsername.js";
 import bcrypt from "bcryptjs";
 
 const usersRouter = Router();
@@ -125,6 +129,13 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   if (email !== undefined && !validateEmail(email)) {
     return res.status(400).json({
       error: { message: "Ogiltig email" },
+    });
+  }
+
+  // P32: högst 20 tecken
+  if (username !== undefined && isUsernameTooLong(username)) {
+    return res.status(400).json({
+      error: { message: USERNAME_TOO_LONG_MESSAGE },
     });
   }
 
@@ -313,6 +324,13 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   ) {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
+    });
+  }
+
+  // P32: högst 20 tecken
+  if (isUsernameTooLong(username)) {
+    return res.status(400).json({
+      error: { message: USERNAME_TOO_LONG_MESSAGE },
     });
   }
 
