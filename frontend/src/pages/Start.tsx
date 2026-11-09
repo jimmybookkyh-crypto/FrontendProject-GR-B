@@ -117,7 +117,7 @@ export default function Start() {
               </div>
             )}
           {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid movies={visibleMovies} datum={valtDatum} />
+            <MovieGrid movies={visibleMovies} datum={valtDatum} navigatedFrom="start" />
           )}
         </Container>
       </div>
