@@ -9,16 +9,7 @@ import {
 import "../styles/HeroSection.css";
 
 const MAX_MOVIE_SLIDES = 3;
-const SLIDE_INTERVAL_MS = 7000; // hur länge varje bild visas
-
-/* ---------- Trailer i herobilden (P28.1, #439) ----------
-   Affischen visas först. Trailern startar ljudlöst, dold bakom affischen,
-   och tonas fram när affischen har synts en stund och trailern spelar.
-   Strax före slutet tonas trailern ut och bildspelet går vidare.
-   Trailern spelas bara på surfplatta/dator, utan "minska rörelse",
-   och om besökaren har godkänt alla cookies (YouTube kan sätta cookies). */
-
-/* Valfritt per film (movieId): eget YouTube-id och var klippet börjar/slutar */
+const SLIDE_INTERVAL_MS = 7000; 
 const HERO_TRAILER_CLIPS: Record<
   number,
   { id?: string; start?: number; end?: number }
@@ -26,22 +17,20 @@ const HERO_TRAILER_CLIPS: Record<
   // Exempel: 31: { id: "KLISTRA-IN-ID", start: 30, end: 48 },
 };
 
-/* Filmer som inte visas i heron, t.ex. för att trailern har dålig bildkvalitet.
-   40 = Batman Forever */
 const HERO_SKIP_MOVIE_IDS = new Set<string>(["40"]);
 
 const DEFAULT_TRAILER_START = 7;
 const DEFAULT_TRAILER_END = 25;
-const POSTER_DELAY_MS = 2500; // hur länge affischen syns innan trailern tonas in
-const PLAYING_SETTLE_MS = 3700; // trailern spelar dolt tills YouTubes ikoner har försvunnit
-const END_FADE_SECONDS = 1; // tonar ut så här många sekunder före slutet
-const TRAILER_FALLBACK_MS = 12000; // går vidare om trailern aldrig börjar spela
+const POSTER_DELAY_MS = 2500;
+const PLAYING_SETTLE_MS = 3700;
+const END_FADE_SECONDS = 1;
+const TRAILER_FALLBACK_MS = 12000;
 
 type HeroEvent = {
   eventId: string;
   name: string;
-  current: boolean;
   info: string | null;
+  periods: { startDate: string; endDate: string }[];
 };
 
 type HeroEventShowing = {
@@ -93,7 +82,6 @@ function getFirstSentence(text?: string | null): string {
   return (match ? match[0] : firstParagraph).trim();
 }
 
-/* Första stycket, t.ex. ur events.info */
 function getFirstParagraph(text?: string | null): string {
   return text ? text.split(/\n+/)[0].trim() : "";
 }
@@ -150,28 +138,29 @@ function getMovieMedia(movie: HeroMovie | undefined) {
 
 function buildEventSlides(
   event: HeroEvent,
-  showings: HeroEventShowing[],
+  period: { startDate: string; endDate: string },
+  periodShowings: HeroEventShowing[],
   upcoming: HeroEventShowing[],
   movieById: Map<string, HeroMovie>,
 ): HeroSlideData[] {
-  const period = formatPeriod(
-    showings[0].date,
-    showings[showings.length - 1].date,
-  );
-  const hasStarted = getShowingKey(showings[0]) <= getNowKey();
+  const periodText = formatPeriod(period.startDate, period.endDate);
+  const today = getNowKey().slice(0, 10);
+  const hasStarted = period.startDate <= today;
 
   const byNewest = (a: string, b: string) =>
     (movieById.get(b)?.productionyear ?? 0) -
     (movieById.get(a)?.productionyear ?? 0);
 
-  const eventMovieIds = [...new Set(showings.map((s) => String(s.movieId)))]
+  const eventMovieIds = [
+    ...new Set(periodShowings.map((s) => String(s.movieId))),
+  ]
     .filter((id) => !HERO_SKIP_MOVIE_IDS.has(id))
     .sort(byNewest);
   const eventMovieId = eventMovieIds[0];
 
   const eventSlide: HeroSlideData = {
     key: `event-${event.eventId}`,
-    label: `${hasStarted ? "Månadens event" : "Kommande event"} · ${period}`,
+    label: `${hasStarted ? "Månadens event" : "Kommande event"} · ${periodText}`,
     title: event.name,
     text: getFirstParagraph(event.info),
     ...getMovieMedia(movieById.get(eventMovieId)),
@@ -189,7 +178,7 @@ function buildEventSlides(
     const nextShowing = upcoming.find((s) => String(s.movieId) === id)!;
     return {
       key: `movie-${id}`,
-      label: `${event.name} · ${period}`,
+      label: `${event.name} · ${periodText}`,
       title: movie?.title ?? nextShowing.movieTitle,
       ageRating: movie?.ageRating,
       text: getFirstSentence(movie?.description),
@@ -247,20 +236,24 @@ function useHeroSlides(): HeroSlideData[] {
       );
       const nowKey = getNowKey();
 
-      const candidates = await Promise.all(
-        (events ?? [])
-          .filter((event) => event.current)
-          .map(async (event) => {
-            const showings =
-              (await getData<HeroEventShowing[]>(
-                `/events/${event.eventId}/showings`,
-              )) ?? [];
-            const upcoming = showings.filter(
-              (showing) => getShowingKey(showing) > nowKey,
-            );
-            return { event, showings, upcoming };
-          }),
-      );
+       const candidates = await Promise.all(
+         (events ?? [])
+           .filter((event) => event.periods?.length > 0)
+           .map(async (event) => {
+             const period = event.periods[0];
+             const showings =
+               (await getData<HeroEventShowing[]>(
+                 `/events/${event.eventId}/showings`,
+               )) ?? [];
+             const periodShowings = showings.filter(
+               (s) => s.date >= period.startDate && s.date <= period.endDate,
+             );
+             const upcoming = periodShowings.filter(
+               (s) => getShowingKey(s) > nowKey,
+             );
+             return { event, period, periodShowings, upcoming };
+           }),
+       );
       if (controller.signal.aborted) return;
 
       const chosen = candidates
@@ -275,7 +268,8 @@ function useHeroSlides(): HeroSlideData[] {
         chosen
           ? buildEventSlides(
               chosen.event,
-              chosen.showings,
+              chosen.period,
+              chosen.periodShowings,
               chosen.upcoming,
               movieById,
             )
@@ -293,8 +287,6 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/* Trailer bara på surfplatta/dator, utan "minska rörelse" och med cookie-godkännande.
-   Godkänner besökaren cookies i bannern startar trailern direkt. */
 function useTrailerAllowed(): boolean {
   const canPlay = () =>
     window.matchMedia(
@@ -316,7 +308,7 @@ export default function HeroSection() {
   const [isPaused, setIsPaused] = useState(prefersReducedMotion);
   const [activeIndex, setActiveIndex] = useState(0);
   const allowTrailer = useTrailerAllowed();
-  const [soundOn, setSoundOn] = useState(false); // ljudlöst tills besökaren väljer ljud
+  const [soundOn, setSoundOn] = useState(false); 
   const slideCount = slides.length;
 
   const goToNextSlide = useCallback(() => {
@@ -461,10 +453,6 @@ export default function HeroSection() {
   );
 }
 
-/* Affischen och, om trailerId finns, YouTube-trailern ovanpå.
-   Spelaren styrs med YouTubes postMessage-API (enablejsapi=1).
-   Pausas bildspelet pausas trailern och affischen visas igen,
-   så att YouTubes egen paus-ikon aldrig syns. */
 type HeroMediaProps = {
   title: string;
   poster: string;
@@ -480,9 +468,9 @@ type HeroMediaProps = {
 const YT_ENDED = 0;
 const YT_PLAYING = 1;
 const YT_PAUSED = 2;
-const VIDEO_WIDTH = 1920; // så att YouTube väljer HD-kvalitet
+const VIDEO_WIDTH = 1920; 
 const VIDEO_HEIGHT = 1080;
-const VIDEO_CROP = 1.15; // beskär kanterna så att YouTubes ramar inte syns
+const VIDEO_CROP = 1.15; 
 
 function HeroMedia({
   title,
@@ -508,7 +496,6 @@ function HeroMedia({
     onTrailerEndRef.current = onTrailerEnd;
   }, [onTrailerEnd]);
 
-  // Skickar ett kommando till YouTube-spelaren, t.ex. "mute" eller "pauseVideo"
   const sendCommand = (func: string, args: unknown[] = []) => {
     iframeRef.current?.contentWindow?.postMessage(
       JSON.stringify({
@@ -522,7 +509,6 @@ function HeroMedia({
     );
   };
 
-  // Ljudknappen
   useEffect(() => {
     mutedRef.current = muted;
     if (!trailerId) return;
@@ -534,7 +520,6 @@ function HeroMedia({
     }
   }, [muted, trailerId]);
 
-  // Paus-knappen: pausa trailern och visa affischen, eller spela vidare
   useEffect(() => {
     pausedRef.current = paused;
     if (!trailerId) return;
@@ -544,8 +529,7 @@ function HeroMedia({
       sendCommand("playVideo");
     }
   }, [paused, trailerId]);
-
-  // Skalar 1920 × 1080-spelaren så att den täcker herobilden
+ 
   useEffect(() => {
     const box = videoBoxRef.current;
     if (!box) return;
@@ -567,8 +551,8 @@ function HeroMedia({
 
     let isReady = false;
     let isPlaying = false;
-    let posterDone = false; // affischen har synts tillräckligt länge
-    let playingSettled = false; // trailern har spelat en stund (inga ikoner kvar)
+    let posterDone = false;
+    let playingSettled = false;
     let isFinished = false;
     let settleTimer: number | undefined;
     let endTimer: number | undefined;
@@ -579,7 +563,6 @@ function HeroMedia({
       }
     };
 
-    // Tonar ut trailern och går sedan till nästa bild
     const finish = () => {
       if (isFinished) return;
       isFinished = true;
@@ -603,7 +586,6 @@ function HeroMedia({
         return;
       }
 
-      // Första svaret från spelaren: be den skicka lägesändringar
       if (!isReady) {
         isReady = true;
         iframeRef.current?.contentWindow?.postMessage(
@@ -632,12 +614,10 @@ function HeroMedia({
 
       if (state === YT_PLAYING && !isPlaying) {
         isPlaying = true;
-        // Pausat innan trailern hann starta: stoppa den direkt
         if (pausedRef.current) {
           sendCommand("pauseVideo");
           return;
         }
-        // Har besökaren valt ljud tidigare får nästa trailer också ljud
         if (!mutedRef.current) {
           sendCommand("unMute");
           sendCommand("setVolume", [80]);
@@ -648,7 +628,6 @@ function HeroMedia({
         }, PLAYING_SETTLE_MS);
       }
 
-      // Pausad: börja om väntan när trailern spelar igen
       if (state === YT_PAUSED) {
         isPlaying = false;
         playingSettled = false;
@@ -656,7 +635,6 @@ function HeroMedia({
         setShowTrailer(false);
       }
 
-      // Strax före slutet: tona ut innan YouTube stannar och visar paus-ikonen
       if (
         isPlaying &&
         typeof info?.currentTime === "number" &&
@@ -665,7 +643,6 @@ function HeroMedia({
         finish();
       }
 
-      // Reserv om tiden inte hann skickas: när videon är slut
       if (state === YT_ENDED && isPlaying) {
         finish();
       }
@@ -673,7 +650,6 @@ function HeroMedia({
 
     window.addEventListener("message", handleMessage);
 
-    // Reserv: börjar trailern aldrig spela går vi vidare ändå (inte när pausat)
     const fallbackTimer = window.setTimeout(() => {
       if (!isPlaying && !pausedRef.current) finish();
     }, TRAILER_FALLBACK_MS);
@@ -686,8 +662,7 @@ function HeroMedia({
       window.clearTimeout(fallbackTimer);
     };
   }, [trailerId, end]);
-
-  // Säger åt spelaren att börja skicka sitt läge och sin tid till oss
+ 
   const handleTrailerLoad = () => {
     iframeRef.current?.contentWindow?.postMessage(
       JSON.stringify({ event: "listening", id: 1, channel: "widget" }),
@@ -708,8 +683,7 @@ function HeroMedia({
     disablekb: "1",
     iv_load_policy: "3",
   });
-
-  // Pausat: affischen visas direkt, utan att vänta på svar från YouTube
+  
   const trailerVisible = showTrailer && !paused;
   const hiddenClass = trailerVisible ? " is-hidden" : "";
   const videoClass = `hero-slide-video${trailerVisible ? " is-visible" : ""}${isEnding ? " is-ending" : ""}`;
@@ -735,7 +709,7 @@ function HeroMedia({
             onLoad={handleTrailerLoad}
             width={VIDEO_WIDTH}
             height={VIDEO_HEIGHT}
-            style={{ transform: `translate(-50%, -50%) scale(${videoScale})` }}
+            style={{ transform: `translate(-50%, -42%) scale(${videoScale})` }}
           />
         </div>
       )}
