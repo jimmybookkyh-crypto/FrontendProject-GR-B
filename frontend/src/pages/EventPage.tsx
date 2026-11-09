@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -122,7 +123,11 @@ function EventCard({ event }: { event: EventRow }) {
     periodStart && periodEnd ? formatDatePeriod(periodStart, periodEnd) : null;
 
   return (
-    <article className="event-card" aria-labelledby={headingId}>
+    <article
+      id={`event-${event.eventId}`}
+      className="event-card"
+      aria-labelledby={headingId}
+    >
       <Row className="g-0">
         <Col lg={5}>
           <div className="event-image-border">
@@ -195,6 +200,57 @@ function EventCard({ event }: { event: EventRow }) {
 
 export default function EventPage() {
   const { data, loading, error } = useFetch<EventRow[]>("/events");
+  const { hash } = useLocation();
+
+  // P28 (#438): knappen i herosektionen länkar till /event#event-{id}.
+  // Eventen hämtas först, så vi skrollar till rätt event när listan har laddats.
+  useEffect(() => {
+    if (loading || !hash) return;
+    const target = document.getElementById(hash.slice(1));
+    if (!target) return;
+
+    // Headern ligger fast högst upp, så vi stannar en bit under den
+    const scrollToTarget = (behavior: ScrollBehavior) => {
+      const headerHeight =
+        document.querySelector(".fv-navbar")?.getBoundingClientRect().height ??
+        0;
+      const top =
+        target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+      window.scrollTo({ top, behavior });
+    };
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    scrollToTarget(reduceMotion ? "auto" : "smooth");
+
+    // Korten ovanför hämtar sina visningar efteråt och ändrar höjd.
+    // Då justerar vi läget, tills sidan har landat eller besökaren själv skrollar.
+    const list = target.closest("ul") ?? document.body;
+    let isFirstCall = true;
+    const observer = new ResizeObserver(() => {
+      if (isFirstCall) {
+        isFirstCall = false; // anropas direkt vid start, då har vi redan skrollat
+        return;
+      }
+      scrollToTarget("auto");
+    });
+    observer.observe(list);
+
+    const stop = () => observer.disconnect();
+    const timer = window.setTimeout(stop, 2000);
+    window.addEventListener("wheel", stop, { once: true });
+    window.addEventListener("touchstart", stop, { once: true });
+    window.addEventListener("keydown", stop, { once: true });
+
+    return () => {
+      stop();
+      window.clearTimeout(timer);
+      window.removeEventListener("wheel", stop);
+      window.removeEventListener("touchstart", stop);
+      window.removeEventListener("keydown", stop);
+    };
+  }, [hash, loading]);
 
   // TODO: filtrera på slutdatum när events tabell byggs om (idag finns bara ett datum).
   // Tills vidare visas aktuella event (current = true), sorterade på datum.
