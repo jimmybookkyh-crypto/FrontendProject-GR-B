@@ -30,6 +30,7 @@ type HeroEvent = {
   eventId: string;
   name: string;
   info: string | null;
+  tagline: string | null;
   periods: { startDate: string; endDate: string }[];
 };
 
@@ -162,7 +163,7 @@ function buildEventSlides(
     key: `event-${event.eventId}`,
     label: `${hasStarted ? "Månadens event" : "Kommande event"} · ${periodText}`,
     title: event.name,
-    text: getFirstParagraph(event.info),
+    text: event.tagline ?? getFirstParagraph(event.info),
     ...getMovieMedia(movieById.get(eventMovieId)),
     buttonTo: `/event#event-${event.eventId}`,
     buttonLabel: "Läs om eventet →",
