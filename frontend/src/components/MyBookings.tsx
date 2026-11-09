@@ -125,6 +125,10 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 <Poster booking={booking} />
 
                 <div className="mypage-booking-info">
+                  <p className="mypage-bookingnr">
+                    Bokningsnummer
+                    <span>{booking.bookingNumber}</span>
+                  </p>
                   <h3 className="mypage-movie-title">{booking.movieTitle}</h3>
                   <p className="mb-1">
                     {formatVisning(booking.date, booking.time)} ·{" "}
@@ -135,9 +139,9 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                   </p>
                   <p className="mypage-total">
                     Totalt {formatPris(booking.totalPrice)}
-                  </p>
-                  <p className="mypage-bookingnr">
-                    Bokningsnummer: <span>{booking.bookingNumber}</span>
+                    <small className="mypage-pay-note">
+                      , betalas i kassan.
+                    </small>
                   </p>
                 </div>
 
@@ -165,7 +169,6 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                       Avbokning stängd 2 tim före visning
                     </span>
                   )}
-                  <small>Betalas i kassan</small>
                 </div>
               </li>
             ))}

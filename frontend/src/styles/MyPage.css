@@ -240,17 +240,30 @@
   margin: 0.2rem 0 0.25rem;
 }
 
+/* Bokningsnumret överst i kortet, stort och guldgult (#517) */
 .mypage-bookingnr {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--mp-dampad);
-  margin: 0;
-  word-break: break-all;
+  margin: 0 0 0.5rem;
 }
 
 .mypage-bookingnr span {
+  display: block;
   font-family: ui-monospace, "Consolas", monospace;
-  color: var(--mp-text);
+  font-size: 1.15rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  text-transform: none;
+  color: var(--mp-guld);
+  word-break: break-all;
+}
+
+@media (min-width: 768px) {
+  .mypage-bookingnr span {
+    font-size: 1.3rem;
+  }
 }
 
 .mypage-booking-actions {
@@ -259,11 +272,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   text-align: center;
-}
-
-.mypage-booking-actions small {
-  grid-column: 1 / -1;
-  color: var(--mp-dampad);
 }
 
 /* Från surfplatta: knapparna till höger, som i skissen */
