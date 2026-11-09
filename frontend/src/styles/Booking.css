@@ -125,6 +125,13 @@
   box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
 }
 
+.seat-recommended {
+  background: linear-gradient(#4caf50, #2e7d32);
+  color: #ffffff;
+  transform: perspective(80px) rotateX(10deg) scale(1.05);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.6);
+}
+
 .ticket-info {
   display: flex;
   gap: 4px;

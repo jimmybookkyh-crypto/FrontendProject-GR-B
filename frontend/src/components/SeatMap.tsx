@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import screenIcon from "../assets/img/screenIco.png";
 import type { Seat } from "../interface/types";
 
+import findBestSeats from "../utils/seats";
+
 // används endast i seatmap därför får den ligga kvar 
 interface SeatMapProps {
   auditoriumName: string;
@@ -40,6 +42,19 @@ export default function SeatMap({
 }: SeatMapProps) {
   // Grupperar stolarna rad för rad
   const rows = useMemo(() => groupSeatsByRow(seats), [seats]);
+  
+  //bästa platser funktion
+  const bestSeats = useMemo(
+    () => findBestSeats(
+      seats, 
+      occupiedSeats,
+      selectedSeats, 
+      auditoriumName
+    ),
+    [seats, occupiedSeats, selectedSeats, auditoriumName]
+  );
+
+  console.log("bestSeats:", bestSeats);
 
   return (
     <div className="seat-map-container">
@@ -74,6 +89,10 @@ export default function SeatMap({
               const isSelected = selectedSeats.some(
                 (s) => Number(s.seatId) === Number(seat.seatId)
               );
+              // ✅ 1.1 Ser om bestSeats är definierad innan vi försöker jämföra
+              const isRecommended =
+                bestSeats !== null &&
+                Number(bestSeats.seatId) === Number(seat.seatId);
 
               return (
                 <button
@@ -84,11 +103,15 @@ export default function SeatMap({
                       ? "occupied seat-occupied"
                       : isSelected
                         ? "selected seat-selected"
-                        : "available seat-available"
+                        : isRecommended
+                          ? "recommended seat-recommended"
+                          : "available seat-available"
                     }`}
                   disabled={isOccupied}
                   onClick={() => !isOccupied && onSeatClick(seat)}
-                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber}`}
+                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber} 
+                  ${isRecommended ? " - Reccomenderad plats" : ""
+                  }`}
                 >
                   {seat.seatsNumber}
                 </button>
@@ -103,6 +126,7 @@ export default function SeatMap({
         <span>⚪ Ledig</span>
         <span>⚫ Upptagen</span>
         <span>🟡 Vald</span>
+        <span>🟢 För bästa upplevelse</span>
       </div>
     </div>
   );
