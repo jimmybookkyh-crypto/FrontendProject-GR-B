@@ -16,8 +16,10 @@
 .booking-page h1,
 .booking-page h3 {
   color: #dfa213 !important;
+  text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
 }
+
 .booking-page .glass-card.card,
 .booking-page .card.glass-card {
   --bs-card-bg: transparent !important;
@@ -123,10 +125,81 @@
   box-shadow: 0 4px 10px rgba(223, 162, 19, 0.6);
 }
 
-@media (max-width: 991.98px) {
+.ticket-info {
+  display: flex;
+  gap: 4px;
+}
+
+.film-krediter {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: rgba(245, 247, 250, 0.9);
+}
+
+/* Tar bort input spinners */
+
+/* Chrome, Edge, Safari */
+.ticket-input::-webkit-inner-spin-button,
+.ticket-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+.ticket-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+@media (max-width: 767px) {
   .seat {
-    width: clamp(24px, 6.5vw, 42px);
-    height: clamp(24px, 6.5vw, 42px);
+    width: clamp(24px, 6.5vw, 30px);
+    height: clamp(24px, 6.5vw, 30px);
     font-size: clamp(9px, 2.4vw, 13px);
   }
+  .glass-card {
+    margin-left: -2px;
+    margin-right: -2px;
+  }
+  .film-krediter {
+    font-size: 1rem;
+  }
 }
+
+@media (min-width: 767px) and (max-width: 1200px) {
+  .seat {
+    width: clamp(20px, 3.5vw, 25px);
+    height: clamp(20px, 3.5vw, 25px);
+    font-size: clamp(8px, 2vw, 10px);
+  }
+  .ticket-info {
+    flex-direction: column;
+    gap: 0;
+  }
+  .ticket-input {
+    max-width: 45px;
+    padding: 4px;
+    font-size: 14px;
+  }
+  .ticket-input-group {
+    width: 140px;
+    flex: 0 0 140px;
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 992px) {
+  .showing-movie-wrapper .movie-card {
+    height: auto !important;
+    max-width: 250px;
+  }
+
+  .showing-movie-wrapper .movie-card .card-img-top {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+}
+

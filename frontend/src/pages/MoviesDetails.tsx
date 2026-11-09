@@ -10,6 +10,7 @@ import Trailer from "../components/Trailer";
 import Datumremsa from "../components/Datumremsa";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
+import AgeBadge from "../components/AgeBadge";
 import { giltigtDatum, langtDatum } from "../utils/datum";
 
 /* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
@@ -138,13 +139,9 @@ function FilmInfo({ film }: { film: Movie }) {
           </Card.Subtitle>
         )}
 
-        {/* Åldersgräns och längd */}
-        <div className="d-flex gap-2 mb-2">
-          {film.ageRating !== null && (
-            <Badge bg="danger" className="p-2">
-              {film.ageRating === 0 ? "Barntillåten" : `${film.ageRating} år`}
-            </Badge>
-          )}
+        {/* Åldersgräns (#484) och längd */}
+        <div className="d-flex align-items-center gap-2 mb-2">
+          <AgeBadge ageRating={film.ageRating} />
           {film.length !== null && (
             <Badge bg="secondary" className="p-2">
               {formateraLangd(film.length)}
@@ -164,7 +161,11 @@ function FilmInfo({ film }: { film: Movie }) {
         <hr className="border-secondary my-3" />
 
         {film.description && (
-          <p className="film-beskrivning mb-4">{film.description}</p>
+          <div className="film-beskrivning mb-4">
+            {film.description.split(/\n\s*\n/).map((paragraph, index) => (
+              <p key={index}>{paragraph.trim()}</p>
+            ))}
+          </div>
         )}
 
         <hr className="border-secondary my-3" />

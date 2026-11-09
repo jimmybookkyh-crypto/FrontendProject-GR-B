@@ -10,7 +10,7 @@ import { useAuth } from "../utils/authContext.tsx"
 
 
 export default function Header() {
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
   const [omOssOpen, setOmOssOpen] = useState(false);
 
@@ -72,7 +72,7 @@ export default function Header() {
           </button>
         </div>
         ) : (
-          <Link to="/login" className="fv-login" aria-label="Logga in">
+          <Link to="/login" state={{ from: pathname + search + hash }} className="fv-login" aria-label="Logga in">
             <svg
               className="fv-login-icon"
               viewBox="0 0 48 48"

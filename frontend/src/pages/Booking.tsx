@@ -8,6 +8,7 @@ import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
+import AgeBadge from "../components/AgeBadge";
 import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
@@ -320,6 +321,7 @@ export default function BookingPage() {
           movieId: Number(currentMovieId),
           movieTitle: currentTitle,
           images: currentImages,
+          ageRating: movie?.ageRating ?? null,
           date: currentDate,
           time: currentTime,
           auditoriumName: currentAuditoriumName,
@@ -411,14 +413,8 @@ export default function BookingPage() {
                     <p className="fs-5 mb-3">{movie.productionyear}</p>
                   )}
 
-                  <div className="d-flex justify-content-center flex-wrap gap-2 mb-2">
-                    {movie?.ageRating != null && (
-                      <Badge bg="danger" className="p-2 fs-6">
-                        {movie.ageRating === 0
-                          ? "Barntillåten"
-                          : `${movie.ageRating} år`}
-                      </Badge>
-                    )}
+                  <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-2">
+                    <AgeBadge ageRating={movie?.ageRating} />
                     {lengthText && (
                       <Badge bg="secondary" className="p-2 fs-6">
                         {lengthText}
@@ -486,8 +482,8 @@ export default function BookingPage() {
 
       <Container className="pb-5">
         <Row className="justify-content-center mb-4">
-          <Col xs={12} lg={8} xl={7}>
-            <Card className="glass-card">
+          <Col xs={12} lg={8} xl={8}>
+            <Card className="glass-card wider-card">
               <Card.Body className="p-3 p-md-4">
                 <Row className="align-items-center g-3 g-md-4">
                   <Col xs={5} md={4} className="text-center">
@@ -496,16 +492,25 @@ export default function BookingPage() {
                         movieId={currentMovieId || 1}
                         title={currentTitle}
                         images={currentImages}
+                        ageRating={movie?.ageRating}
                         showDetails={false}
                       />
                     )}
                   </Col>
 
                   <Col xs={7} md={8}>
-                    <h2 className="h5 fw-bold mb-3">{currentTitle}</h2>
-                    <p className="mb-1">Datum: {currentDate}</p>
-                    <p className="mb-1">Tid: {currentTime}</p>
-                    <p className="mb-0">Salong: {currentAuditoriumName}</p>
+                    <div className="film-krediter mt-1">
+                      <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
+                      <div className="mb-1">
+                        <strong className="text-white">Datum: </strong> {currentDate}
+                      </div>
+                      <div className="mb-1">
+                        <strong className="text-white">Tid: </strong> {currentTime}
+                      </div>
+                      <div className="mb-1">
+                        <strong className="text-white">Salong: </strong> {currentAuditoriumName}
+                      </div>
+                    </div>
                   </Col>
                 </Row>
               </Card.Body>
@@ -513,9 +518,9 @@ export default function BookingPage() {
           </Col>
         </Row>
 
-        <Row className="g-4 justify-content-center align-items-start">
-          <Col xs={12} lg={7}>
-            <Card className="glass-card overflow-x-auto">
+        <Row className="g-4 justify-content-center align-items-stretch">
+          <Col xs={12} md={7} lg={8} className="d-flex">
+            <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
@@ -528,8 +533,8 @@ export default function BookingPage() {
             </Card>
           </Col>
 
-          <Col xs={12} lg={5}>
-            <Card className="glass-card">
+          <Col xs={12} md={5} lg={4} className="d-flex">
+            <Card className="glass-card w-100">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
                   BILJETTER
