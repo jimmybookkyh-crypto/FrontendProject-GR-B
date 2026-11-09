@@ -11,57 +11,26 @@ import Datumremsa from "../components/Datumremsa";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
-import { giltigtDatum, langtDatum } from "../utils/datum";
-
-/* TODO - TILLFÄLLIGA typer tills interface/types.ts är klar.
-   Fälten heter som i backend (backend/interface/types.ts och databasen).
-   Ersätt med: import type { Movie, Showing } from "../interface/types"; */
-type Movie = {
-  movieId: string;
-  title: string;
-  productionyear: number | null;
-  length: number | null; // minuter
-  genre: string | null;
-  director: string | null;
-  actors: string[] | null;
-  description: string | null;
-  youtubetrailers: string[] | null; // YouTube-id
-  ageRating: number | null;
-  language: string | null; // t.ex. "Engelska"
-  subtitles: string | null; // t.ex. "Svenska"
-  productioncountries: string[] | null; // t.ex. ["USA", "Storbritannien"]
-  distributor: string | null; // t.ex. "Disney"
-};
-
-/* Så ser en visning ut i svaret från GET /showings (se backend/routes/showings.ts) */
-type Showing = {
-  showingId: string;
-  date: string; // "2026-10-26"
-  time: string; // "18:00"
-  movieId: number;
-  movieTitle: string;
-  auditoriumId: string;
-  auditoriumName: string;
-  eventId: number | null;
-  hasStarted: boolean; // true = visningen har börjat och kan inte bokas
-};
+import { validDate, langtDatum } from "../utils/date";
+import type { Movie, Showing } from "../interface/types";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
   const { id } = useParams(); // id från adressen, t.ex. /movies/3
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
+  // TODO: Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
   // vid omladdning och när man går tillbaka från bokningen. Saknas det = idag.
-  const valtDatum = giltigtDatum(searchParams.get("datum"));
+  // OBS: adressparametern heter fortfarande "datum" så att befintliga länkar fungerar.
+  const selectedDate = validDate(searchParams.get("datum"));
 
-  function bytDatum(datum: string) {
+  function changeDate(date: string) {
     // replace: varje dagsbyte ska inte bli ett eget steg i webbläsarens historik
-    setSearchParams({ datum }, { replace: true });
+    setSearchParams({ datum: date }, { replace: true });
   }
 
-  // Finns en tidigare sida i appen: gå tillbaka. Annars: gå till filmkatalogen.
-  function tillbaka() {
+
+  function goBack() {
     if (window.history.state?.idx > 0) {
       navigate(-1);
     } else {
@@ -69,9 +38,9 @@ export default function MovieDetails() {
     }
   }
 
-  // hämtar filmen. null = vänta tills id finns i adressen
+
   const {
-    data: film,
+    data: movie,
     loading,
     error,
   } = useFetch<Movie>(id ? `/movies/${id}` : null);
@@ -85,209 +54,188 @@ export default function MovieDetails() {
         backgroundPosition: "center",
       }}
     >
-      <BackButton onClick={tillbaka} /> {/* components/BackButton.tsx */}
+      <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
       <Container className="pb-5">
         {/* gemensam laddning och felruta */}
         {loading && <LoadingSpinner text="Hämtar film…" />}
         {error && <ErrorMessage message={error} />}
 
-        {film && (
-          <>
-            {/* T094f: datumväljare i stället för fast datum */}
-            <div className="mb-4">
-              <Datumremsa valtDatum={valtDatum} onByt={bytDatum} />
-            </div>
+        {movie && (
+          <div className="film-stack d-flex flex-column gap-3">
+            <Datumremsa valtDatum={selectedDate} onByt={changeDate} />
 
-            <Row className="g-4 justify-content-center">
-              <Col lg={7} md={12}>
-                <Trailer
-                  youtubeId={film.youtubetrailers?.[0]}
-                  title={film.title}
-                />
-                <FilmInfo film={film} />
-              </Col>
-              <Col lg={5} md={12}>
-                <ThisDate datum={valtDatum} />
-                <SlotSelection movieId={film.movieId} datum={valtDatum} />
-              </Col>
-            </Row>
-          </>
+            <ShowingsBox movieId={movie.movieId} date={selectedDate} />
+
+            <Trailer
+              youtubeId={movie.youtubetrailers?.[0]}
+              title={movie.title}
+            />
+            <MovieInfo movie={movie} />
+          </div>
         )}
       </Container>
     </div>
   );
 }
 
-/* 119 -> "1 tim 59 min" */
-function formateraLangd(minuter: number): string {
-  const tim = Math.floor(minuter / 60);
-  const min = minuter % 60;
-  return tim > 0 ? `${tim} tim ${min} min` : `${min} min`;
+function formatLength(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours} tim ${minutes} min` : `${minutes} min`;
 }
 
-/* visar filmens information från databasen */
-function FilmInfo({ film }: { film: Movie }) {
+function MovieInfo({ movie }: { movie: Movie }) {
   return (
-    <Card className="mb-0 glass-card film-info">
-      <Card.Body className="p-4 p-xl-5">
-        <Card.Title as="h1" className="mb-2">
-          {film.title}
-        </Card.Title>
-        {film.productionyear !== null && (
-          <Card.Subtitle className="film-original mb-3">
-            {film.productionyear}
-          </Card.Subtitle>
-        )}
+    <Card className="glass-card film-info">
+      <Card.Body className="px-3 px-md-4 py-3">
+        <div className="d-flex flex-column flex-md-row justify-content-md-between align-items-md-start gap-2 gap-md-4">
+          <div>
+            <Card.Title as="h1" className="mb-1">
+              {movie.title}
+            </Card.Title>
+            {movie.productionyear !== null && (
+              <Card.Subtitle className="film-original">
+                {movie.productionyear}
+              </Card.Subtitle>
+            )}
+          </div>
 
-        {/* Åldersgräns (#484) och längd */}
-        <div className="d-flex align-items-center gap-2 mb-2">
-          <AgeBadge ageRating={film.ageRating} />
-          {film.length !== null && (
-            <Badge bg="secondary" className="p-2">
-              {formateraLangd(film.length)}
-            </Badge>
-          )}
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <AgeBadge ageRating={movie.ageRating} />
+            {movie.length !== null && (
+              <Badge bg="secondary" className="p-2">
+                {formatLength(movie.length)}
+              </Badge>
+            )}
+            {movie.genre && (
+              <Badge bg="outline-light" className="border text-white p-2">
+                {movie.genre}
+              </Badge>
+            )}
+          </div>
         </div>
 
-        {/* Genre */}
-        {film.genre && (
-          <div className="mb-3">
-            <Badge bg="outline-light" className="border text-white me-1">
-              {film.genre}
-            </Badge>
-          </div>
-        )}
-
         <hr className="border-secondary my-3" />
 
-        {film.description && (
-          <div className="film-beskrivning mb-4">
-            {film.description.split(/\n\s*\n/).map((paragraph, index) => (
-              <p key={index}>{paragraph.trim()}</p>
-            ))}
-          </div>
-        )}
-
-        <hr className="border-secondary my-3" />
-
-        {/* Filminformation. Varje rad visas bara om fältet har ett värde,
-            så en film utan t.ex. språk får ingen tom "Språk:"-rad. */}
-        <div className="film-krediter mt-1">
-          {film.director && (
-            <div className="mb-1">
-              <strong className="text-white">Regissör:</strong> {film.director}
-            </div>
-          )}
-          {film.actors && film.actors.length > 0 && (
-            <div className="mb-1">
-              <strong className="text-white">Skådespelare:</strong>{" "}
-              {film.actors.join(", ")}
-            </div>
-          )}
-          {film.language && (
-            <div className="mb-1">
-              <strong className="text-white">Språk:</strong> {film.language}
-            </div>
-          )}
-          {film.subtitles && (
-            <div className="mb-1">
-              <strong className="text-white">Undertext:</strong>{" "}
-              {film.subtitles}
-            </div>
-          )}
-          {Array.isArray(film.productioncountries) &&
-            film.productioncountries.length > 0 && (
-              <div className="mb-1">
-                <strong className="text-white">Land:</strong>{" "}
-                {film.productioncountries.join(", ")}
+        <Row className="g-3 g-lg-4">
+          <Col md={7} lg={8}>
+            {movie.description && (
+              <div className="film-beskrivning">
+                {movie.description.split(/\n\s*\n/).map((paragraph, index) => (
+                  <p key={index}>{paragraph.trim()}</p>
+                ))}
               </div>
             )}
-          {film.distributor && (
-            <div>
-              <strong className="text-white">Distributör:</strong>{" "}
-              {film.distributor}
+          </Col>
+          <Col md={5} lg={4}>
+            <div className="film-krediter">
+              {movie.director && (
+                <div className="mb-1">
+                  <strong>Regissör:</strong> {movie.director}
+                </div>
+              )}
+              {movie.actors && movie.actors.length > 0 && (
+                <div className="mb-1">
+                  <strong>Skådespelare:</strong> {movie.actors.join(", ")}
+                </div>
+              )}
+              {movie.language && (
+                <div className="mb-1">
+                  <strong>Språk:</strong> {movie.language}
+                </div>
+              )}
+              {movie.subtitles && (
+                <div className="mb-1">
+                  <strong>Undertext:</strong> {movie.subtitles}
+                </div>
+              )}
+              {Array.isArray(movie.productioncountries) &&
+                movie.productioncountries.length > 0 && (
+                  <div className="mb-1">
+                    <strong>Land:</strong> {movie.productioncountries.join(", ")}
+                  </div>
+                )}
+              {movie.distributor && (
+                <div>
+                  <strong>Distributör:</strong> {movie.distributor}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </Col>
+        </Row>
       </Card.Body>
     </Card>
   );
 }
 
-/* Visar vilket datum som är valt */
-function ThisDate({ datum }: { datum: string }) {
-  return (
-    <Card className="mb-4 glass-card">
-      <Card.Body className="py-3">
-        <Card.Subtitle className="valt-datum small text-uppercase mb-1 d-flex justify-content-center">
-          Valt datum
-        </Card.Subtitle>
-        <Card.Title
-          as="h3"
-          className="datum-vit mb-0 fw-bold fs-4 d-flex justify-content-center"
-        >
-          {langtDatum(datum)}
-        </Card.Title>
-      </Card.Body>
-    </Card>
-  );
-}
-
-/* Visningarna för filmen det valda datumet */
-function SlotSelection({ movieId, datum }: { movieId: string; datum: string }) {
+function ShowingsBox({
+  movieId,
+  date,
+}: {
+  movieId: string | number;
+  date: string;
+}) {
   const navigate = useNavigate();
 
-  // API:t filtrerar på datum och film, sorterar på tid och skickar med salongens namn.
-  // När datum ändras ändras sökvägen, och useFetch hämtar då på nytt.
   const {
-    data: visningar,
+    data: showings,
     loading,
     error,
-  } = useFetch<Showing[]>(`/showings?date=${datum}&movieId=${movieId}`);
+  } = useFetch<Showing[]>(`/showings?date=${date}&movieId=${String(movieId)}`);
 
-  // Passerade visningar visas inte. hasStarted räknas ut i databasen.
-  const upcomingShowings = visningar
-    ? visningar.filter((showing) => !showing.hasStarted)
+  const upcomingShowings = showings
+    ? showings.filter((showing) => !showing.hasStarted)
     : null;
 
-  // Det fanns visningar det datumet, men alla har redan börjat
   const allHaveStarted =
-    visningar !== null &&
-    visningar.length > 0 &&
+    showings !== null &&
+    showings.length > 0 &&
     upcomingShowings !== null &&
     upcomingShowings.length === 0;
 
   return (
-    <Card className="glass-card">
-      <Card.Body className="p-4">
-        <Card.Title as="h3" className="mb-4 fs-5 d-flex justify-content-center">
+    <Card className="glass-card visningar-ruta">
+      <Card.Body className="px-3 px-md-4 py-3">
+        <Card.Title as="h2" className="visningar-rubrik text-center mb-3">
           Välj visningstid
         </Card.Title>
 
-        {loading && <LoadingSpinner text="Hämtar visningar…" />}
-        {error && <ErrorMessage message={error} />}
-
-        {visningar && visningar.length === 0 && (
-          <p className="text-center mb-0">Inga visningar detta datum</p>
-        )}
-
-        {allHaveStarted && (
-          <p className="text-center mb-0">Inga fler visningar idag</p>
-        )}
-
-        {upcomingShowings && upcomingShowings.length > 0 && (
-          <div className="d-grid gap-3 w-75 mx-auto">
-            {upcomingShowings.map((showing) => (
-              <SlotButton
-                key={showing.showingId}
-                auditoriumName={showing.auditoriumName}
-                time={showing.time}
-                // Bokningssidan läser showingId i bokningstasken
-                onClick={() => navigate(`/booking/${showing.showingId}`)}
-              />
-            ))}
+        <div className="visningar-rad d-flex flex-column flex-md-row align-items-center gap-3 gap-md-4">
+          <div className="visningar-datum text-center text-md-start">
+            <div className="valt-datum small text-uppercase">Valt datum</div>
+            <div className="datum-vit fw-bold fs-4">{langtDatum(date)}</div>
           </div>
-        )}
+
+          <div className="visningar-tider flex-grow-1 w-100">
+            {loading && <LoadingSpinner text="Hämtar visningar…" />}
+            {error && <ErrorMessage message={error} />}
+
+            {showings && showings.length === 0 && (
+              <p className="mb-0 text-center text-md-start">
+                Inga visningar detta datum
+              </p>
+            )}
+
+            {allHaveStarted && (
+              <p className="mb-0 text-center text-md-start">
+                Inga fler visningar idag
+              </p>
+            )}
+
+            {upcomingShowings && upcomingShowings.length > 0 && (
+              <div className="d-grid d-md-flex flex-md-wrap gap-2">
+                {upcomingShowings.map((showing) => (
+                  <SlotButton
+                    key={showing.showingId}
+                    auditoriumName={showing.auditoriumName}
+                    time={showing.time}
+                    onClick={() => navigate(`/booking/${showing.showingId}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </Card.Body>
     </Card>
   );
