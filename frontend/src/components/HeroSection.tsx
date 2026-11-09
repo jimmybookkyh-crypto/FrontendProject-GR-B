@@ -9,7 +9,7 @@ import {
 import "../styles/HeroSection.css";
 
 const MAX_MOVIE_SLIDES = 3;
-const SLIDE_INTERVAL_MS = 7000; 
+const SLIDE_INTERVAL_MS = 7000;
 const HERO_TRAILER_CLIPS: Record<
   number,
   { id?: string; start?: number; end?: number }
@@ -237,24 +237,24 @@ function useHeroSlides(): HeroSlideData[] {
       );
       const nowKey = getNowKey();
 
-       const candidates = await Promise.all(
-         (events ?? [])
-           .filter((event) => event.periods?.length > 0)
-           .map(async (event) => {
-             const period = event.periods[0];
-             const showings =
-               (await getData<HeroEventShowing[]>(
-                 `/events/${event.eventId}/showings`,
-               )) ?? [];
-             const periodShowings = showings.filter(
-               (s) => s.date >= period.startDate && s.date <= period.endDate,
-             );
-             const upcoming = periodShowings.filter(
-               (s) => getShowingKey(s) > nowKey,
-             );
-             return { event, period, periodShowings, upcoming };
-           }),
-       );
+      const candidates = await Promise.all(
+        (events ?? [])
+          .filter((event) => event.periods?.length > 0)
+          .map(async (event) => {
+            const period = event.periods[0];
+            const showings =
+              (await getData<HeroEventShowing[]>(
+                `/events/${event.eventId}/showings`,
+              )) ?? [];
+            const periodShowings = showings.filter(
+              (s) => s.date >= period.startDate && s.date <= period.endDate,
+            );
+            const upcoming = periodShowings.filter(
+              (s) => getShowingKey(s) > nowKey,
+            );
+            return { event, period, periodShowings, upcoming };
+          }),
+      );
       if (controller.signal.aborted) return;
 
       const chosen = candidates
@@ -309,7 +309,7 @@ export default function HeroSection() {
   const [isPaused, setIsPaused] = useState(prefersReducedMotion);
   const [activeIndex, setActiveIndex] = useState(0);
   const allowTrailer = useTrailerAllowed();
-  const [soundOn, setSoundOn] = useState(false); 
+  const [soundOn, setSoundOn] = useState(false);
   const slideCount = slides.length;
 
   const goToNextSlide = useCallback(() => {
@@ -469,9 +469,9 @@ type HeroMediaProps = {
 const YT_ENDED = 0;
 const YT_PLAYING = 1;
 const YT_PAUSED = 2;
-const VIDEO_WIDTH = 1920; 
+const VIDEO_WIDTH = 1920;
 const VIDEO_HEIGHT = 1080;
-const VIDEO_CROP = 1.15; 
+const VIDEO_CROP = 1.15;
 
 function HeroMedia({
   title,
@@ -530,7 +530,7 @@ function HeroMedia({
       sendCommand("playVideo");
     }
   }, [paused, trailerId]);
- 
+
   useEffect(() => {
     const box = videoBoxRef.current;
     if (!box) return;
@@ -663,7 +663,7 @@ function HeroMedia({
       window.clearTimeout(fallbackTimer);
     };
   }, [trailerId, end]);
- 
+
   const handleTrailerLoad = () => {
     iframeRef.current?.contentWindow?.postMessage(
       JSON.stringify({ event: "listening", id: 1, channel: "widget" }),
@@ -684,7 +684,7 @@ function HeroMedia({
     disablekb: "1",
     iv_load_policy: "3",
   });
-  
+
   const trailerVisible = showTrailer && !paused;
   const hiddenClass = trailerVisible ? " is-hidden" : "";
   const videoClass = `hero-slide-video${trailerVisible ? " is-visible" : ""}${isEnding ? " is-ending" : ""}`;
