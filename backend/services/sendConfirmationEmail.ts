@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type { BookedTicket } from "../interface/types.js";
 // Samma formatfunktioner som på sidorna (T140), så att datum och priser ser likadana ut
-import { langtDatum } from "../../frontend/src/utils/datum.ts";
+import { langtDatum } from "../../frontend/src/utils/date.ts";
 import {
   formatBiljettyper,
   formatPlatser,
