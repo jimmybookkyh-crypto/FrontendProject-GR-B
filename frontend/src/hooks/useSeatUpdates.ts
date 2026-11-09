@@ -8,6 +8,9 @@ export default function useSeatUpdates(
   useEffect(() => {
     if (!showingId) return;
 
+    let ws: WebSocket;
+    let reconnect = true;
+
     (async () => {
       const response = await fetch(
         `/api/showings/${showingId}/seats`
@@ -18,27 +21,42 @@ export default function useSeatUpdates(
       setOccupiedSeats(body.data ?? []);
     })();
 
-    const ws = new WebSocket("/ws");
 
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "subscribe",
-          showingId: Number(showingId),
-        })
-      );
-    };
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+    const connect = () => {
+      ws = new WebSocket("/ws");
 
-      if (data.type === "seats") {
-        setOccupiedSeats(data.bookedSeatIds);
-      }
+      ws.onopen = () => {
+        ws.send(
+          JSON.stringify({
+            type: "subscribe",
+            showingId: Number(showingId),
+          })
+        );
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "seats") {
+          setOccupiedSeats(data.bookedSeatIds);
+        }
+      };
+
+      ws.onclose = () => {
+        if (!reconnect) return;
+
+        setTimeout(() => {
+          connect();
+        }, 3000);
+      };
     };
+
+    connect();
+
     return () => {
+      reconnect = false;
       ws.close();
     };
-
   }, [showingId]);
 
   return occupiedSeats;
