@@ -4,7 +4,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
-import type { EventRow, EventShowing } from "../interface/types";
+import type { EventPeriod, EventRow, EventShowing } from "../interface/types";
 import backgroundImage from "../assets/img/biodukbg.png";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -62,25 +62,21 @@ function parseEventInfo(info: string | null): string[] {
     .map((s) => s.trim())
     .filter(Boolean);
 }
-function EventCard({ event }: { event: EventRow }) {
+function EventCard({ event, period }: { event: EventRow; period: EventPeriod }) {
   const [showMovies, setShowMovies] = useState(false);
   const { data, loading, error } = useFetch<EventShowing[]>(
     `/events/${event.eventId}/showings`,
   );
 
-  const headingId = `event-heading-${event.eventId}`;
-  const moviesId = `event-movies-${event.eventId}`;
+  // Samma event kan visas flera gånger (en per period), så id:t måste vara unikt per kort
+  const cardId = `${event.eventId}-${period.startDate}`;
+  const headingId = `event-heading-${cardId}`;
+  const moviesId = `event-movies-${cardId}`;
 
   const paragraphs = parseEventInfo(event.info);
   const { movies } = groupShowings(data ?? []);
 
-  // Datum kommer från eventets perioder, saknas de visas ingen dateRange
-  const dateRange =
-    event.periods.length > 0
-      ? event.periods
-          .map((p) => formatDatePeriod(p.startDate, p.endDate))
-          .join(", ")
-      : null;
+  const dateRange = formatDatePeriod(period.startDate, period.endDate);
 
   return (
     <article className="event-card" aria-labelledby={headingId}>
@@ -97,9 +93,7 @@ function EventCard({ event }: { event: EventRow }) {
 
         <Col lg={7}>
           <div className="event-content">
-            {!loading && dateRange && (
-              <p className="event-date-range">{dateRange}</p>
-            )}
+            <p className="event-date-range">{dateRange}</p>
             <h2 id={headingId} className="event-title">
               {event.name}
             </h2>
@@ -152,10 +146,10 @@ function EventCard({ event }: { event: EventRow }) {
 export default function EventPage() {
   const { data, loading, error } = useFetch<EventRow[]>("/events");
 
-  // Sorterade på första periodens startdatum
-  const upcomingEvents = (data ?? []).sort((a, b) =>
-    (a.periods[0]?.startDate ?? "").localeCompare(b.periods[0]?.startDate ?? ""),
-  );
+  // Ett kort per period, alla sorterade på startdatum
+  const upcomingCards = (data ?? [])
+    .flatMap((event) => event.periods.map((period) => ({ event, period })))
+    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
 
   return (
     <div
@@ -175,18 +169,18 @@ export default function EventPage() {
         {loading && <LoadingSpinner text="Hämtar event…" />}
         {error && <ErrorMessage message={error} />}
 
-        {!loading && !error && upcomingEvents.length === 0 && (
+        {!loading && !error && upcomingCards.length === 0 && (
           <p className="event-empty">
             Just nu finns inga kommande event. Titta in igen snart, eller se vad
             som visas idag på startsidan.
           </p>
         )}
 
-        {!loading && !error && upcomingEvents.length > 0 && (
+        {!loading && !error && upcomingCards.length > 0 && (
           <ul className="event-list">
-            {upcomingEvents.map((event) => (
-              <li key={event.eventId}>
-                <EventCard event={event} />
+            {upcomingCards.map(({ event, period }) => (
+              <li key={`${event.eventId}-${period.startDate}`}>
+                <EventCard event={event} period={period} />
               </li>
             ))}
           </ul>
