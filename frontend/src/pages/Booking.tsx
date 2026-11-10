@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
@@ -27,6 +27,9 @@ import type {
   Booking,
 } from "../interface/types";
 import useSeatUpdates from "../hooks/useSeatUpdates";
+import useBookingDraft from "../hooks/useBookingDraft";
+import { loadBookingDraft, saveBookingDraft, clearBookingDraft } from "../utils/bookingDraft.ts";
+
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -113,9 +116,16 @@ export default function BookingPage() {
   const childPrice = childType?.price ?? 80;
   const seniorPrice = seniorType?.price ?? 120;
 
+  const draft = showingId
+    ? loadBookingDraft(Number(showingId))
+    : null;
+  
   // State
-  const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+  const [selectedSeats, setSelectedSeats] = useState<Seat[]>(
+    draft?.selectedSeats || []
+  );
   const [seatWarning, setSeatWarning] = useState<string | null>(null);
+  const seatWarningRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setSelectedSeats((current) => {
       const filtered = current.filter(
@@ -124,16 +134,30 @@ export default function BookingPage() {
 
       if (filtered.length < current.length) {
         setSeatWarning(
-          "En av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade."
+          "En eller flera av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade."
         );
       }
 
       return filtered;
     });
   }, [occupiedSeats]);
-  const [adultTickets, setAdultTickets] = useState(0);
-  const [childTickets, setChildTickets] = useState(0);
-  const [seniorTickets, setSeniorTickets] = useState(0);
+  const [adultTickets, setAdultTickets] = useState(
+    draft?.adultTickets ?? 0
+  );
+  const [childTickets, setChildTickets] = useState(
+    draft?.childTickets ?? 0
+  );
+  const [seniorTickets, setSeniorTickets] = useState(
+    draft?.seniorTickets ?? 0
+  );
+
+  useBookingDraft({
+    showingId,
+    selectedSeats,
+    adultTickets,
+    childTickets,
+    seniorTickets,
+  });
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
@@ -141,9 +165,41 @@ export default function BookingPage() {
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-
   const totaltTickets = adultTickets + childTickets + seniorTickets;
 
+  useEffect(() => {
+    if (
+      user &&
+      draft?.resumeCheckout &&
+      selectedSeats.length > 0 &&
+      totaltTickets === selectedSeats.length &&
+      !showEmailModal
+    ) {
+      setShowEmailModal(true);
+
+      saveBookingDraft({
+        ...draft,
+        resumeCheckout: false,
+      });
+    }
+  }, [
+    user,
+    draft,
+    selectedSeats.length,
+    totaltTickets,
+    showEmailModal,
+  ]);
+
+  useEffect(() => {
+    if (!seatWarning) return;
+
+    if (window.innerWidth < 768) {
+      seatWarningRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [seatWarning]);
   // Använder calculateTotalPrice från bookingHelpers
   const totalPrice = calculateTotalPrice(
     adultTickets,
@@ -310,7 +366,7 @@ export default function BookingPage() {
           resetSelection();
 
           throw new Error(
-            "Tyvärr hann någon annan boka en eller flera av de valda stolarna. Kartan har uppdaterats med de senaste lediga platserna.",
+           "Tyvärr hann en eller flera av de valda platserna bokas av någon annan innan bokningen slutfördes.",
           );
         }
         throw new Error(
@@ -323,6 +379,10 @@ export default function BookingPage() {
       }
 
       setShowEmailModal(false);
+      
+      resetSelection();
+
+      clearBookingDraft();
 
       // Biljettypens namn utifrån id, t.ex. 1 -> "Vuxen"
       const ticketTypeName = (id: number) =>
@@ -367,6 +427,25 @@ export default function BookingPage() {
     setEmailFieldError(undefined);
   };
 
+  const handleLoginClick = () => {
+    if (!showingId) return;
+
+    saveBookingDraft({
+      showingId: Number(showingId),
+      selectedSeats,
+      adultTickets,
+      childTickets,
+      seniorTickets,
+      resumeCheckout: true,
+      savedAt: Date.now(),
+    });
+
+    navigate("/login", {
+      state: {
+        from: `/booking/${showingId}`,
+      },
+    });
+  };
   if (showingLoading || seatsLoading) {
     return <div className="text-center text-light p-5">Laddar visning...</div>;
   }
@@ -541,8 +620,22 @@ export default function BookingPage() {
             <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
                 {seatWarning && (
-                  <div className="alert alert-warning mb-3">{seatWarning}</div>
+                  <div
+                    ref={seatWarningRef}
+                    className="alert alert-warning mb-3"
+                  >
+                    {seatWarning}
+                  </div>
                 )}
+                <p
+                  className="mb-3"
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "rgba(245, 247, 250, 0.8)",
+                  }}
+                >
+                  Välj dina platser genom att klicka på stolarna
+                </p>
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
                   seats={seats}
@@ -607,12 +700,12 @@ export default function BookingPage() {
                   }
                 />
 
-                <div className="mb-3">
+                <div className="mb-3 selected-seats-container">
                   <p className="mb-1 fw-bold">
                     Valda platser ({selectedSeats.length}):
                   </p>
                   {selectedSeats.length > 0 ? (
-                    <ul className="list-unstyled small mb-0 ps-2">
+                    <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
                       {selectedSeats.map((seat) => (
                         <li key={seat.seatId}>
                           Rad {seat.seatsRow}, Stol {seat.seatsNumber}
@@ -620,7 +713,15 @@ export default function BookingPage() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-muted small mb-0">Inga valda</p>
+                      <p
+                        className="mb-0"
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "rgba(245, 247, 250, 0.7)",
+                        }}
+                      >
+                        Inga valda
+                      </p>
                   )}
                 </div>
 
@@ -682,6 +783,19 @@ export default function BookingPage() {
                         </Form.Text>
                       )}
                     </Form.Group>
+
+                    {!user && (
+                      <Form.Text className="d-block mt-3">
+                        Har du redan ett konto?{" "}
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 align-baseline"
+                          onClick={handleLoginClick}
+                        >
+                          Logga in
+                        </button>
+                      </Form.Text>
+                    )}
                   </Modal.Body>
                   <Modal.Footer>
                     <button

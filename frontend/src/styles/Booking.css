@@ -137,6 +137,31 @@
   box-shadow: 0 4px 10px rgba(76, 175, 80, 0.6);
 }
 
+.selected-seats-list {
+  max-height: 180px;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: #dfa213 rgba(255, 255, 255, 0.08);
+}
+
+.selected-seats-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.selected-seats-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.selected-seats-list::-webkit-scrollbar-thumb {
+  background: #dfa213;
+  border-radius: 10px;
+}
+
+.selected-seats-list::-webkit-scrollbar-thumb:hover {
+  background: #ddb359;
+}
 .ticket-info {
   display: flex;
   gap: 4px;
@@ -178,6 +203,15 @@
     height: clamp(24px, 6.5vw, 30px);
     font-size: clamp(9px, 2.4vw, 13px);
   }
+  .selected-seats-container {
+    min-height: 110px;
+  }
+
+  .selected-seats-list {
+    max-height: 70px;
+    overflow-y: auto;
+  }
+         
   .glass-card {
     margin-left: -2px;
     margin-right: -2px;
@@ -193,6 +227,10 @@
     height: clamp(20px, 3.5vw, 25px);
     font-size: clamp(8px, 2vw, 10px);
   }
+    .selected-seats-list {
+      max-height: 80px;
+    }
+
   .ticket-info {
     flex-direction: column;
     gap: 0;
@@ -207,6 +245,7 @@
     flex: 0 0 140px;
     margin-left: auto;
   }
+  
 }
 
 @media (min-width: 992px) {
