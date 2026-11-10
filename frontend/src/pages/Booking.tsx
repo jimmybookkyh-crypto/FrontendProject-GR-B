@@ -627,15 +627,9 @@ export default function BookingPage() {
                     {seatWarning}
                   </div>
                 )}
-                <p
-                  className="mb-3"
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "rgba(245, 247, 250, 0.8)",
-                  }}
-                >
+                <h3 className="h3 fw-bold text-center mb-3">
                   Välj dina platser genom att klicka på stolarna
-                </p>
+                </h3>
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
                   seats={seats}
