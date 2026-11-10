@@ -106,6 +106,7 @@ create table public.bookings (
   "userId" integer,
   status text not null default 'confirmed',
   "cancelledAt" timestamp with time zone,
+  "cancelToken" text unique,
   constraint booking_pkey primary key ("bookingId"),
   constraint "booking_showingId_fkey" foreign KEY ("showingId") references showings ("showingId"),
   constraint "booking_userId_fkey" foreign KEY ("userId") references users ("userId"),
