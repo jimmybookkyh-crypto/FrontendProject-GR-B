@@ -58,25 +58,27 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
 
   const { upcoming, past } = bookings;
 
-  function showBooking(booking: MyBooking) {
-    navigate("/bookingconfirmation", {
-      state: {
-        bookingNumber: booking.bookingNumber,
-        movieId: Number(booking.movieId),
-        movieTitle: booking.movieTitle,
-        images: booking.images ?? [],
-        date: booking.date,
-        time: booking.time,
-        auditoriumName: booking.auditoriumName,
-        tickets: booking.tickets.map((t) => ({
-          ticketTypeName: t.ticketType,
-          price: t.price,
-          seatsRow: t.seatsRow,
-          seatsNumber: t.seatsNumber,
-        })),
-      },
-    });
-  }
+    function showBooking(booking: MyBooking) {
+      navigate("/bookingconfirmation", {
+        state: {
+          bookingNumber: booking.bookingNumber,
+          movieId: Number(booking.movieId),
+          movieTitle: booking.movieTitle,
+          images: booking.images ?? [],
+          ageRating: booking.ageRating ?? null,
+          date: booking.date,
+          time: booking.time,
+          auditoriumName: booking.auditoriumName,
+          tickets: booking.tickets.map((t) => ({
+            ticketTypeName: t.ticketType,
+            price: t.price,
+            seatsRow: t.seatsRow,
+            seatsNumber: t.seatsNumber,
+          })),
+          from: "mypage",
+        },
+      });
+    }
 
   async function confirmCancel() {
     if (!toCancel) return;

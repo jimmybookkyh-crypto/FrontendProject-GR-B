@@ -61,6 +61,21 @@ export interface EventRow {
   date: string | null;
   current: boolean;
   info: string | null;
+  image: string | null; // adress till bilden i Supabase Storage
+  altText: string | null;
+  tagline: string | null;
+}
+
+/* En period i tabellen eventPeriods, datum som "YYYY-MM-DD" */
+export interface EventPeriod {
+  startDate: string;
+  endDate: string;
+}
+
+/* GET /events: eventet med sina kommande perioder */
+export interface EventWithPeriods
+  extends Omit<EventRow, "created_at" | "date" | "current"> {
+  periods: EventPeriod[];
 }
 
 export interface Auditorium {

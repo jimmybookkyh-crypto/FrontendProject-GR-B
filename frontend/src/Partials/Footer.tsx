@@ -54,7 +54,7 @@ export default function footer() {
                   alt=""
                 />
               </Figure>
-              <h3 style={linkStyle}>FilmVisarna AB</h3>
+              <h3 style={linkStyle}>Filmvisarna AB</h3>
             </Link>
           </Col>
 

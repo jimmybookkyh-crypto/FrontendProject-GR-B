@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
@@ -7,7 +8,7 @@ import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Datumremsa from "../components/Datumremsa";
-import { langtDatum, plusDagar } from "../utils/date";
+import { langtDatum, plusDagar, validDate } from "../utils/date";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
@@ -32,12 +33,26 @@ type Showing = {
 
 export default function Start() {
   const idag = plusDagar(0);
-  const [valtDatum, setValtDatum] = useState(idag); // sidan börjar på idag
-  const [ageLimit, setAgeLimit] = useAgeLimit(); // P19.2: sparas i URL:en
-  const filterSectionRef = useRef<HTMLDivElement>(null); // P19.2
+  const [searchParams, setSearchParams] = useSearchParams();
+  const valtDatum = validDate(searchParams.get("datum"));
 
-  // P19.2: byter datum och skrollar ner så att Välj datum, åldersfiltret
-  // och dagens filmer syns
+  const setValtDatum = (date: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (date === idag) {
+          next.delete("datum");
+        } else {
+          next.set("datum", date);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const [ageLimit, setAgeLimit] = useAgeLimit();
+  const filterSectionRef = useRef<HTMLDivElement>(null);
+
   const selectDate = (date: string) => {
     setValtDatum(date);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -47,11 +62,8 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  // Alla filmer som går just nu (current = true)
   const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
 
-  // Visningarna för valt datum. De visar vilka filmer som går just den dagen.
-  // limit=100 så att alla dagens visningar kommer med (utan limit får vi max 50).
   const {
     data: visningar,
     loading: laddarVisningar,
@@ -91,7 +103,6 @@ export default function Start() {
             {langtDatum(valtDatum)}
           </h2>
 
-          {/* #320: gemensam laddning och felruta */}
           {laddar && <LoadingSpinner text="Hämtar filmer…" />}
           {fel && <ErrorMessage message={fel} />}
 
@@ -124,9 +135,6 @@ export default function Start() {
     </>
   );
 }
-
-/* Visas när inga filmer går det valda datumet.
-   Knappen "Visa idag" visas bara om man inte redan tittar på idag. */
 
 function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
   return (

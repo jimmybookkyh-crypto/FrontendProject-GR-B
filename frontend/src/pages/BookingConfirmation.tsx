@@ -4,6 +4,7 @@ import backgroundImage from "../assets/img/biodukbg.png";
 import "../styles/buttons.css";
 import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";
+import BackButton from "../components/BackButton";
 
 /* Det som bokningssidan skickar med i navigate(..., { state }) */
 type ConfirmationState = {
@@ -21,6 +22,7 @@ type ConfirmationState = {
     seatsRow: number;
     seatsNumber: number;
   }[];
+  from?: "mypage";
 };
 
 export default function BookingConfirmation() {
@@ -58,6 +60,7 @@ export default function BookingConfirmation() {
           backgroundPosition: "center",
         }}
       >
+        {booking.from === "mypage" && <BackButton to="/mypage" />}
         <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
           BOKNINGSBEKRÄFTELSE
         </h1>
@@ -119,7 +122,8 @@ export default function BookingConfirmation() {
                   </h4>
 
                   <p className="mb-1">
-                    <strong>Avbokning:</strong> Du kan avboka fram till 2 timmar före visningen.
+                    <strong>Avbokning:</strong> Du kan avboka fram till 2 timmar
+                    före visningen.
                   </p>
                   <p className="mb-2">
                     Är du inloggad avbokar du under Mina sidor.
@@ -128,13 +132,15 @@ export default function BookingConfirmation() {
                     <em>Vi har skickat en bekräftelse till din e-post.</em>
                   </p>
                   <div className="d-flex justify-content-between mt-4">
-                    <button
-                      type="button"
-                      className="cta-btn rounded-pill py-2 px-4 fw-bold m-2"
-                      onClick={() => navigate("/")}
-                    >
-                      Till startsidan
-                    </button>
+                    {booking.from === "mypage" && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
+                        onClick={() => navigate("/mypage")}
+                      >
+                        Tillbaka till Mina sidor
+                      </button>
+                    )}
 
                     {/* <button
                       type="button"

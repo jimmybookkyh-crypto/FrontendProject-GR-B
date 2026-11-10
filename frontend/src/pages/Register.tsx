@@ -88,45 +88,76 @@ export default function Register() {
     }
 
     return (
-    <div className="mypage">
+      <div className="mypage">
         <Container className="py-5 py-lg-5">
-            <Row className="g-4 py-5 justify-content-md-center">
-                <Col xs={12} lg={4}>
-                    <Form noValidate onSubmit={handleSubmit} className="mypage-panel">
-                        <h2 className="mypage-panel-title">Bli medlem</h2>                        
-                            <Form.Group className="mt-4" controlId="register-username">
-                                <Form.Label>Användarnamn</Form.Label>
-                                <Form.Control className="mt-2" {...field("username")} isInvalid={!!errors.username} placeholder="användarnamn" type="text" />
-                                <Form.Control.Feedback type="invalid">{errors.username}</Form.Control.Feedback>
-                            </Form.Group>
+          <Row className="g-4 py-5 justify-content-md-center">
+            <Col xs={12} lg={4}>
+              <Form noValidate onSubmit={handleSubmit} className="mypage-panel">
+                <h2 className="mypage-panel-title">Bli medlem</h2>
+                <Form.Group className="mt-4" controlId="register-username">
+                  <Form.Label>Användarnamn</Form.Label>
+                  <Form.Control
+                    className="mt-2"
+                    {...field("username")}
+                    isInvalid={!!errors.username}
+                    placeholder="användarnamn"
+                    type="text"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.username}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-                            <Form.Group className="mt-4" controlId="register-email">
-                                <Form.Label>Epost</Form.Label>
-                                <Form.Control className="mt-2" {...field("email")} isInvalid={!!errors.email} placeholder="epost" type="email" />
-                                <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
-                            </Form.Group>
+                <Form.Group className="mt-4" controlId="register-email">
+                  <Form.Label>Epost</Form.Label>
+                  <Form.Control
+                    className="mt-2"
+                    {...field("email")}
+                    isInvalid={!!errors.email}
+                    placeholder="epost"
+                    type="email"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.email}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-                            <Form.Group className="mt-4" controlId="register-password">
-                                <Form.Label>Lösenord</Form.Label>
-                                <div className="mt-2">
-                                    <PasswordInput id="register-password" className="form-control" {...field("password")} invalid={!!errors.password} placeholder="lösenord" autoComplete="new-password" />
-                                </div>
-                                {errors.password && (
-                                    <Form.Control.Feedback type="invalid" className="d-block">{errors.password}</Form.Control.Feedback>
-                                )}
-                            </Form.Group>
+                <Form.Group className="mt-4" controlId="register-password">
+                  <Form.Label>Lösenord</Form.Label>
+                  <div className="mt-2">
+                    <PasswordInput
+                      id="register-password"
+                      className="form-control"
+                      {...field("password")}
+                      invalid={!!errors.password}
+                      placeholder="lösenord"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  {errors.password && (
+                    <Form.Control.Feedback type="invalid" className="d-block">
+                      {errors.password}
+                    </Form.Control.Feedback>
+                  )}
+                </Form.Group>
 
-                            {error && <div className="invalid-feedback d-block mt-4">{error}</div>}
+                {error && (
+                  <div className="invalid-feedback d-block mt-4">{error}</div>
+                )}
 
-                            <button className="mypage-btn mypage-btn-outline mt-4" type="submit" disabled={loading}>
-                                {loading ? "Rigistreras..." : "Bli medlem"}
-                            </button>                        
-                    </Form>
-                    
-                </Col>
-            </Row>
+                <button
+                  className="mypage-btn mypage-btn-outline mt-4"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? "Registreras..." : "Bli medlem"}
+                </button>
+              </Form>
+            </Col>
+          </Row>
         </Container>
-    </div> )
+      </div>
+    );
 }
 
 Register.route = {
