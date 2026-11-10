@@ -97,14 +97,19 @@
   width: clamp(22px, 3.2vw, 40px);
   height: clamp(22px, 3.2vw, 40px);
   margin: clamp(2px, 0.35vw, 5px);
+  padding: 0;
   border: none;
   border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: clamp(8px, 1.3vw, 12px);
   font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
   transition: 0.2s;
   transform: perspective(80px) rotateX(10deg);
 }
-
 .seat-available {
   background: linear-gradient(#f5f7fa, #dcdfe3);
   color: #100e1c;
