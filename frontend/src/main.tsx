@@ -6,7 +6,7 @@ import routes from "./routes.tsx";
 // import "./index.css";
 import App from "./App.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import "./styles/global.css";
 import { AuthProvider } from "./utils/authContext.tsx"
 
 const router = createBrowserRouter([
