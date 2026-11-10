@@ -142,6 +142,15 @@
   gap: 4px;
 }
 
+.ticket-description {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(245, 247, 250, 0.7);
+}
+
 .film-krediter {
   font-size: 1.2rem;
   line-height: 1.8;
