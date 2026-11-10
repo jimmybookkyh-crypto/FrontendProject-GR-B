@@ -158,6 +158,10 @@
   color: rgba(245, 247, 250, 0.9);
 }
 
+.booking-page .glass-card .form-control::placeholder {
+  color: var(--bs-secondary-color);
+}
+
 /* Tar bort input spinners */
 
 /* Chrome, Edge, Safari */
