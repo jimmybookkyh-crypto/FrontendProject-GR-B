@@ -11,6 +11,7 @@ export interface MovieCardProps {
   ageRating?: number | null;
   showDetails?: boolean;
   datum?: string;
+  navigatedFrom?: string; 
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -20,6 +21,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   ageRating,
   showDetails = true,
   datum,
+  navigatedFrom
 }) => {
   let imageUrl = "";
   try {
@@ -30,10 +32,14 @@ const MovieCard: React.FC<MovieCardProps> = ({
     imageUrl = typeof images === "string" ? images : "";
   }
 
-  // Bygg sökvägen, med valt datum om det finns
-  const targetPath = datum
-    ? `/movies/${movieId}?datum=${datum}`
-    : `/movies/${movieId}`;
+  // Bygg sökvägen, med valt datum och från beskrvining om det finns
+  const targetPath = `/movies/${movieId}${
+    datum || navigatedFrom
+    ? `?${datum ? `datum=${datum}` : ""}${
+      datum && navigatedFrom ? "&" : ""
+    }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
+    : ""
+  }`;
 
   return (
     <Card

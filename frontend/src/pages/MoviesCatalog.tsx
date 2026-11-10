@@ -83,6 +83,7 @@ export default function MovieCatalog() {
           {visibleMovies && visibleMovies.length > 0 && (
             <MovieGrid
               movies={visibleMovies}
+              navigatedFrom="katalog"
               showDetails={activeFilter !== "kommandeFilmer"}
             />
           )}

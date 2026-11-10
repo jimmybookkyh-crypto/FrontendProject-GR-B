@@ -11,13 +11,18 @@ import Datumremsa from "../components/Datumremsa";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
-import { validDate, langtDatum } from "../utils/date";
-import type { Movie, Showing } from "../interface/types";
+import { validDate, langtDatum, plusDagar } from "../utils/date";
+import type { Movie, Showing, } from "../interface/types";
+import { useEffect } from "react";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
   const { id } = useParams(); // id från adressen, t.ex. /movies/3
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Kontrollera om användaren kommer från Filmkatalogen
+  const fromCatalog = searchParams.get("fran") === "katalog";
+
 
   // TODO: Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
   // vid omladdning och när man går tillbaka från bokningen. Saknas det = idag.
@@ -25,8 +30,13 @@ export default function MovieDetails() {
   const selectedDate = validDate(searchParams.get("datum"));
 
   function changeDate(date: string) {
-    // replace: varje dagsbyte ska inte bli ett eget steg i webbläsarens historik
-    setSearchParams({ datum: date }, { replace: true });
+    // Behåll fran=katalog när användaren byter datum
+    setSearchParams(
+      fromCatalog
+        ? { fran: "katalog", datum: date }
+        : { datum: date },
+      { replace: true }
+    );
   }
 
 
@@ -45,6 +55,57 @@ export default function MovieDetails() {
     error,
   } = useFetch<Movie>(id ? `/movies/${id}` : null);
 
+  const {
+    data: movieShowings,
+    loading: showingsLoading,
+    error: showingsError,
+  } = useFetch<Showing[]>(
+    id ? `/showings?movieId=${id}` : null
+  );
+
+  const today = plusDagar(0);
+
+  // Alla framtida datum då filmen har visningar
+  const allUpcomingShowings = movieShowings
+    ? [
+        ...new Set(
+          movieShowings
+            .filter((showing) => showing.date >= today)
+            .map((showing) => showing.date)
+        ),
+      ].sort()
+    : [];
+
+  // De sju första datumen visas som knappar
+  const firstSevenShowings = allUpcomingShowings.slice(0, 7);
+
+  // Behåll valt datum om det finns bland alla framtida visningsdatum.
+  const firstAvailableShowing = selectedDate;
+
+  
+  useEffect(() => {
+    if (showingsLoading || !movieShowings) return;
+
+    // Sätt ett standarddatum endast om inget datum finns i URL:en.
+    if (!searchParams.has("datum") && allUpcomingShowings.length > 0) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set("datum", allUpcomingShowings[0]);
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [
+    showingsLoading,
+    movieShowings,
+    searchParams,
+    allUpcomingShowings,
+    setSearchParams,
+  ]);
+  
+
   return (
     <div
       className="film-sida min-vh-100 w-100"
@@ -56,15 +117,49 @@ export default function MovieDetails() {
     >
       <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
       <Container className="pb-5">
-        {/* gemensam laddning och felruta */}
         {loading && <LoadingSpinner text="Hämtar film…" />}
         {error && <ErrorMessage message={error} />}
 
         {movie && (
           <div className="film-stack d-flex flex-column gap-3">
-            <Datumremsa valtDatum={selectedDate} onByt={changeDate} />
 
-            <ShowingsBox movieId={movie.movieId} date={selectedDate} />
+            {/* Laddning av filmens visningar */}
+            {showingsLoading && (
+              <LoadingSpinner text="Hämtar visningar…" />
+            )}
+
+            {/* Fel vid hämtning av visningar */}
+            {showingsError && (
+              <ErrorMessage message={showingsError} />
+            )}
+
+            {/* Filmen saknar kommande visningar */}
+            {!showingsLoading &&
+              !showingsError &&
+              movieShowings &&
+              firstSevenShowings.length === 0 && (
+                <p className="text-center text-white">
+                  Filmen har inga kommande visningar just nu.
+                </p>
+            )}
+
+            {/* Visa datumremsa och visningstider när visningarna har hämtats */}
+            {!showingsLoading &&
+              !showingsError &&
+              firstSevenShowings.length > 0 && (
+                <>
+                  <Datumremsa
+                    valtDatum={firstAvailableShowing}
+                    dateList={firstSevenShowings}
+                    onByt={changeDate}
+                  />
+
+                  <ShowingsBox
+                    movieId={movie.movieId}
+                    date={firstAvailableShowing}
+                  />
+                </>
+              )}
 
             <Trailer
               youtubeId={movie.youtubetrailers?.[0]}
