@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
-
 .fv-auth-button {
   background: transparent;
   border: 1px solid currentColor;
@@ -175,8 +173,6 @@
   flex: none;
 }
 
-/* Bara länken Logga in blir vit vid hover. Inloggad är .fv-login en ruta med
-   ikon, namn och Logga ut, och då ska de behålla sin gula färg */
 a.fv-login:hover,
 a.fv-login:focus-visible {
   color: #fff;
@@ -209,7 +205,7 @@ a.fv-login:focus-visible {
 
   .fv-login {
     margin-left: 0;
-    margin-right: 0; /* avståndet till kanten kommer från headerns padding */
+    margin-right: 0; 
   }
 }
 
