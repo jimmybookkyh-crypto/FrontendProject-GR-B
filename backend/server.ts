@@ -1,4 +1,8 @@
-import express from "express";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import dotenv from "dotenv";
 import moviesRouter from "./routes/movies.js";
 import bookingRouter from "./routes/bookings.js";
@@ -20,15 +24,6 @@ process.on("unhandledRejection", (err) => {
 const app = express();
 app.use(express.json());
 
-app.use((err: any, req: any, res: any, next: any) => {
-  if (err.type === "entity.parse.failed") {
-    return res
-      .status(400)       //felaktiga post,json
-      .json({ error: { message: "Invalid JSON in the request" } });
-  }
-  next(err);
-});
-
 app.get("/", (req, res) => {
   res.json({ data: "data received" });
 });
@@ -42,8 +37,24 @@ app.use("/showings", showingsRouter);
 app.use("/tickets", ticketsRouter);
 app.use("/users", usersRouter);
 
-app.use((req, res) => {
-  res.status(404).json( { error: {message: "Sidan hittades inte"}} );
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({ error: { message: "Det du söker finns inte." } });
+});
+
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "type" in err &&
+    err.type === "entity.parse.failed"
+  ) {
+    res.status(400).json({ error: { message: "Förfrågan har fel format." } });
+    return;
+  }
+  console.error(err);
+  res
+    .status(500)
+    .json({ error: { message: "Något gick fel på servern. Försök igen." } });
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
@@ -54,33 +65,38 @@ const wss = new WebSocketServer({
   server,
   path: "/ws",
 });
-  wss.on("connection", (ws) => {
-    console.log("WebSocket connected");
+wss.on("connection", (ws) => {
+  console.log("WebSocket connected");
 
-    ws.on("message", (message) => {
-      const data = JSON.parse(message.toString());
+  ws.on("message", (message) => {
+    let data: { type?: unknown; showingId?: unknown };
+    try {
+      data = JSON.parse(message.toString());
+    } catch {
+      return;
+    }
 
-      if (data.type === "subscribe") {
-        const showingId = Number(data.showingId);
+    if (data.type === "subscribe") {
+      const showingId = Number(data.showingId);
 
-        if (!subscriptions.has(showingId)) {
-          subscriptions.set(showingId, new Set<WebSocket>());
-        }
+      if (!subscriptions.has(showingId)) {
+        subscriptions.set(showingId, new Set<WebSocket>());
+      }
 
-        subscriptions.get(showingId)?.add(ws);
+      subscriptions.get(showingId)?.add(ws);
 
-        console.log("Subscribe:", showingId);
+      console.log("Subscribe:", showingId);
+    }
+  });
+  ws.on("close", () => {
+    subscriptions.forEach((clients, showingId) => {
+      clients.delete(ws);
+
+      if (clients.size === 0) {
+        subscriptions.delete(showingId);
       }
     });
-    ws.on("close", () => {
-      subscriptions.forEach((clients, showingId) => {
-        clients.delete(ws);
 
-        if (clients.size === 0) {
-          subscriptions.delete(showingId);
-        }
-      });
-
-      console.log("WebSocket disconnected");
-    });
+    console.log("WebSocket disconnected");
+  });
 });
