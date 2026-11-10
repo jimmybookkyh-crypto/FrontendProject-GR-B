@@ -45,7 +45,7 @@ function Poster({ booking }: { booking: MyBooking }) {
       className="mypage-poster"
       aria-label={`Mer om ${booking.movieTitle}`}
     >
-      {url ? <img src={url} alt="" /> : <span>Affisch</span>}
+      {url ? <img src={url} alt="" loading="lazy" /> : <span>Affisch</span>}
     </Link>
   );
 }

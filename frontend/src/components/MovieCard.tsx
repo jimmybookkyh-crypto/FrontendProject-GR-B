@@ -29,8 +29,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   } catch {
     imageUrl = typeof images === "string" ? images : "";
   }
-
-  // Bygg sökvägen, med valt datum om det finns
+ 
   const targetPath = datum
     ? `/movies/${movieId}?datum=${datum}`
     : `/movies/${movieId}`;
@@ -47,9 +46,13 @@ const MovieCard: React.FC<MovieCardProps> = ({
         to={targetPath}
         className="position-relative d-block text-decoration-none"
       >
-        <Card.Img variant="top" src={imageUrl || noPoster} alt={title} />
+        <Card.Img
+          variant="top"
+          src={imageUrl || noPoster}
+          alt={title}
+          loading="lazy"
+        />
 
-        {/* Åldersmärkning uppe i högra hörnet (#484) */}
         <AgeBadge
           ageRating={ageRating}
           className="position-absolute top-0 end-0 m-2 z-2"

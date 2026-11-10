@@ -6,7 +6,7 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import type { EventPeriod, EventRow, EventShowing } from "../interface/types";
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
@@ -95,6 +95,7 @@ function EventCard({
               className="event-image"
               src={event.image ?? backgroundImage}
               alt={event.altText ?? ""}
+              loading="lazy"
             />
           </div>
         </Col>

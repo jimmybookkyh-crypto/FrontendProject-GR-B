@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Container, Col, Row, Card, Badge } from "react-bootstrap";
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";

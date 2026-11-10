@@ -1,6 +1,6 @@
 import { Row, Container, Col, Card } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 // @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
