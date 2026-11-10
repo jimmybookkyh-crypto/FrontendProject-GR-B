@@ -47,7 +47,7 @@ export default function Start() {
         }
         return next;
       },
-      { replace: true },
+      { replace: true, preventScrollReset: true },
     );
   };
   const [ageLimit, setAgeLimit] = useAgeLimit();
