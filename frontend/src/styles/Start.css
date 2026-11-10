@@ -175,3 +175,10 @@
     font-size: 0.95rem;
   }
 }
+
+@media (max-width: 1200px) {
+  .btn.filter-knapp {
+    font-size: 1.2rem;
+    padding: 0.7rem 1rem;
+  }
+}
