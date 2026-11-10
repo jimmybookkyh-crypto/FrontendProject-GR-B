@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
+import noPoster from "../assets/img/no-poster.webp";
 
 export interface MovieCardProps {
   movieId: number | string;
@@ -46,13 +47,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         to={targetPath}
         className="position-relative d-block text-decoration-none"
       >
-        <Card.Img
-          variant="top"
-          src={
-            imageUrl || "https://via.placeholder.com/300x450?text=Ingen+bild"
-          }
-          alt={title}
-        />
+        <Card.Img variant="top" src={imageUrl || noPoster} alt={title} />
 
         {/* Åldersmärkning uppe i högra hörnet (#484) */}
         <AgeBadge
