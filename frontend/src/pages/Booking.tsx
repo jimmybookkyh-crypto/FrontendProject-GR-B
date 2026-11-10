@@ -26,6 +26,7 @@ import type {
   Seat,
   Booking,
 } from "../interface/types";
+import useSeatUpdates from "../hooks/useSeatUpdates";
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -34,9 +35,6 @@ export default function BookingPage() {
 
   // Hämta den inloggade användaren från AuthContext
   const { user } = useAuth();
-
-  // State för att tvinga omhämtning av upptagna stolar
-  const [seatRefreshKey, setSeatRefreshKey] = useState(0);
 
   // State för e-post och userId
   const [email, setEmail] = useState("");
@@ -88,12 +86,8 @@ export default function BookingPage() {
 
   const seats: Seat[] = seatsRaw || [];
 
-  // Hämta upptagna stolar för den aktuella visningen (inkluderar seatRefreshKey för automatisk reload)
-  // Backend svarar med en lista av stol-id:n, t.ex. [28, 29, 30]
-  const { data: occupiedSeatsRaw } = useFetch<number[]>(
-    showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null,
-  );
-  const occupiedSeats: number[] = occupiedSeatsRaw ?? [];
+  // ANvänder useSeatUpdates för att få realtidsuppdateringar av upptagna stolar via WebSocket
+  const occupiedSeats = useSeatUpdates(showingId);
 
   // Hämta biljetttyper från API:et
   const { data: ticketTypesRaw } = useFetch<TicketType[]>(
@@ -121,6 +115,22 @@ export default function BookingPage() {
 
   // State
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+  const [seatWarning, setSeatWarning] = useState<string | null>(null);
+  useEffect(() => {
+    setSelectedSeats((current) => {
+      const filtered = current.filter(
+        (seat) => !occupiedSeats.includes(Number(seat.seatId))
+      );
+
+      if (filtered.length < current.length) {
+        setSeatWarning(
+          "En av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade."
+        );
+      }
+
+      return filtered;
+    });
+  }, [occupiedSeats]);
   const [adultTickets, setAdultTickets] = useState(0);
   const [childTickets, setChildTickets] = useState(0);
   const [seniorTickets, setSeniorTickets] = useState(0);
@@ -130,6 +140,7 @@ export default function BookingPage() {
   // Fel som visas direkt vid e-postfältet i modalen
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const totaltTickets = adultTickets + childTickets + seniorTickets;
 
@@ -144,6 +155,8 @@ export default function BookingPage() {
   );
 
   const handleSeatClick = (seat: Seat) => {
+    setSeatWarning(null); // Nollställ varningen när användaren klickar på en stol
+
     setSelectedSeats((current) =>
       current.some((s) => Number(s.seatId) === Number(seat.seatId))
         ? current.filter((s) => Number(s.seatId) !== Number(seat.seatId))
@@ -295,7 +308,6 @@ export default function BookingPage() {
         if (response.status === 409) {
           // Nollställ valda stolar och trigga omhämtning av upptagna stolar från backend
           resetSelection();
-          setSeatRefreshKey((prev) => prev + 1);
 
           throw new Error(
             "Tyvärr hann någon annan boka en eller flera av de valda stolarna. Kartan har uppdaterats med de senaste lediga platserna.",
@@ -353,8 +365,6 @@ export default function BookingPage() {
     setShowEmailModal(false);
     setBookingError(null);
     setEmailFieldError(undefined);
-    // Triggar omhämtning av stolarna när modalen stängs
-    setSeatRefreshKey((prev) => prev + 1);
   };
 
   if (showingLoading || seatsLoading) {
@@ -527,6 +537,11 @@ export default function BookingPage() {
           <Col xs={12} md={7} lg={8} className="d-flex">
             <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
+                {seatWarning && (
+                  <div className="alert alert-warning mb-3">
+                    {seatWarning}
+                  </div>
+                )}
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
                   seats={seats}

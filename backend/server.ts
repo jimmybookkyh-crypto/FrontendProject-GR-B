@@ -8,6 +8,8 @@ import seatsRouter from "./routes/seats.js";
 import showingsRouter from "./routes/showings.js";
 import ticketsRouter from "./routes/tickets.js";
 import usersRouter from "./routes/users.js";
+import { WebSocketServer, WebSocket } from "ws";
+import { subscriptions } from "./websocket.js";
 dotenv.config();
 
 //Fångar ohanterade asynkrona fel
@@ -44,6 +46,41 @@ app.use((req, res) => {
   res.status(404).json( { error: {message: "Sidan hittades inte"}} );
 });
 
-app.listen(process.env.PORT || 3000, () => {
+const server = app.listen(process.env.PORT || 3000, () => {
   console.log("server ok");
+});
+
+const wss = new WebSocketServer({
+  server,
+  path: "/ws",
+});
+  wss.on("connection", (ws) => {
+    console.log("WebSocket connected");
+
+    ws.on("message", (message) => {
+      const data = JSON.parse(message.toString());
+
+      if (data.type === "subscribe") {
+        const showingId = Number(data.showingId);
+
+        if (!subscriptions.has(showingId)) {
+          subscriptions.set(showingId, new Set<WebSocket>());
+        }
+
+        subscriptions.get(showingId)?.add(ws);
+
+        console.log("Subscribe:", showingId);
+      }
+    });
+    ws.on("close", () => {
+      subscriptions.forEach((clients, showingId) => {
+        clients.delete(ws);
+
+        if (clients.size === 0) {
+          subscriptions.delete(showingId);
+        }
+      });
+
+      console.log("WebSocket disconnected");
+    });
 });

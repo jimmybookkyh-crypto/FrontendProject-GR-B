@@ -7,6 +7,7 @@ import {
   CreateBookingInput,
 } from "../interface/types.js";
 import { sendConfirmationEmail } from "./sendConfirmationEmail.js";
+import { broadcastSeats } from "../websocket.js";
 
 /* Hämtar det mejlet behöver och skickar bekräftelsen.
    Körs efter COMMIT utan await, så ett fel här kan aldrig stoppa eller ångra bokningen.
@@ -213,6 +214,21 @@ export async function createBooking(
 
     await client.query("COMMIT");
 
+    const bookedSeats = await pool.query(
+      `
+  select "seatId"
+  from booked_seats_view
+  where "showingId" = $1
+  `,
+      [showingId]
+    );
+
+    const bookedSeatIds = bookedSeats.rows.map(
+      (row) => Number(row.seatId)
+    );
+
+    broadcastSeats(showingId, bookedSeatIds);
+    
     // pg ger bigint som text ("42"), men typen säger tal. Därför Number().
     const row = booking.rows[0];
 

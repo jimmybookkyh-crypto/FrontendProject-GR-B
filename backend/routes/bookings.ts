@@ -22,6 +22,8 @@ import {
 } from "../utils/requireAuth.js";
 import { optionalAuth } from "../utils/optionalAuth.js";
 import { getMyBookings } from "../services/myBookings.js";
+import { broadcastSeats } from "../websocket.js";
+
 
 const bookingsRouter = Router();
 
@@ -440,6 +442,31 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
     );
 
     await client.query("COMMIT");
+
+    const showingResult = await client.query(
+      `
+  select "showingId"
+  from bookings
+  where "bookingId" = $1
+  `,
+      [id]
+    );
+
+    const showingId = Number(showingResult.rows[0].showingId);
+
+    const bookedSeats = await pool.query(
+      `
+  select "seatId"
+  from booked_seats_view
+  where "showingId" = $1
+  `,
+      [showingId]
+    );
+    const bookedSeatIds = bookedSeats.rows.map(
+      (row) => Number(row.seatId)
+    );
+
+    broadcastSeats(showingId, bookedSeatIds);
 
     return res.status(200).json({ data: result.rows[0] });
     
