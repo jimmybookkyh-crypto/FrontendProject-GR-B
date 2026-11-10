@@ -14,11 +14,11 @@
 }
 
 .navbar.fv-navbar {
-  --fv-yellow: #f5b400;
-  --fv-bg: #0d0d14;
-  --fv-panel: #222226;
-  --fv-line: #2c2c3a;
-  --fv-active-shadow: #ffffff; 
+  --fv-yellow: var(--fv-header-gul);
+  --fv-bg: var(--fv-header-bg);
+  --fv-panel: var(--fv-header-panel);
+  --fv-line: var(--fv-header-linje);
+  --fv-active-shadow: var(--fv-vit); 
 
   background: var(--fv-bg);
   border-bottom: 1px solid var(--fv-line); 
@@ -51,7 +51,7 @@
   line-height: 1.1;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--fv-vit);
   position: relative;
   width: 11rem; 
   padding: 0.8rem 0;
@@ -72,18 +72,18 @@
 
 .fv-navbar .nav-link:focus-visible::before,
 .fv-navbar .nav-link:active::before {
-  background: #2e2e34;
+  background: var(--fv-header-hover);
 }
 
 @media (hover: hover) {
   .fv-navbar .nav-link:hover::before {
-    background: #2e2e34;
+    background: var(--fv-header-hover);
   }
 }
 
 .fv-navbar .fv-nav .nav-link.active,
 .fv-navbar .fv-nav .nav-link.show {
-  color: #000; 
+  color: var(--fv-svart); 
 }
 
 .fv-navbar .nav-link.active::before,
@@ -93,7 +93,7 @@
 }
 
 .fv-navbar .fv-nav.om-oss-open .nav-link.active:not(.dropdown-toggle) {
-  color: #fff;
+  color: var(--fv-vit);
 }
 
 .fv-navbar .fv-nav.om-oss-open .nav-link.active:not(.dropdown-toggle)::before {
@@ -102,7 +102,7 @@
 }
 
 .fv-navbar .nav-link:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 2px;
 }
 
@@ -138,7 +138,7 @@
   font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
   font-size: 1.5rem;
   letter-spacing: 0.08em;
-  color: #fff;
+  color: var(--fv-vit);
   padding: 0.6rem 1.25rem;
   border-bottom: 1px solid var(--fv-line);
 }
@@ -151,7 +151,7 @@
 .fv-navbar .dropdown-item:focus,
 .fv-navbar .dropdown-item:active {
   background: var(--fv-yellow);
-  color: #000;
+  color: var(--fv-svart);
 }
 
 /* ---------- Logga in (höger) ---------- */
@@ -179,11 +179,11 @@
    ikon, namn och Logga ut, och då ska de behålla sin gula färg */
 a.fv-login:hover,
 a.fv-login:focus-visible {
-  color: #fff;
+  color: var(--fv-vit);
 }
 
 .fv-login:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 4px;
 }
 
@@ -317,12 +317,12 @@ a.fv-login:focus-visible {
 
 .fv-mypage-link:hover,
 .fv-mypage-link:focus-visible {
-  color: #fff;
+  color: var(--fv-vit);
   transform: scale(1.06);
 }
 
 .fv-mypage-link:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 3px;
 }
 
@@ -358,12 +358,12 @@ a.fv-login:focus-visible {
 
 .fv-account-toggle:hover .fv-mypage-link,
 .fv-account-toggle:focus-visible .fv-mypage-link {
-  color: #fff;
+  color: var(--fv-vit);
   transform: scale(1.06);
 }
 
 .fv-account-toggle:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 4px;
   border-radius: 2rem;
 }
@@ -408,12 +408,12 @@ a.fv-login:focus-visible {
 
 .fv-account-link:hover .fv-mypage-link,
 .fv-account-link:focus-visible .fv-mypage-link {
-  color: #fff;
+  color: var(--fv-vit);
   transform: scale(1.06);
 }
 
 .fv-account-link:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 4px;
   border-radius: 2rem;
 }

@@ -2,13 +2,13 @@
    Variablerna gäller även modalerna, som React-Bootstrap lägger utanför .mypage */
 .mypage,
 .mypage-modal {
-  --mp-guld: var(--fv-guldgul, #dfa213);
-  --mp-vinrod: var(--fv-vinrod, #8e1733);
-  --mp-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
-  --mp-midnatt: var(--fv-midnatt, #100e1c);
-  --mp-panel: #1d1b2e;
-  --mp-kort: #262438;
-  --mp-text: var(--fv-offwhite, #f5f7fa);
+  --mp-guld: var(--fv-guldgul);
+  --mp-vinrod: var(--fv-vinrod);
+  --mp-vinrod-hover: var(--fv-vinrod-hover);
+  --mp-midnatt: var(--fv-midnatt);
+  --mp-panel: var(--fv-panel-bg);
+  --mp-kort: var(--fv-kort-bg-ljus);
+  --mp-text: var(--fv-offwhite);
   --mp-dampad: rgba(245, 247, 250, 0.72);
   --mp-linje: rgba(245, 247, 250, 0.14);
 }
@@ -110,7 +110,7 @@
 }
 
 .mypage .invalid-feedback {
-  color: #ff8a9d; /* läsbar mot mörk bakgrund */
+  color: var(--fv-fel-rosa); /* läsbar mot mörk bakgrund */
 }
 
 .mypage-help {
@@ -161,14 +161,14 @@
 
 .mypage-btn-red {
   background: var(--mp-vinrod);
-  color: #fff;
+  color: var(--fv-vit);
   border: 1.5px solid var(--mp-vinrod);
 }
 
 .mypage-btn-red:hover:not(:disabled) {
   background: var(--mp-vinrod-hover);
   border-color: var(--mp-vinrod-hover);
-  color: #fff;
+  color: var(--fv-vit);
 }
 
 .mypage-actions {
@@ -338,7 +338,7 @@
 .mypage-badge-cancelled {
   background: var(--mp-vinrod);
   border: 1.5px solid var(--mp-vinrod);
-  color: #fff;
+  color: var(--fv-vit);
 }
 
 /* Mobil: titel + pris överst, datum och biljetter under */

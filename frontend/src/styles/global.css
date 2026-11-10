@@ -1,9 +1,29 @@
 :root {
-  --fv-guldgul: #dfa213;
-  --fv-guldgul-hover: #f0b426;
-  --fv-vinrod: #8e1733;
-  --fv-vinrod-hover: #a81c3c;
-  --fv-midnatt: #100e1c;
-  --fv-offwhite: #f5f7fa;
-  --fv-kort-bg: #1a1830;
+  --fv-guldgul: #dfa213; /* About, Booking, Event, HeroSection, MoviesDetails, MyPage, PasswordInput, Start*/
+  --fv-guldgul-hover: #f0b426; /* About, HeroSection */
+  --fv-vinrod: #8e1733; /* About, Booking, Event, MoviesDetails, MyPage, Start, buttons */
+  --fv-vinrod-hover: #a81c3c; /* About, MyPage, Start */
+  --fv-midnatt: #100e1c; /* About, Booking, Event, HeroSection, MyPage, Start */
+  --fv-offwhite: #f5f7fa; /* About, Booking, Event, HeroSection, MoviesDetails, MyPage, Start */
+  --fv-kort-bg: #1a1830; /* Start */
+  --fv-vit: #fff; /* About, Booking, Header, HeroSection, MoviesDetails, MyPage, buttons */
+  --fv-svart: #000; /* About, Booking, Header */
+  --fv-ljusgra: #dcdfe3; /* Booking */
+  --fv-gra: #3a3a3a; /* Booking */
+  --fv-gra-mork: #1f1f1f; /* Booking */
+  --fv-gra-text: #777; /* Booking */
+  --fv-vinrod-dov: #6b4a53; /* Booking */
+  --fv-guldgul-mork: #b98a0f; /* Booking */
+  --fv-gron: #4caf50; /* Booking */
+  --fv-gron-mork: #2e7d32; /* Booking */
+  --fv-panel-bg: #1d1b2e; /* MyPage */
+  --fv-kort-bg-ljus: #262438; /* MyPage */
+  --fv-fel-rosa: #ff8a9d; /* MyPage (feltext) */
+  --fv-header-gul: #f5b400; /* Header (egen nyans, inte guldgul) */
+  --fv-header-bg: #0d0d14; /* Header */
+  --fv-header-panel: #222226; /* Header */
+  --fv-header-linje: #2c2c3a; /* Header */
+  --fv-header-hover: #2e2e34; /* Header */
+  --fv-ljuslila: #e6e3ee; /* HeroSection */
+  --fv-dampad-gra: #6c757d; /* PasswordInput (reservfärg på Login/Register) */
 }
