@@ -6,7 +6,6 @@ import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";
 import BackButton from "../components/BackButton";
 
-/* Det som bokningssidan skickar med i navigate(..., { state }) */
 type ConfirmationState = {
   bookingNumber: string;
   movieId: number;
@@ -29,7 +28,6 @@ export default function BookingConfirmation() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // state finns bara om man kommer direkt från bokningssidan i samma flik
   const booking = location.state as ConfirmationState | null;
 
   if (!booking?.bookingNumber) {
@@ -38,9 +36,6 @@ export default function BookingConfirmation() {
     );
   }
 
-  const seatLabels = booking.tickets
-    .map((t) => `Rad ${t.seatsRow} plats ${t.seatsNumber}`)
-    .join(", ");
   const countByType = booking.tickets.reduce<Record<string, number>>(
     (acc, t) => {
       acc[t.ticketTypeName] = (acc[t.ticketTypeName] ?? 0) + 1;
@@ -82,10 +77,23 @@ export default function BookingConfirmation() {
                       />
                     </Col>
                     <Col xs={7} md={8}>
-                      <h2 className="h5 fw-bold mb-3">{booking.movieTitle}</h2>
-                      <p className="mb-1">Datum: {booking.date}</p>
-                      <p className="mb-1">Tid: {booking.time}</p>
-                      <p className="mb-0">Salong: {booking.auditoriumName}</p>
+                      <div className="film-krediter mt-1">
+                        <h3 className="h1 fw-bold mb-3">
+                          {booking.movieTitle}
+                        </h3>
+                        <div className="mb-1">
+                          <strong className="text-white">Datum: </strong>{" "}
+                          {booking.date}
+                        </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Tid: </strong>{" "}
+                          {booking.time}
+                        </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Salong: </strong>{" "}
+                          {booking.auditoriumName}
+                        </div>
+                      </div>
                     </Col>
                   </Row>
                 </Card.Body>
@@ -96,21 +104,27 @@ export default function BookingConfirmation() {
             <Col xs={12} lg={8} xl={7}>
               <Card className="glass-card">
                 <Card.Body className="p-3 p-md-4">
-                  <h3 className="h5 fw-bold heading-gold mb-4 text-center">
-                    SAMMANFATTNING
+                  <h3 className="h4 fw-bold heading-gold mb-2 text-center">
+                    Bokningsnummer: {booking.bookingNumber}
                   </h3>
-                  <h4 className="mb-2 text-center">
-                    <strong>Bokningsnummer:</strong> {booking.bookingNumber}
-                  </h4>
                   <p className="mb-4 text-center">
                     <em>
                       Ange ditt bokningsnummer i kassan vid betalning av dina
                       biobiljetter
                     </em>
                   </p>
-                  <p className="mb-2">
-                    <strong>Platser:</strong> {seatLabels}
-                  </p>
+                  <div className="mb-3">
+                    <p className="mb-1 fw-bold">
+                      Platser ({booking.tickets.length}):
+                    </p>
+                    <ul className="list-unstyled small mb-0">
+                      {booking.tickets.map((t) => (
+                        <li key={`${t.seatsRow}-${t.seatsNumber}`}>
+                          Rad {t.seatsRow}, Stol {t.seatsNumber}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                   {Object.entries(countByType).map(([name, count]) => (
                     <p key={name} className="mb-2">
                       <strong>{name}:</strong> {count} st
