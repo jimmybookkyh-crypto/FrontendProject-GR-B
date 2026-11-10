@@ -65,48 +65,43 @@ export default function MovieDetails() {
 
   const today = plusDagar(0);
 
-  const firstSevenShowings = movieShowings
-  ? [
-      ...new Set(
-        movieShowings
-          .filter((showing) => showing.date >= today)
-          .map((showing) => showing.date)
-      ),
-    ]
-      .sort()
-      .slice(0, 7)
-  : [];
+  // Alla framtida datum då filmen har visningar
+  const allUpcomingShowings = movieShowings
+    ? [
+        ...new Set(
+          movieShowings
+            .filter((showing) => showing.date >= today)
+            .map((showing) => showing.date)
+        ),
+      ].sort()
+    : [];
 
-  // Från katalogen väljs första tillgängliga datumet.
-  // Ett redan valt datum behålls om det fortfarande har visningar.
-  const firstAvailableShowing = firstSevenShowings.includes(selectedDate)
-  ? selectedDate
-  : firstSevenShowings[0] ?? selectedDate;
+  // De sju första datumen visas som knappar
+  const firstSevenShowings = allUpcomingShowings.slice(0, 7);
 
+  // Behåll valt datum om det finns bland alla framtida visningsdatum.
+  const firstAvailableShowing = selectedDate;
+
+  
   useEffect(() => {
     if (showingsLoading || !movieShowings) return;
-    if (firstSevenShowings.length === 0) return;
 
-    if (selectedDate !== firstAvailableShowing) {
+    // Sätt ett standarddatum endast om inget datum finns i URL:en.
+    if (!searchParams.has("datum") && allUpcomingShowings.length > 0) {
       setSearchParams(
-        fromCatalog
-          ? {
-              fran: "katalog",
-              datum: firstAvailableShowing,
-            }
-          : {
-              datum: firstAvailableShowing,
-            },
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set("datum", allUpcomingShowings[0]);
+          return next;
+        },
         { replace: true }
       );
     }
   }, [
-    fromCatalog,
     showingsLoading,
     movieShowings,
-    selectedDate,
-    firstAvailableShowing,
-    firstSevenShowings.length,
+    searchParams,
+    allUpcomingShowings,
     setSearchParams,
   ]);
   
