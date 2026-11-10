@@ -214,6 +214,7 @@ export interface Booking {
 // Props till TicketCounter (en biljettrad: typ, pris och − antal +)
 export interface TicketCounterProps {
   label: string;
+  description?: string;
   price: number;
   count: number;
   onDecrease: () => void;

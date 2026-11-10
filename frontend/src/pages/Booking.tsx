@@ -517,13 +517,16 @@ export default function BookingPage() {
                     <div className="film-krediter mt-1">
                       <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
                       <div className="mb-1">
-                        <strong className="text-white">Datum: </strong> {currentDate}
+                        <strong className="text-white">Datum: </strong>{" "}
+                        {currentDate}
                       </div>
                       <div className="mb-1">
-                        <strong className="text-white">Tid: </strong> {currentTime}
+                        <strong className="text-white">Tid: </strong>{" "}
+                        {currentTime}
                       </div>
                       <div className="mb-1">
-                        <strong className="text-white">Salong: </strong> {currentAuditoriumName}
+                        <strong className="text-white">Salong: </strong>{" "}
+                        {currentAuditoriumName}
                       </div>
                     </div>
                   </Col>
@@ -538,9 +541,7 @@ export default function BookingPage() {
             <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
                 {seatWarning && (
-                  <div className="alert alert-warning mb-3">
-                    {seatWarning}
-                  </div>
+                  <div className="alert alert-warning mb-3">{seatWarning}</div>
                 )}
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
@@ -562,6 +563,7 @@ export default function BookingPage() {
 
                 <TicketCounter
                   label={adultType?.name || "Vuxen"}
+                  description="Från 12 år"
                   price={adultPrice}
                   count={adultTickets}
                   onDecrease={() =>
@@ -576,6 +578,7 @@ export default function BookingPage() {
                 />
                 <TicketCounter
                   label={childType?.name || "Barn"}
+                  description="Till 11 år"
                   price={childPrice}
                   count={childTickets}
                   onDecrease={() =>
@@ -590,6 +593,7 @@ export default function BookingPage() {
                 />
                 <TicketCounter
                   label={seniorType?.name || "Pensionär"}
+                  description="Från 65 år"
                   price={seniorPrice}
                   count={seniorTickets}
                   onDecrease={() =>
