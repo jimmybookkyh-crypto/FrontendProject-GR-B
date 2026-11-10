@@ -700,12 +700,12 @@ export default function BookingPage() {
                   }
                 />
 
-                <div className="mb-3">
+                <div className="mb-3 selected-seats-container">
                   <p className="mb-1 fw-bold">
                     Valda platser ({selectedSeats.length}):
                   </p>
                   {selectedSeats.length > 0 ? (
-                    <ul className="list-unstyled small mb-0 ps-2">
+                    <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
                       {selectedSeats.map((seat) => (
                         <li key={seat.seatId}>
                           Rad {seat.seatsRow}, Stol {seat.seatsNumber}
