@@ -58,13 +58,9 @@
   padding: 0.6rem 1.25rem;
   border-bottom: 1px solid var(--fv-line);
 }
-
+.menu .dropdown-item.active,
+.menu .dropdown-item:focus,
 .menu .dropdown-item:hover {
-  background: var(--fv-yellow);
-  color: #000;
-}
-
-.menu .dropdown-item.active {
   background: var(--fv-yellow);
   color: #000;
 }
