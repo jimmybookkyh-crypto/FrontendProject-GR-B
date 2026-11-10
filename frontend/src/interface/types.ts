@@ -233,3 +233,13 @@ export interface AgeBadgeProps {
   ageRating: number | null | undefined;
   className?: string;
 }
+
+export type BookingDraft = {
+  showingId: number;
+  selectedSeats: Seat[];
+  adultTickets: number;
+  childTickets: number;
+  seniorTickets: number;
+  resumeCheckout: boolean;
+  savedAt: number;
+};
