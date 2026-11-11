@@ -242,17 +242,39 @@ export default function BookingConfirmation() {
                     <strong>Totalpris:</strong> {totalPrice} kr
                   </h4>
 
-                  <p className="mb-1">
-                    <strong>Avbokning:</strong> Du kan avboka fram till 2 timmar
-                    före visningen.
-                  </p>
-                  <p className="mb-2">
-                    Har du bokat utan konto avbokar du via länken i ditt
-                    bekräftelsemejl. Är du medlem avbokar du på Mina sidor.
-                  </p>
+                  {/* Cancellation info: one row for guests and one for members */}
+                  <div
+                    className="bg-white bg-opacity-10 border-start border-3 rounded p-3"
+                    style={{ borderColor: "var(--fv-guldgul)" }}
+                  >
+                    <h4 className="h6 heading-gold text-uppercase fw-bold mb-1">
+                      Avbokning
+                    </h4>
+                    <p className="mb-3">
+                      Du kan avboka fram till 2 timmar före visningen.
+                    </p>
+                    <Row className="g-2">
+                      <Col xs={4} sm={3} className="heading-gold">
+                        Utan konto
+                      </Col>
+                      <Col xs={8} sm={9} className="fw-normal">
+                        Klicka på länken ”Avboka din bokning” i ditt
+                        bekräftelsemejl.
+                      </Col>
+                      <Col xs={4} sm={3} className="heading-gold">
+                        Med konto
+                      </Col>
+                      <Col xs={8} sm={9} className="fw-normal">
+                        Avboka under Mina sidor.
+                      </Col>
+                    </Row>
+                  </div>
                   {!token && (
-                    <p className="mb-4">
-                      <em>Vi har skickat en bekräftelse till din e-post.</em>
+                    <p className="fw-normal opacity-75 mt-3 mb-4">
+                      <em>
+                        Bekräftelsen har skickats till din e-post. Hittar du
+                        den inte? Titta i skräpposten.
+                      </em>
                     </p>
                   )}
 
