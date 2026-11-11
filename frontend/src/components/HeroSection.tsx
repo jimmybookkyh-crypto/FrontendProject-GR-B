@@ -719,7 +719,7 @@ function HeroMedia({
         <img
           className={`hero-slide-poster${hiddenClass}`}
           src={poster}
-          alt={`Affisch: ${title}`}
+          alt={title}
           fetchPriority={isFirst ? "high" : "auto"}
           loading={isFirst ? "eager" : "lazy"}
         />

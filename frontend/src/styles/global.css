@@ -40,3 +40,13 @@ form a:hover,
 form a:focus {
   text-decoration: underline;
 }
+
+/* ------- Fokusmarkering (P14.3) ------- */
+:focus-visible {
+  outline: 3px solid var(--fv-guldgul);
+  outline-offset: 2px;
+}
+
+.seat:focus-visible {
+  outline-offset: 3px;
+}
