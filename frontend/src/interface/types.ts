@@ -49,20 +49,6 @@ export interface CookieConsent {
   statistics: boolean;
   date: string;
 }
-// Visningar från backend
-export interface Showings {
-  showingId: number;
-  movieId: number;
-  auditoriumId: number;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM
-  eventId?: number | null;
-}
-
-// Props till SlotSelection
-export interface SlotSelectionProps {
-  showings?: Showings[];
-}
 
 // Mina sidor (T126): en biljett i en av användarens bokningar
 export interface MyBookingTicket {
