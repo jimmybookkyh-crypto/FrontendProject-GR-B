@@ -4,6 +4,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import { AGE_OPTIONS, type AgeLimit } from "../utils/ageLimit"; 
+import "../styles/buttons.css";
 
 export type FilterTab<T extends string> = {
   value: T;
@@ -46,20 +47,20 @@ export default function FilterButtons<T extends string>({
           </Col>
         ))}
 
-        <Col xs={12} md={4}>
+        <Col xs={12} md={5}>
           <Dropdown className="w-100">
             <Dropdown.Toggle
               id="filter-aldersgrans"
               variant="outline-dark"
               size="lg"
-              className="w-100 filter-knapp"
+              className="w-100 filter-knapp wider"
               active={ageLimit !== null}
               aria-label={`Filtrera på åldersgräns, valt: ${selectedAge?.label ?? "Alla åldrar"}`}
             >
               {toggleLabel}
             </Dropdown.Toggle>
 
-            <Dropdown.Menu className="w-100">
+            <Dropdown.Menu className="w-100 menu">
               {AGE_OPTIONS.map((option) => (
                 <Dropdown.Item
                   key={option.label}

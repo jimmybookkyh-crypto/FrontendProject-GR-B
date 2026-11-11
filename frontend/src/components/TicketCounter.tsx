@@ -1,29 +1,39 @@
+import { useId } from "react";
 import { InputGroup, Form } from "react-bootstrap";
 import type { TicketCounterProps } from "../interface/types";
 
-/* En biljettrad på bokningssidan: biljettyp, pris och − antal +.
-   Används för Vuxen, Barn och Pensionär i Booking.tsx.
-   (TicketButton är något annat: länkknappen "Biljetter →".) */
 export default function TicketCounter({
   label,
+  description,
   price,
   count,
   onDecrease,
   onIncrease,
   onChange,
 }: TicketCounterProps) {
+  const descriptionId = useId();
+  const describedBy = description ? descriptionId : undefined;
+
   return (
     <div className="d-flex justify-content-between align-items-center mb-3">
-      <span className="ticket-info">
-        <span> {label} :</span>
-        <span className="ticket-price"> {price} kr </span>
-      </span>
+      <div className="ticket-text">
+        <span className="ticket-info">
+          <span> {label} :</span>
+          <span className="ticket-price"> {price} kr </span>
+        </span>
+        {description && (
+          <small id={descriptionId} className="ticket-description">
+            {description}
+          </small>
+        )}
+      </div>
       <InputGroup style={{ maxWidth: 140 }} className="w-auto ms-auto">
         <button
           className="btn btn-outline-light"
           type="button"
           onClick={onDecrease}
           aria-label={`Ta bort en ${label.toLowerCase()}biljett`}
+          aria-describedby={describedBy}
         >
           −
         </button>
@@ -34,12 +44,14 @@ export default function TicketCounter({
           onChange={(e) => onChange(e.target.value)}
           min={0}
           aria-label={`Antal ${label.toLowerCase()}biljetter`}
+          aria-describedby={describedBy}
         />
         <button
           className="btn btn-outline-light"
           type="button"
           onClick={onIncrease}
           aria-label={`Lägg till en ${label.toLowerCase()}biljett`}
+          aria-describedby={describedBy}
         >
           +
         </button>

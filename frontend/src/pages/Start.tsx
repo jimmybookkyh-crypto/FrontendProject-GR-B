@@ -1,20 +1,18 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
-import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
-import Biodukbg from "../assets/img/biodukbg.png";
-import Spiderman from "../assets/Spiderman.jpeg";
-import Superman from "../assets/Superman.jpg";
-import Ninja from "../assets/Ninja.jpg";
+import Biodukbg from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Datumremsa from "../components/Datumremsa";
-import { langtDatum, plusDagar } from "../utils/datum";
+import { langtDatum, plusDagar, validDate } from "../utils/date";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
+import HeroSection from "../components/HeroSection";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -23,6 +21,7 @@ type Movie = {
   movieId: string;
   title: string;
   ageRating?: number;
+  images?: string[] | string;
 };
 
 /* Det Start behöver veta om en visning: vilken film den gäller.
@@ -34,12 +33,26 @@ type Showing = {
 
 export default function Start() {
   const idag = plusDagar(0);
-  const [valtDatum, setValtDatum] = useState(idag); // sidan börjar på idag
-  const [ageLimit, setAgeLimit] = useAgeLimit(); // P19.2: sparas i URL:en
-  const filterSectionRef = useRef<HTMLDivElement>(null); // P19.2
+  const [searchParams, setSearchParams] = useSearchParams();
+  const valtDatum = validDate(searchParams.get("datum"));
 
-  // P19.2: byter datum och skrollar ner så att Välj datum, åldersfiltret
-  // och dagens filmer syns
+  const setValtDatum = (date: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (date === idag) {
+          next.delete("datum");
+        } else {
+          next.set("datum", date);
+        }
+        return next;
+      },
+      { replace: true, preventScrollReset: true },
+    );
+  };
+  const [ageLimit, setAgeLimit] = useAgeLimit();
+  const filterSectionRef = useRef<HTMLDivElement>(null);
+
   const selectDate = (date: string) => {
     setValtDatum(date);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -49,11 +62,8 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  // Alla filmer som går just nu (current = true)
   const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
 
-  // Visningarna för valt datum. De visar vilka filmer som går just den dagen.
-  // limit=100 så att alla dagens visningar kommer med (utan limit får vi max 50).
   const {
     data: visningar,
     loading: laddarVisningar,
@@ -82,7 +92,7 @@ export default function Start() {
         className="sida-innehall min-vh-100"
         style={{ backgroundImage: `url(${Biodukbg})` }}
       >
-        <HeroCarousel />
+        <HeroSection />
         <Container className="filter-sektion" ref={filterSectionRef}>
           <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
         </Container>
@@ -93,7 +103,6 @@ export default function Start() {
             {langtDatum(valtDatum)}
           </h2>
 
-          {/* #320: gemensam laddning och felruta */}
           {laddar && <LoadingSpinner text="Hämtar filmer…" />}
           {fel && <ErrorMessage message={fel} />}
 
@@ -119,56 +128,13 @@ export default function Start() {
               </div>
             )}
           {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid movies={visibleMovies} datum={valtDatum} />
+            <MovieGrid movies={visibleMovies} datum={valtDatum} navigatedFrom="start" />
           )}
         </Container>
       </div>
     </>
   );
 }
-/* Hero-section med slides.
-   Statiska bilder med flit – inte en del av #319.
-   Ev. koppling till filmer/event görs i egen task. i sprint 4 */
-
-function HeroCarousel() {
-  return (
-    <Carousel className="hero-carousel">
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Ninja}
-          alt="Första bilden"
-        />
-        <Carousel.Caption>
-          <h3>Teenage Mutant Ninja Turtles</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Spiderman}
-          alt="Andra bilden"
-        />
-        <Carousel.Caption>
-          <h3>Spiderman</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Superman}
-          alt="Tredje bilden"
-        />
-        <Carousel.Caption>
-          <h3>Superman</h3>
-        </Carousel.Caption>
-      </Carousel.Item>
-    </Carousel>
-  );
-}
-
-/* Visas när inga filmer går det valda datumet.
-   Knappen "Visa idag" visas bara om man inte redan tittar på idag. */
 
 function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
   return (

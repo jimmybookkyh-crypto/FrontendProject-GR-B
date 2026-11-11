@@ -1,10 +1,10 @@
 .om-sida {
-  --om-guld: var(--fv-guldgul, #dfa213);
-  --om-guld-hover: var(--fv-guldgul-hover, #f0b426);
-  --om-vinrod: var(--fv-vinrod, #8e1733);
-  --om-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
-  --om-midnatt: var(--fv-midnatt, #100e1c);
-  --om-text: var(--fv-offwhite, #f5f7fa);
+  --om-guld: var(--fv-guldgul);
+  --om-guld-hover: var(--fv-guldgul-hover);
+  --om-vinrod: var(--fv-vinrod);
+  --om-vinrod-hover: var(--fv-vinrod-hover);
+  --om-midnatt: var(--fv-midnatt);
+  --om-text: var(--fv-offwhite);
   --om-kort: rgba(16, 14, 28, 0.65);
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
@@ -18,42 +18,38 @@
   padding-bottom: 2.5rem;
 }
 
-/* Ingen egen bakgrund: masken tonar ut bilden så att sidans bakgrund syns igenom */
 .om-hero {
   position: relative;
 }
 
 .om-hero-fond {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  height: 180px;
   overflow: hidden;
   pointer-events: none;
 }
 
 .om-hero-bild {
-  position: absolute;
-  top: 0;
-  right: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: right 35%;
-  filter: brightness(0.55);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%);
+  object-position: 60% 30%;
+  -webkit-mask-image: linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 75%, transparent 100%);
 }
 
 .om-hero-text {
   position: relative;
   z-index: 1;
-  padding-top: 2.25rem;
+  padding-top: 1rem;
   padding-bottom: 4rem;
 }
 
 .om-hero-text h1 {
   font-family: "Antonio", sans-serif;
   font-weight: 700;
-  text-align: left; /* Booking.css centrerar annars alla h1 och h3 */
+  text-align: left; 
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: clamp(1.9rem, 6vw, 3.25rem);
@@ -105,7 +101,6 @@
   padding: 1.5rem;
 }
 
-/* Vid hopp från dropdownen: Salonger-rutans nedre kant mot fönstrets botten */
 .om-sida #salonger {
   scroll-margin-bottom: 2rem;
 }
@@ -297,7 +292,7 @@
 }
 
 .om-knapp:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 2px;
 }
 
@@ -339,25 +334,7 @@
 }
 
 @media (min-width: 768px) {
-  .om-hero-text {
-    padding-top: 3.5rem;
-    padding-bottom: 5.5rem;
-  }
-
-  .om-hero-bild {
-    width: 65%;
-    filter: brightness(0.95);
-    -webkit-mask-image:
-      linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%),
-      linear-gradient(to right, transparent 0%, #000 55%);
-    mask-image:
-      linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%),
-      linear-gradient(to right, transparent 0%, #000 55%);
-    -webkit-mask-composite: source-in;
-    mask-composite: intersect;
-  }
-
-  .om-kort {
+   .om-kort {
     padding: 2rem;
   }
 
@@ -369,6 +346,9 @@
     padding: 1.5rem 2rem 2rem;
   }
 }
+   .om-hero-fond {
+    height: 280px;
+  }
 
 @media (min-width: 992px) {
   .om-hitta-info {
@@ -384,10 +364,32 @@
   }
 }
 
-/* TEST-1.5X-START (tas bort om testet inte blir bra) */
 @media (min-width: 1200px) {
-  .om-sida .om-innehall {
-    zoom: 1.5;
+  .om-hero-text {
+    padding-top: 3.5rem;
+    padding-bottom: 5.5rem;
+  }
+  .om-hero-fond {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+  .om-hero-bild {
+    width: 65%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    object-position: 60% 30%;
+    filter: brightness(0.95);
+    -webkit-mask-image:
+      linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 70%, transparent 100%),
+      linear-gradient(to right, transparent 0%, var(--fv-svart) 25%);
+    mask-image:
+      linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 70%, transparent 100%),
+      linear-gradient(to right, transparent 0%, var(--fv-svart) 25%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
   }
 }
-/* TEST-1.5X-SLUT */
+

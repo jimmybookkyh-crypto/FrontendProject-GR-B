@@ -45,7 +45,6 @@ export interface TicketButtonProps {
   onClick?: () => void;
 }
 
-
 export interface CookieConsent {
   statistics: boolean;
   date: string;
@@ -93,18 +92,47 @@ export interface MyBooking {
   status: "confirmed" | "cancelled";
 }
 
+// Adminportalen (P13): en bokning från GET /bookings/number/:bookingNumber
+export interface AdminBookingTicket {
+  seatsRow: number;
+  seatsNumber: number;
+  ticketType: string; // "Vuxen", "Pensionär", "Barn"
+  price: number;
+}
+
+export interface AdminBooking {
+  bookingId: string | number;
+  bookingNumber: string;
+  email: string;
+  status: "confirmed" | "cancelled";
+  cancelledAt: string | null;
+  movieId: string | number;
+  movieTitle: string;
+  images: string[] | string | null;
+  date: string; // "2026-11-08"
+  time: string; // "18:30"
+  auditoriumName: string;
+  hasStarted: boolean; // visningen har börjat, då går den inte att avboka
+  totalPrice: number;
+  tickets: AdminBookingTicket[];
+}
+
 // Mina sidor (T126): svaret från GET /bookings/me
 export interface MyBookingsResponse {
   upcoming: MyBooking[]; // närmast först
   past: MyBooking[]; // senaste först
 }
 
+export type EventPeriod = { startDate: string; endDate: string };
+
 export type EventRow = {
   eventId: string;
   name: string;
-  date: string | null; // "YYYY-MM-DD"
-  current: boolean;
   info: string | null;
+  image: string | null;
+  altText: string | null;
+  tagline: string | null;
+  periods: EventPeriod[];
 };
 
 export type EventShowing = {
@@ -186,6 +214,7 @@ export interface Booking {
 // Props till TicketCounter (en biljettrad: typ, pris och − antal +)
 export interface TicketCounterProps {
   label: string;
+  description?: string;
   price: number;
   count: number;
   onDecrease: () => void;
@@ -204,3 +233,13 @@ export interface AgeBadgeProps {
   ageRating: number | null | undefined;
   className?: string;
 }
+
+export type BookingDraft = {
+  showingId: number;
+  selectedSeats: Seat[];
+  adultTickets: number;
+  childTickets: number;
+  seniorTickets: number;
+  resumeCheckout: boolean;
+  savedAt: number;
+};

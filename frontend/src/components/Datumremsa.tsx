@@ -4,7 +4,7 @@ import Col from "react-bootstrap/Col";
 import Collapse from "react-bootstrap/Collapse";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { kortDatum, plusDagar } from "../utils/datum";
+import { kortDatum, plusDagar } from "../utils/date";
 
 /* Datumremsan: Idag, Imorgon, fem dagar till och en Kalender-knapp.
    Sidan som använder den äger valt datum (valtDatum) och får veta
@@ -13,23 +13,27 @@ import { kortDatum, plusDagar } from "../utils/datum";
 
 type DatumremsaProps = {
   valtDatum: string; // t.ex. "2026-10-22"
+  dateList?: string[];
   onByt: (datum: string) => void;
 };
 
 /* Texten på dagsknappen: "Idag", "Imorgon" eller t.ex. "lör 24 okt" */
-function knappText(datum: string, index: number): string {
-  if (index === 0) return "Idag";
-  if (index === 1) return "Imorgon";
+function knappText(datum: string): string {
+  if (datum === plusDagar(0)) return "Idag";
+  if (datum === plusDagar(1)) return "Imorgon";
   return kortDatum(datum);
 }
 
-export default function Datumremsa({ valtDatum, onByt }: DatumremsaProps) {
+export default function Datumremsa({ 
+  valtDatum, 
+  onByt, 
+  dateList 
+}: DatumremsaProps) {
   const [kalenderOppen, setKalenderOppen] = useState(false);
   const idag = plusDagar(0);
 
-  // 7 dagar: idag, imorgon och fem dagar till
-  const dagar = [0, 1, 2, 3, 4, 5, 6].map((n) => plusDagar(n));
-
+  // 7 dagar: idag, imorgon och fem dagar till eller showings datum som finns
+  const dagar =  dateList ?? [0, 1, 2, 3, 4, 5, 6].map((n) => plusDagar(n));
   // Kalenderknappen lyser när kalendern är öppen, eller när man valt ett
   // datum i kalendern som inte finns bland dagsknapparna.
   const kalenderAktiv = kalenderOppen || !dagar.includes(valtDatum);
@@ -55,14 +59,15 @@ export default function Datumremsa({ valtDatum, onByt }: DatumremsaProps) {
       <h2 className="datumremsa-rubrik">Välj datum</h2>
 
       <Row xs={2} md={4} lg={8} className="g-2">
-        {dagar.map((datum, index) => (
+        {dagar.map((datum) => (
           <Col key={datum}>
             <Button
+              type="button"
               className="w-100 filter-knapp"
               active={datum === valtDatum}
               onClick={() => valjDag(datum)}
             >
-              {knappText(datum, index)}
+              {knappText(datum)}
             </Button>
           </Col>
         ))}

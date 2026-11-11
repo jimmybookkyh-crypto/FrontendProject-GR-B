@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage"; 
@@ -83,6 +83,7 @@ export default function MovieCatalog() {
           {visibleMovies && visibleMovies.length > 0 && (
             <MovieGrid
               movies={visibleMovies}
+              navigatedFrom="katalog"
               showDetails={activeFilter !== "kommandeFilmer"}
             />
           )}

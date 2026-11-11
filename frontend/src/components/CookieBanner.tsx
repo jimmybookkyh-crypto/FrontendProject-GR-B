@@ -62,11 +62,10 @@ export default function CookieBanner() {
           in och för att vi ska komma ihåg ditt val. Längre fram vill vi också
           använda cookies för statistik, men bara om du godkänner det.{" "}
           <Link to="/cookies" style={{ color: "#DFA213" }}>
-            Läs mer
+            Läs mer om cookies
           </Link>
         </p>
 
-       
         <div className="d-flex gap-2">
           <button
             type="button"

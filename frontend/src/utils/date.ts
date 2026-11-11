@@ -45,7 +45,7 @@ export function kortDatum(text: string): string {
 
 /* Används för datumet i adressen (?datum=...). Någon kan skriva vad som helst där.
    Är det inte ett riktigt datum, eller är det före idag, så blir det idag. */
-export function giltigtDatum(text: string | null): string {
+export function validDate(text: string | null): string {
   const idag = plusDagar(0);
   if (text === null) return idag;
   const arRiktigt = tillText(franText(text)) === text; // fångar t.ex. "abc" och "2026-99-99"

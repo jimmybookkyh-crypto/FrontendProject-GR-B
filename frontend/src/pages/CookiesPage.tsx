@@ -131,6 +131,10 @@ export default function CookiesPage() {
                 förrän du trycker på play. När du spelar en trailer kan YouTube
                 spara cookies enligt sina egna regler.
               </p>
+              <p className="mypage-help mt-2 mb-0">
+                På startsidan spelas trailers automatiskt bara om du har
+                godkänt alla cookies. Annars visas filmens affisch.
+              </p>
             </section>
 
             <section className="mypage-panel">

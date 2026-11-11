@@ -7,9 +7,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',        // sends any requests starting with "/api" to the backend server
+        target: 'http://localhost:3000',      // sends any requests starting with "/api" to the backend server
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // removes the "/api" prefix when forwarding requests
+      },
+      '/ws': { 
+        target: 'ws://localhost:3000', // sends any requests starting with "/ws" to the backend server
+        ws: true, // enables WebSocket proxying
       },
     },
   },
