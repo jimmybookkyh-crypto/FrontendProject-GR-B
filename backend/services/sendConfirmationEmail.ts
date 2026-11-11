@@ -19,16 +19,26 @@ export interface ConfirmationEmailData {
   tickets: BookedTicket[];
   totalPrice: number;
   isMember: boolean; // true = bokad som inloggad
-  cancelUrl?: string; // avbokningslänk för gäster. Byggs i P17.2, tills dess utelämnas den
+  cancelUrl?: string; // cancellation link for guest bookings (P17.2). Member bookings have none
 }
 
 const PAY_ON_SITE = "Betalning sker på plats. Ange bokningsnumret i kassan.";
 const CANCEL_RULE = "Du kan avboka fram till 2 timmar före visningen.";
 
-// Länken till inloggningen i mejlet. APP_URL i .env, annars den lokala sidan.
+// Base address of the site. APP_URL in .env, otherwise the local dev site.
+function appUrl(): string {
+  return (process.env.APP_URL || "http://localhost:5173").replace(/\/+$/, "");
+}
+
+// Link to the login page, used in the member email
 function loginUrl(): string {
-  const base = (process.env.APP_URL || "http://localhost:5173").replace(/\/+$/, "");
-  return `${base}/login`;
+  return `${appUrl()}/login`;
+}
+
+// Link that lets a guest cancel the booking without logging in (P17.2).
+// It opens the confirmation page with the cancel token in the address.
+export function buildCancelUrl(cancelToken: string): string {
+  return `${appUrl()}/bookingconfirmation?token=${encodeURIComponent(cancelToken)}`;
 }
 
 // Filmtitlar kan innehålla tecken som & och <, så allt som skrivs in i HTML görs ofarligt
