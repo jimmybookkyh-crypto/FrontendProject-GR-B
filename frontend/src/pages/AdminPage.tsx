@@ -67,7 +67,7 @@ function AdminPortal() {
 
   const notFound =
     (searched !== "" && !isValid) ||
-    error === "Bokningen finns ej" ||
+    error === "Bokningen finns inte" ||
     error === "Det du letar efter finns inte.";
 
   return (

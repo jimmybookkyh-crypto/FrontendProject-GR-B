@@ -50,7 +50,7 @@ type TokenBooking = {
 };
 
 // The backend answers this when the token does not match any booking
-const BOOKING_NOT_FOUND = "Bokningen finns ej";
+const BOOKING_NOT_FOUND = "Bokningen finns inte";
 
 // Converts the booking from the backend to the same shape as the navigate state,
 // so both ways into the page are shown by the same layout
