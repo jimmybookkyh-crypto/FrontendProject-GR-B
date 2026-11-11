@@ -102,7 +102,7 @@ export default function BookingConfirmation() {
       <ErrorMessage
         message={
           error === BOOKING_NOT_FOUND
-            ? "Länken är ogiltig. Bokningen finns ej. Kontrollera att du öppnade hela länken från ditt bekräftelsemejl."
+            ? "Länken är ogiltig. Bokningen finns inte. Kontrollera att du öppnade hela länken från ditt bekräftelsemejl."
             : error
         }
       />
@@ -164,7 +164,7 @@ export default function BookingConfirmation() {
       >
         {booking.from === "mypage" && <BackButton to="/mypage" />}
         <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
-          BOKNINGSBEKRÄFTELSE
+          Bokningsbekräftelse
         </h1>
 
         <Container className="pb-5">
@@ -217,7 +217,7 @@ export default function BookingConfirmation() {
                   <p className="mb-4 text-center">
                     <em>
                       Ange ditt bokningsnummer i kassan vid betalning av dina
-                      biobiljetter
+                      biobiljetter.
                     </em>
                   </p>
                   <div className="mb-3">
@@ -227,7 +227,7 @@ export default function BookingConfirmation() {
                     <ul className="list-unstyled small mb-0">
                       {booking.tickets.map((t) => (
                         <li key={`${t.seatsRow}-${t.seatsNumber}`}>
-                          Rad {t.seatsRow}, Stol {t.seatsNumber}
+                          Rad {t.seatsRow}, stol {t.seatsNumber}
                         </li>
                       ))}
                     </ul>

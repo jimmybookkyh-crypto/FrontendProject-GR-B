@@ -86,8 +86,7 @@ export default function SeatMap({
                   }`}
                   disabled={isOccupied}
                   onClick={() => !isOccupied && onSeatClick(seat)}
-                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber} 
-                  ${isRecommended ? " - Reccomenderad plats" : ""}`}
+                  title={`Rad ${seat.seatsRow}, stol ${seat.seatsNumber}${isRecommended ? " – rekommenderad plats" : ""}`}
                 >
                   {seat.seatsNumber}
                 </button>

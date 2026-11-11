@@ -339,5 +339,5 @@ function ShowingsBox({
 MovieDetails.route = {
   path: "/movies/:id",
   order: 1,
-  label: "Film detaljer",
+  label: "Filmdetaljer",
 };

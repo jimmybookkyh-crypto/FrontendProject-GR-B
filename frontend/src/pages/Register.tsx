@@ -80,7 +80,7 @@ export default function Register() {
             setError(
                 error instanceof Error 
                 ? error.message 
-                : "Registrering misslyckades vid oväntat fel"
+                : "Det gick inte att skapa kontot. Försök igen."
             );
         } finally {
             setLoading(false);
@@ -109,12 +109,12 @@ export default function Register() {
                 </Form.Group>
 
                 <Form.Group className="mt-4" controlId="register-email">
-                  <Form.Label>Epost</Form.Label>
+                  <Form.Label>E-post</Form.Label>
                   <Form.Control
                     className="mt-2"
                     {...field("email")}
                     isInvalid={!!errors.email}
-                    placeholder="epost"
+                    placeholder="namn@exempel.se"
                     type="email"
                   />
                   <Form.Control.Feedback type="invalid">
@@ -150,7 +150,7 @@ export default function Register() {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? "Registreras..." : "Bli medlem"}
+                  {loading ? "Skapar konto…" : "Bli medlem"}
                 </button>
               </Form>
             </Col>
@@ -163,5 +163,5 @@ export default function Register() {
 Register.route = {
   path: "/bli-medlem",
   order: 15, //vet inte vilket nummer ska vara här
-  label: "bli-medlem",
+  label: "Bli medlem",
 };

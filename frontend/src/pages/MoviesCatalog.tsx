@@ -26,7 +26,7 @@ const FILTER_PATH: Record<Filter, string> = {
 
 const FILTER_TABS: FilterTab<Filter>[] = [
   { value: "allaFilmer", label: "Visas nu" },
-  { value: "kommandeFilmer", label: "Kommande Filmer" },
+  { value: "kommandeFilmer", label: "Kommande filmer" },
 ];
 
 export default function MovieCatalog() {

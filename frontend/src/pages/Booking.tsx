@@ -275,7 +275,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: adultTypeId,
           price: adultPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -288,7 +288,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: childTypeId,
           price: childPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -301,7 +301,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: seniorTypeId,
           price: seniorPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -447,7 +447,7 @@ export default function BookingPage() {
     });
   };
   if (showingLoading || seatsLoading) {
-    return <div className="text-center text-light p-5">Laddar visning...</div>;
+    return <div className="text-center text-light p-5">Hämtar visning…</div>;
   }
 
   if (showingError || seatsError) {
@@ -571,7 +571,7 @@ export default function BookingPage() {
       <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 
       <h1 className="h4 fw-bold text-center mb-4 heading-gold">
-        BOKA BILJETTER
+        Boka biljetter
       </h1>
 
       <Container className="pb-5">
@@ -645,7 +645,7 @@ export default function BookingPage() {
             <Card className="glass-card w-100">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
-                  BILJETTER
+                  Biljetter
                 </h3>
 
                 <TicketCounter
@@ -702,7 +702,7 @@ export default function BookingPage() {
                     <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
                       {selectedSeats.map((seat) => (
                         <li key={seat.seatId}>
-                          Rad {seat.seatsRow}, Stol {seat.seatsNumber}
+                          Rad {seat.seatsRow}, stol {seat.seatsNumber}
                         </li>
                       ))}
                     </ul>
@@ -714,14 +714,14 @@ export default function BookingPage() {
                           color: "rgba(245, 247, 250, 0.7)",
                         }}
                       >
-                        Inga valda
+                        Inga platser valda
                       </p>
                   )}
                 </div>
 
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
-                <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
+                <h4 className="h5 mb-3">Totalt: {totalPrice} kr</h4>
 
                 <button
                   type="button"
@@ -758,7 +758,7 @@ export default function BookingPage() {
                         size="lg"
                         type="email"
                         autoComplete="email"
-                        placeholder="din.epost@example.se"
+                        placeholder="namn@exempel.se"
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
@@ -798,7 +798,7 @@ export default function BookingPage() {
                       onClick={handleCheckout}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Bokar..." : "SLUTFÖR BOKNING"}
+                      {isSubmitting ? "Bokar…" : "Slutför bokning"}
                     </button>
                   </Modal.Footer>
                 </Modal>

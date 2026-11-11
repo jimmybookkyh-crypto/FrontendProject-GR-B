@@ -25,13 +25,13 @@ const OPPETTIDER = [
 const SALONGER = [
   {
     id: "salong-1",
-    namn: "Salong 1 - Stora salongen",
+    namn: "Salong 1 – Stora salongen",
     platser: 81,
     punkter: ["Stor bioduk", "Laserprojektion", "Infinity Vision"],
   },
   {
     id: "salong-2",
-    namn: "Salong 2 - Lilla salongen",
+    namn: "Salong 2 – Lilla salongen",
     platser: 55,
     punkter: ["Mindre salong", "Intim och bekväm", "Modernt ljud"],
   },
@@ -144,7 +144,7 @@ function Huvudkort() {
         </h2>
         <p>
           Filmvisarna i Småstad är en modern biograf med industriell karaktär,
-          varm inredning och avancerad filmteknik. Biografen har 2 salonger med
+          varm inredning och avancerad filmteknik. Biografen har två salonger med
           totalt 136 platser och erbjuder flera olika bioupplevelser för dig som
           vill gå på bio i Småstad.
         </p>
@@ -161,7 +161,7 @@ function Huvudkort() {
         </p>
         <p>
           Våra salonger har sin egen stil och tillsammans skapar de en personlig
-          och bekväm bioupplevelse. På sitt invigningsår 2020 fick Biostaden
+          och bekväm bioupplevelse. På sitt invigningsår 2020 fick Filmvisarna
           utmärkelsen Boxoffice Blue Ribbon Cinema, som uppmärksammar biografer
           som erbjuder en särskilt enastående bioupplevelse.
         </p>
@@ -176,7 +176,7 @@ function Huvudkort() {
             <IkonParkering /> Parkering nära
           </li>
           <li>
-            <IkonCafe /> Café &amp; Bar
+            <IkonCafe /> Café &amp; bar
           </li>
           <li>
             <IkonRullstol /> Rullstolsanpassat
@@ -276,7 +276,7 @@ function SnacksMeny() {
   return (
     <section id="snacks-meny" className="om-sektion" aria-labelledby="snacks-rubrik">
       <div className="om-kort">
-        <h2 id="snacks-rubrik" className="om-rubrik">Snacks meny</h2>
+        <h2 id="snacks-rubrik" className="om-rubrik">Snacksmeny</h2>
         <Row className="g-4">
           {SNACKS.map((grupp) => (
             <Col md={4} key={grupp.kategori}>
