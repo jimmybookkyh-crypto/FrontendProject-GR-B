@@ -13,6 +13,7 @@ import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import HeroSection from "../components/HeroSection";
+import type { Showing } from "../interface/types";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -24,12 +25,7 @@ type Movie = {
   images?: string[] | string;
 };
 
-/* Det Start behöver veta om en visning: vilken film den gäller.
-   (Svaret från GET /showings innehåller mer, t.ex. tid och salong.) */
-type Showing = {
-  movieId: number;
-  hasStarted: boolean; // true = visningen har börjat och kan inte bokas
-};
+type StartShowing = Pick<Showing, "movieId" | "hasStarted">;
 
 export default function Start() {
   const idag = plusDagar(0);
@@ -68,7 +64,7 @@ export default function Start() {
     data: visningar,
     loading: laddarVisningar,
     error: visningsFel,
-  } = useFetch<Showing[]>(`/showings?date=${valtDatum}&limit=100`);
+  } = useFetch<StartShowing[]>(`/showings?date=${valtDatum}&limit=100`);
 
   const filmerDenDagen =
     filmer && visningar
