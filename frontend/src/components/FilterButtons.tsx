@@ -34,7 +34,7 @@ export default function FilterButtons<T extends string>({
     <Container className="filter-sektion">
       <Row className="g-2 g-md-4 d-flex justify-content-center">
         {tabs.map((tab) => (
-          <Col key={tab.value} xs={12} md={4}>
+          <Col key={tab.value} xs={12} md={5} lg={4}>
             <Button
               variant="outline-dark"
               size="lg"
@@ -47,13 +47,13 @@ export default function FilterButtons<T extends string>({
           </Col>
         ))}
 
-        <Col xs={12} md={5}>
+        <Col xs={12} md={5} lg={4}>
           <Dropdown className="w-100">
             <Dropdown.Toggle
               id="filter-aldersgrans"
               variant="outline-dark"
               size="lg"
-              className="w-100 filter-knapp wider"
+              className="w-100 filter-knapp"
               active={ageLimit !== null}
               aria-label={`Filtrera på åldersgräns, valt: ${selectedAge?.label ?? "Alla åldrar"}`}
             >

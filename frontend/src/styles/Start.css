@@ -26,6 +26,7 @@
   font-size: 1.2rem;
   padding: 0.7rem 1rem;
   border: none;
+  
   clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
   transition:
     transform 0.15s ease,
@@ -158,7 +159,6 @@
 @media (min-width: 768px) {
   .btn.filter-knapp {
     font-size: 1.5rem;
-    padding: 0.7rem 1rem;
   }
 
   .boka-knapp {
@@ -168,7 +168,6 @@
 
 @media (max-width: 1200px) {
   .btn.filter-knapp {
-    font-size: 1.2rem;
-    padding: 0.7rem 1rem;
+    font-size: 1.2rem;  
   }
 }

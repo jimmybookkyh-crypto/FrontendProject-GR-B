@@ -10,10 +10,9 @@ type AgeOption = {
 
 export const AGE_OPTIONS: AgeOption[] = [
   { value: null, label: "Alla åldrar", urlValue: null },
-  { value: 0, label: "Barntillåten", urlValue: "btl" },
-  { value: 7, label: "Till 7 år", urlValue: "7" },
-  { value: 11, label: "Till 11 år", urlValue: "11" },
-  { value: 15, label: "Till 15 år", urlValue: "15" },
+  { value: 7, label: "Från 7 år", urlValue: "7" },
+  { value: 11, label: "Från 11 år", urlValue: "11" },
+  { value: 15, label: "Från 15 år", urlValue: "15" },
 ];
 
 const AGE_PARAM = "alder";
