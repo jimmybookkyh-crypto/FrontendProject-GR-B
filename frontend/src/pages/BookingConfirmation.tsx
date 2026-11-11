@@ -1,5 +1,6 @@
-import { Row, Container, Col, Card } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router";
+import { useState } from "react";
+import { Row, Container, Col, Card, Modal, Alert } from "react-bootstrap";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import ErrorMessage from "../components/ErrorMessage";
@@ -266,12 +267,15 @@ export default function BookingConfirmation() {
                       Den här bokningen är redan avbokad.
                     </Alert>
                   )}
-                  {token && !isCancelled && !wasAlreadyCancelled && !canCancel && (
-                    <Alert variant="warning" className="mt-3 mb-0">
-                      Det är för sent att avboka. Avbokning går bara fram till 2
-                      timmar före visningen.
-                    </Alert>
-                  )}
+                  {token &&
+                    !isCancelled &&
+                    !wasAlreadyCancelled &&
+                    !canCancel && (
+                      <Alert variant="warning" className="mt-3 mb-0">
+                        Det är för sent att avboka. Avbokning går bara fram till
+                        2 timmar före visningen.
+                      </Alert>
+                    )}
                   <div className="d-flex justify-content-between mt-4">
                     {booking.from === "mypage" && (
                       <button
@@ -313,8 +317,8 @@ export default function BookingConfirmation() {
           </Modal.Header>
           <Modal.Body className="text-dark">
             <p className="mb-0">
-              Din bokning till {booking.movieTitle} avbokas och platserna
-              släpps till andra besökare. Det går inte att ångra.
+              Din bokning till {booking.movieTitle} avbokas och platserna släpps
+              till andra besökare. Det går inte att ångra.
             </p>
             {cancelError && (
               <Alert variant="danger" className="py-2 mt-3 mb-0">
