@@ -1,7 +1,6 @@
 import { Container, Row, Col, Figure } from "react-bootstrap";
 import { Link } from "react-router";
-
-import logo from "../assets/img/logo.png";
+import logo from "../assets/logo.png";
 
 const linkStyle = { color: "#f5f7fa" };
 
@@ -49,8 +48,8 @@ export default function footer() {
                 <Figure.Image
                   className="mb-0"
                   src={logo}
-                  width={120}
-                  height={100}
+                  width={72}
+                  height={59}
                   alt=""
                 />
               </Figure>

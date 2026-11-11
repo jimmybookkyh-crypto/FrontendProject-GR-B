@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import Biodukbg from "../assets/img/biodukbg.png";
+import Biodukbg from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";

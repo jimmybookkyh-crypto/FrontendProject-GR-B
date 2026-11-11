@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { Row, Container, Col, Card, Modal, Alert } from "react-bootstrap";
-import { useLocation, useNavigate, useSearchParams } from "react-router";
-import backgroundImage from "../assets/img/biodukbg.png";
+import { Row, Container, Col, Card } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";

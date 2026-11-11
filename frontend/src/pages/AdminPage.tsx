@@ -22,9 +22,6 @@ import {
 import type { AdminBooking } from "../interface/types.ts";
 import "../styles/MyPage.css";
 
-/* P13 (#417): Adminportalen för personalen.
-   Bara admin kommer hit (RequireAuth med role="admin").
-   Samma stil som Mina sidor. Admin ändrar sina egna uppgifter på Mina sidor. */
 export default function AdminPage() {
   return (
     <RequireAuth role="admin">
@@ -39,7 +36,6 @@ AdminPage.route = {
   label: "Admin",
 };
 
-/* Bokningsnummer är 8 tecken 0-9 och A-F, t.ex. "3F9A0C1B" (samma som i backend) */
 const BOOKING_NUMBER_PATTERN = /^[0-9A-F]{8}$/;
 
 function normalizeBookingNumber(value: string): string {
@@ -47,14 +43,12 @@ function normalizeBookingNumber(value: string): string {
 }
 
 function AdminPortal() {
-  // Sökt nummer ligger i adressen (/admin?bokning=3F9A0C1B), så att sökningen
-  // finns kvar vid omladdning och fungerar med bakåtknappen
   const [searchParams, setSearchParams] = useSearchParams();
   const searched = searchParams.get("bokning") ?? "";
   const isValid = BOOKING_NUMBER_PATTERN.test(searched);
 
   const [input, setInput] = useState(searched);
-  const [refreshKey, setRefreshKey] = useState(0); // ökas efter avbokning
+  const [refreshKey, setRefreshKey] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
   const {
@@ -71,7 +65,6 @@ function AdminPortal() {
     setSearchParams({ bokning: normalizeBookingNumber(input) });
   }
 
-  // Okänt nummer (404) och fel format ger samma svar till personalen
   const notFound =
     (searched !== "" && !isValid) ||
     error === "Bokningen finns ej" ||
@@ -167,7 +160,6 @@ function AdminPortal() {
   );
 }
 
-/* images kan vara en lista, en JSON-text eller en vanlig sökväg (samma som MovieCard) */
 function posterUrl(images: AdminBooking["images"]): string {
   if (!images) return "";
   try {
@@ -178,7 +170,6 @@ function posterUrl(images: AdminBooking["images"]): string {
   }
 }
 
-/* Bokningen som personalen ser i kassan, med knappen Avboka */
 function AdminBookingCard({
   booking,
   onCancelled,
@@ -220,7 +211,11 @@ function AdminBookingCard({
     <section className="mypage-panel" aria-labelledby="admin-booking-title">
       <div className="mypage-booking">
         <div className="mypage-poster">
-          {poster ? <img src={poster} alt="" /> : <span>Affisch</span>}
+          {poster ? (
+            <img src={poster} alt="" loading="lazy" />
+          ) : (
+            <span>Affisch</span>
+          )}
         </div>
 
         <div className="mypage-booking-info">
@@ -234,7 +229,9 @@ function AdminBookingCard({
           <p className="mb-1">
             {seats} · {ticketTypes}
           </p>
-          <p className="mypage-total">Totalt {formatPris(booking.totalPrice)}</p>
+          <p className="mypage-total">
+            Totalt {formatPris(booking.totalPrice)}
+          </p>
           <p className="mypage-bookingnr">
             Bokningsnummer: <span>{booking.bookingNumber}</span>
           </p>
@@ -261,9 +258,7 @@ function AdminBookingCard({
             </button>
           ) : (
             <span className="mypage-cancel-closed">
-              {isCancelled
-                ? "Bokningen är avbokad"
-                : "Visningen har börjat"}
+              {isCancelled ? "Bokningen är avbokad" : "Visningen har börjat"}
             </span>
           )}
           {!isCancelled && <small>Betalas i kassan</small>}
