@@ -1,5 +1,5 @@
 /* Eventsidan – följer stilguiden:
-   Guldgul #DFA213, Vinröd #8E1733, Midnatt #100E1C, Off-white #F5F7FA
+   Guldgul var(--fv-guldgul), Vinröd var(--fv-vinrod), Midnatt var(--fv-midnatt), Off-white var(--fv-offwhite)
    Typsnitt: Antonio (rubriker), Oswald (brödtext) */
 
 .event-page-container {
@@ -27,14 +27,14 @@
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   letter-spacing: 0.12em;
-  color: #dfa213;
+  color: var(--fv-guldgul);
   font-size: clamp(2rem, 6vw, 3.25rem);
   margin-bottom: 0.5rem;
 }
 
 .event-header p {
   font-family: "Oswald", sans-serif;
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
   font-size: 1.1rem;
   margin: 0;
 }
@@ -51,7 +51,7 @@
 
 .event-empty {
   text-align: center;
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
   font-family: "Oswald", sans-serif;
 }
 
@@ -64,7 +64,7 @@
   border-radius: 1rem;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   overflow: hidden;
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
 }
 
 .event-image-border{
@@ -102,8 +102,8 @@
   display: inline-block;
   margin: 0 0 0.75rem;
   padding: 0.25rem 0.75rem;
-  background-color: #dfa213;
-  color: #100e1c;
+  background-color: var(--fv-guldgul);
+  color: var(--fv-midnatt);
   border-radius: 0.25rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -114,7 +114,7 @@
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   letter-spacing: 0.1em;
-  color: #dfa213;
+  color: var(--fv-guldgul);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   margin: 0 0 0.25rem;
 }
@@ -170,19 +170,19 @@
 /* Off-white text på Midnatt (21:1). Bootstrap-variablerna sätts för alla
    lägen så att texten aldrig blir mörk (t.ex. efter klick eller fokus). */
 .btn.event-movies-button {
-  --bs-btn-color: #f5f7fa;
+  --bs-btn-color: var(--fv-offwhite);
   --bs-btn-bg: transparent;
-  --bs-btn-border-color: #dfa213;
-  --bs-btn-hover-color: #f5f7fa;
+  --bs-btn-border-color: var(--fv-guldgul);
+  --bs-btn-hover-color: var(--fv-offwhite);
   --bs-btn-hover-bg: rgba(223, 162, 19, 0.2);
-  --bs-btn-hover-border-color: #dfa213;
-  --bs-btn-active-color: #f5f7fa;
+  --bs-btn-hover-border-color: var(--fv-guldgul);
+  --bs-btn-active-color: var(--fv-offwhite);
   --bs-btn-active-bg: rgba(223, 162, 19, 0.3);
-  --bs-btn-active-border-color: #dfa213;
+  --bs-btn-active-border-color: var(--fv-guldgul);
   --bs-btn-focus-shadow-rgb: 245, 247, 250;
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
   background-color: transparent;
-  border: 2px solid #dfa213;
+  border: 2px solid var(--fv-guldgul);
   font-family: "Oswald", sans-serif;
 }
 
@@ -191,7 +191,7 @@
 .btn.event-movies-button:active,
 .btn.event-movies-button.active,
 .btn.event-movies-button.show {
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
 }
 
 /* Respektera "minska rörelse" */

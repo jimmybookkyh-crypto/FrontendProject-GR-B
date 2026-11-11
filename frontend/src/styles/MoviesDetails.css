@@ -1,7 +1,7 @@
 .film-sida h1,
 .film-sida h2,
 .film-sida h3 {
-  color: #dfa213;
+  color: var(--fv-guldgul);
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
 }
@@ -11,7 +11,7 @@
   --bs-card-bg: transparent;
   --bs-card-cap-bg: transparent;
   --bs-card-border-color: rgba(253, 252, 250, 0.28);
-  --bs-card-color: #f5f7fa;
+  --bs-card-color: var(--fv-offwhite);
 
   background-color: rgba(16, 14, 28, 0.65);
   backdrop-filter: blur(12px);
@@ -19,7 +19,7 @@
   border: 1px solid rgba(253, 252, 250, 0.28);
   border-radius: 1rem;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-  color: #f5f7fa;
+  color: var(--fv-offwhite);
 }
 .film-sida .film-stack>.card {
   margin-bottom: 0 !important;
@@ -28,15 +28,15 @@
    samma färg gäller i alla lägen (hover, tryck och fokus). */
 .film-sida .tid-knapp,
 .film-sida .tillbaka-knapp {
-  --bs-btn-color: #fff;
-  --bs-btn-bg: #8e1733;
-  --bs-btn-border-color: #8e1733;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #8e1733;
-  --bs-btn-hover-border-color: #8e1733;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #8e1733;
-  --bs-btn-active-border-color: #8e1733;
+  --bs-btn-color: var(--fv-vit);
+  --bs-btn-bg: var(--fv-vinrod);
+  --bs-btn-border-color: var(--fv-vinrod);
+  --bs-btn-hover-color: var(--fv-vit);
+  --bs-btn-hover-bg: var(--fv-vinrod);
+  --bs-btn-hover-border-color: var(--fv-vinrod);
+  --bs-btn-active-color: var(--fv-vit);
+  --bs-btn-active-bg: var(--fv-vinrod);
+  --bs-btn-active-border-color: var(--fv-vinrod);
   --bs-btn-focus-shadow-rgb: 142, 23, 51;
 }
 
@@ -87,16 +87,16 @@
 
 .film-sida .film-krediter strong {
   font-weight: 700;
-  color: #dfa213;
+  color: var(--fv-guldgul);
 }
 
 /* Valt datum: etiketten i guld, själva datumet i vitt */
 .film-sida .valt-datum {
-  color: #dfa213;
+  color: var(--fv-guldgul);
 }
 
 .film-sida .datum-vit {
-  color: #fff;
+  color: var(--fv-vit);
   text-transform: capitalize;
 }
 

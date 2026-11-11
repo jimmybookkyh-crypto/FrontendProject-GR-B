@@ -6,7 +6,10 @@ import {
   CreatedBooking,
   CreateBookingInput,
 } from "../interface/types.js";
-import { sendConfirmationEmail } from "./sendConfirmationEmail.js";
+import {
+  buildCancelUrl,
+  sendConfirmationEmail,
+} from "./sendConfirmationEmail.js";
 import { broadcastSeats } from "../websocket.js";
 
 /* Hämtar det mejlet behöver och skickar bekräftelsen.
@@ -17,6 +20,7 @@ async function sendMailForBooking(args: {
   showingId: number;
   guestEmail: string; // adressen från bokningsmodalen
   userId: number | null; // null = gäst
+  cancelToken: string | null; // only guest bookings have one
   tickets: BookedTicket[];
   totalPrice: number;
 }): Promise<void> {
@@ -63,6 +67,8 @@ async function sendMailForBooking(args: {
       tickets: args.tickets,
       totalPrice: args.totalPrice,
       isMember: args.userId !== null,
+      // Guests get the cancellation link. The token is only ever sent in this email.
+      cancelUrl: args.cancelToken ? buildCancelUrl(args.cancelToken) : undefined,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Okänt fel";
@@ -171,11 +177,17 @@ export async function createBooking(
 
     const bookingNumber = randomBytes(4).toString("hex").toUpperCase();
 
+    // Guest bookings get a long random cancel token (64 characters), so the guest can
+    // cancel from the link in the email. Member bookings get none (they use My pages).
+    // The token is never part of "returning", so it never reaches the browser.
+    const cancelToken =
+      userId === null ? randomBytes(32).toString("hex") : null;
+
     const booking = await client.query<Booking>(
-      `insert into bookings ("bookingNumber", email, "showingId", "userId")
-        values ($1, $2, $3, $4)
+      `insert into bookings ("bookingNumber", email, "showingId", "userId", "cancelToken")
+        values ($1, $2, $3, $4, $5)
         returning "bookingId", "bookingNumber", email, "showingId", "userId", created_at`,
-      [bookingNumber, email, showingId, userId],
+      [bookingNumber, email, showingId, userId, cancelToken],
     );
 
     const bookingId = booking.rows[0].bookingId;
@@ -239,6 +251,7 @@ export async function createBooking(
       showingId,
       guestEmail: email,
       userId,
+      cancelToken,
       tickets: bookedTickets,
       totalPrice,
     });

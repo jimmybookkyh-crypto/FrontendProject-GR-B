@@ -1,13 +1,3 @@
-:root {
-  --fv-guldgul: #dfa213;
-  --fv-guldgul-hover: #f0b426;
-  --fv-vinrod: #8e1733;
-  --fv-vinrod-hover: #a81c3c;
-  --fv-midnatt: #100e1c;
-  --fv-offwhite: #f5f7fa;
-  --fv-kort-bg: #1a1830;
-}
-
 /* ---------- Innehållsyta (allt utom NavBar/Footer) ---------- */
 .sida-innehall {
   background-color: var(--fv-midnatt);
@@ -29,11 +19,11 @@
   margin: 0 auto;
 }
 
-.filter-knapp {
-  font-family: "Bebas Neue", sans-serif;
+.btn.filter-knapp {
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 1rem;
+  letter-spacing: 0.1em;
+  font-size: 1.2rem;
   padding: 0.7rem 1rem;
   border: none;
   clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
@@ -166,12 +156,19 @@
    LÄSPLATTA / LIGGANDE MOBIL: min-width 768px
    ========================================================== */
 @media (min-width: 768px) {
-  .filter-knapp {
-    font-size: 1.1rem;
+  .btn.filter-knapp {
+    font-size: 1.5rem;
     padding: 0.7rem 1rem;
   }
 
   .boka-knapp {
     font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .btn.filter-knapp {
+    font-size: 1.2rem;
+    padding: 0.7rem 1rem;
   }
 }

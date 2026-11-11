@@ -38,7 +38,7 @@
 }
 
 .hero-pause-toggle:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 3px;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .hero-sound-toggle:focus-visible {
-  outline: 2px solid #ffffff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 3px;
 }
 
@@ -228,7 +228,7 @@
   margin: 0;
   font-family: "Oswald", sans-serif;
   font-size: 1.05rem;
-  color: #e6e3ee;
+  color: var(--fv-ljuslila);
   max-width: 32rem;
 }
 
@@ -271,7 +271,7 @@
   height: 3.5rem;
   background-color: var(--fv-guldgul);
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 50% 50%);
-  filter: drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff)
+  filter: drop-shadow(1px 0 0 var(--fv-vit)) drop-shadow(-1px 0 0 var(--fv-vit))
     drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
   transition:
     transform 0.15s ease,

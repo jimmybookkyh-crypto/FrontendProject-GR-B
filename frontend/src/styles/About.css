@@ -1,10 +1,10 @@
 .om-sida {
-  --om-guld: var(--fv-guldgul, #dfa213);
-  --om-guld-hover: var(--fv-guldgul-hover, #f0b426);
-  --om-vinrod: var(--fv-vinrod, #8e1733);
-  --om-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
-  --om-midnatt: var(--fv-midnatt, #100e1c);
-  --om-text: var(--fv-offwhite, #f5f7fa);
+  --om-guld: var(--fv-guldgul);
+  --om-guld-hover: var(--fv-guldgul-hover);
+  --om-vinrod: var(--fv-vinrod);
+  --om-vinrod-hover: var(--fv-vinrod-hover);
+  --om-midnatt: var(--fv-midnatt);
+  --om-text: var(--fv-offwhite);
   --om-kort: rgba(16, 14, 28, 0.65);
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
@@ -35,8 +35,8 @@
   height: 100%;
   object-fit: cover;
   object-position: 60% 30%;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 75%, transparent 100%);
 }
 
 .om-hero-text {
@@ -292,7 +292,7 @@
 }
 
 .om-knapp:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--fv-vit);
   outline-offset: 2px;
 }
 
@@ -383,11 +383,11 @@
     object-position: 60% 30%;
     filter: brightness(0.95);
     -webkit-mask-image:
-      linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%),
-      linear-gradient(to right, transparent 0%, #000 25%);
+      linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 70%, transparent 100%),
+      linear-gradient(to right, transparent 0%, var(--fv-svart) 25%);
     mask-image:
-      linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%),
-      linear-gradient(to right, transparent 0%, #000 25%);
+      linear-gradient(to bottom, var(--fv-svart) 0%, var(--fv-svart) 70%, transparent 100%),
+      linear-gradient(to right, transparent 0%, var(--fv-svart) 25%);
     -webkit-mask-composite: source-in;
     mask-composite: intersect;
   }
