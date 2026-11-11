@@ -70,7 +70,7 @@ export default function Login() {
             setError(
                 error instanceof Error 
                 ? error.message 
-                : "Login misslyckades vid oväntat fel"
+                : "Inloggningen misslyckades. Försök igen."
             );
         } finally {
             setLoading(false);
@@ -133,13 +133,13 @@ export default function Login() {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? "Loggar in..." : "Logga in"}
+                  {loading ? "Loggar in…" : "Logga in"}
                 </button>
                 <Form.Text
                   id="login-help"
                   className="mypage-help login-help d-block mt-3"
                 >
-                  Inte redan medlem?
+                  Inte medlem än?
                   <Link className="ms-2" to="/bli-medlem" state={{ from }}>
                     Bli medlem här
                   </Link>
@@ -155,5 +155,5 @@ export default function Login() {
 Login.route = {
   path: "/login",
   order: 0,
-  label: "Login",
+  label: "Logga in",
 };

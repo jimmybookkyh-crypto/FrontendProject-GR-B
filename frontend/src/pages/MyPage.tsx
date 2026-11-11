@@ -96,5 +96,5 @@ export default function MyPage() {
 MyPage.route = {
   path: "/mypage",
   order: 0,
-  label: "Min Sida",
+  label: "Mina sidor",
 };

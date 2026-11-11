@@ -89,7 +89,7 @@ bookingsRouter.get(
 
       if (booking === null) {
         return res.status(404).json({
-          error: { message: "Bokningen finns ej" },
+          error: { message: "Bokningen finns inte" },
         });
       }
 
@@ -161,7 +161,7 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
 
     if (bookingResult.rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -214,7 +214,7 @@ bookingsRouter.get("/token/:token", async (req, res) => {
   // A wrong or made-up token gives the same answer as an unknown one
   if (cancelToken === null) {
     return res.status(404).json({
-      error: { message: "Bokningen finns ej" },
+      error: { message: "Bokningen finns inte" },
     });
   }
 
@@ -237,7 +237,7 @@ bookingsRouter.get("/token/:token", async (req, res) => {
 
     if (bookingResult.rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -276,7 +276,7 @@ bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
 
   if (cancelToken === null) {
     return res.status(404).json({
-      error: { message: "Bokningen finns ej" },
+      error: { message: "Bokningen finns inte" },
     });
   }
 
@@ -304,7 +304,7 @@ bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
     if (found.rows.length === 0) {
       await client.query("ROLLBACK");
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -395,7 +395,7 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 
     if (booking.rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -538,7 +538,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -587,7 +587,7 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
     if (found.rows.length === 0) {
       await client.query("ROLLBACK");
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 

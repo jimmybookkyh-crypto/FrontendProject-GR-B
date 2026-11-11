@@ -46,7 +46,7 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
     } catch {
         //om JSON inte går att läsa
         if(!response.ok) {
-            throw new Error(`Request failed: ${response.status}`);
+            throw new Error("Något gick fel. Försök igen om en stund.");
         }
 
         throw new Error("Servern returnerade ett ogiltigt svar.");
@@ -56,7 +56,7 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
 
     //vid HTTP-fel vid giltig JSON
     if (!response.ok) {
-        throw new Error( errorBody.error?.message ?? `Förfrågning misslyckades: ${response.status}`);
+        throw new Error( errorBody.error?.message ?? "Något gick fel. Försök igen om en stund.");
     }
 
     //stödjer både { data: ... } och directa JSON responses

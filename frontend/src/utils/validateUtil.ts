@@ -4,7 +4,7 @@ export type FieldErrors<K extends string = string> = Partial<Record<K, string>>;
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Validerar att ett fält inte är tomt.
-export function requiredError(value: string, message = "Obligatoriskta fält måste fyllas i.") {
+export function requiredError(value: string, message = "Fyll i fältet.") {
   return value.trim() === "" ? message : undefined;
 }
 // Högst 20 tecken i användarnamnet (P32). Samma gräns finns i backend.

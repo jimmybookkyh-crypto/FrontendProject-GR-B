@@ -123,7 +123,7 @@ export default function Header() {
               Salonger
             </NavDropdown.Item>
             <NavDropdown.Item as={Link} to="/about#snacks-meny">
-              Snacks meny
+              Snacksmeny
             </NavDropdown.Item>
           </NavDropdown>
         </Nav>
