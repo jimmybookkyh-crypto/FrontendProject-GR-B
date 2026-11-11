@@ -46,7 +46,21 @@
   background-color: var(--fv-guldgul) !important;
   border-color: var(--fv-guldgul) !important;
 }
+.btn.filter-knapp:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  background-color: var(--fv-vinrod-hover) !important;
+  box-shadow:
+    inset 0 4px 0 var(--fv-guldgul),
+    inset 0 -4px 0 var(--fv-guldgul) !important;
+}
 
+.btn.filter-knapp.active:focus-visible {
+  background-color: var(--fv-guldgul) !important;
+  box-shadow:
+    inset 0 4px 0 var(--fv-midnatt),
+    inset 0 -4px 0 var(--fv-midnatt) !important;
+}
 /* Kalenderfältet som fälls ut */
 #kalender-val .form-control {
   background-color: var(--fv-offwhite);
