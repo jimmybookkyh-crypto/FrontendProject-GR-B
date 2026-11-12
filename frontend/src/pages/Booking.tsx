@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-import backgroundImage from "../assets/img/biodukbg.png";
+import backgroundImage from "../assets/img/biodukbg.webp";
 // @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
@@ -12,6 +12,7 @@ import AgeBadge from "../components/AgeBadge";
 import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
+import { emailError } from "../utils/validateUtil.ts";
 import {
   formatDate,
   formatTime,
@@ -25,6 +26,10 @@ import type {
   Seat,
   Booking,
 } from "../interface/types";
+import useSeatUpdates from "../hooks/useSeatUpdates";
+import useBookingDraft from "../hooks/useBookingDraft";
+import { loadBookingDraft, saveBookingDraft, clearBookingDraft } from "../utils/bookingDraft.ts";
+
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -33,9 +38,6 @@ export default function BookingPage() {
 
   // Hämta den inloggade användaren från AuthContext
   const { user } = useAuth();
-
-  // State för att tvinga omhämtning av upptagna stolar
-  const [seatRefreshKey, setSeatRefreshKey] = useState(0);
 
   // State för e-post och userId
   const [email, setEmail] = useState("");
@@ -87,12 +89,8 @@ export default function BookingPage() {
 
   const seats: Seat[] = seatsRaw || [];
 
-  // Hämta upptagna stolar för den aktuella visningen (inkluderar seatRefreshKey för automatisk reload)
-  // Backend svarar med en lista av stol-id:n, t.ex. [28, 29, 30]
-  const { data: occupiedSeatsRaw } = useFetch<number[]>(
-    showingId ? `/showings/${showingId}/seats?refresh=${seatRefreshKey}` : null,
-  );
-  const occupiedSeats: number[] = occupiedSeatsRaw ?? [];
+  // ANvänder useSeatUpdates för att få realtidsuppdateringar av upptagna stolar via WebSocket
+  const occupiedSeats = useSeatUpdates(showingId);
 
   // Hämta biljetttyper från API:et
   const { data: ticketTypesRaw } = useFetch<TicketType[]>(
@@ -118,18 +116,90 @@ export default function BookingPage() {
   const childPrice = childType?.price ?? 80;
   const seniorPrice = seniorType?.price ?? 120;
 
+  const draft = showingId
+    ? loadBookingDraft(Number(showingId))
+    : null;
+  
   // State
-  const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
-  const [adultTickets, setAdultTickets] = useState(0);
-  const [childTickets, setChildTickets] = useState(0);
-  const [seniorTickets, setSeniorTickets] = useState(0);
+  const [selectedSeats, setSelectedSeats] = useState<Seat[]>(
+    draft?.selectedSeats || []
+  );
+  const [seatWarning, setSeatWarning] = useState<string | null>(null);
+  const seatWarningRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    setSelectedSeats((current) => {
+      const filtered = current.filter(
+        (seat) => !occupiedSeats.includes(Number(seat.seatId))
+      );
+
+      if (filtered.length < current.length) {
+        setSeatWarning(
+          "En eller flera av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade."
+        );
+      }
+
+      return filtered;
+    });
+  }, [occupiedSeats]);
+  const [adultTickets, setAdultTickets] = useState(
+    draft?.adultTickets ?? 0
+  );
+  const [childTickets, setChildTickets] = useState(
+    draft?.childTickets ?? 0
+  );
+  const [seniorTickets, setSeniorTickets] = useState(
+    draft?.seniorTickets ?? 0
+  );
+
+  useBookingDraft({
+    showingId,
+    selectedSeats,
+    adultTickets,
+    childTickets,
+    seniorTickets,
+  });
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  // Fel som visas direkt vid e-postfältet i modalen
+  const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const totaltTickets = adultTickets + childTickets + seniorTickets;
 
+  useEffect(() => {
+    if (
+      user &&
+      draft?.resumeCheckout &&
+      selectedSeats.length > 0 &&
+      totaltTickets === selectedSeats.length &&
+      !showEmailModal
+    ) {
+      setShowEmailModal(true);
+
+      saveBookingDraft({
+        ...draft,
+        resumeCheckout: false,
+      });
+    }
+  }, [
+    user,
+    draft,
+    selectedSeats.length,
+    totaltTickets,
+    showEmailModal,
+  ]);
+
+  useEffect(() => {
+    if (!seatWarning) return;
+
+    if (window.innerWidth < 768) {
+      seatWarningRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [seatWarning]);
   // Använder calculateTotalPrice från bookingHelpers
   const totalPrice = calculateTotalPrice(
     adultTickets,
@@ -141,6 +211,8 @@ export default function BookingPage() {
   );
 
   const handleSeatClick = (seat: Seat) => {
+    setSeatWarning(null); // Nollställ varningen när användaren klickar på en stol
+
     setSelectedSeats((current) =>
       current.some((s) => Number(s.seatId) === Number(seat.seatId))
         ? current.filter((s) => Number(s.seatId) !== Number(seat.seatId))
@@ -203,7 +275,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: adultTypeId,
           price: adultPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -216,7 +288,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: childTypeId,
           price: childPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -229,7 +301,7 @@ export default function BookingPage() {
           seatId: selectedSeats[seatIndex].seatId,
           ticketTypeId: seniorTypeId,
           price: seniorPrice,
-          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, Stol ${selectedSeats[seatIndex].seatsNumber}`,
+          seatInfo: `Rad ${selectedSeats[seatIndex].seatsRow}, stol ${selectedSeats[seatIndex].seatsNumber}`,
         });
         seatIndex++;
       }
@@ -248,8 +320,9 @@ export default function BookingPage() {
 
   // POST-anrop för att spara bokningen i databasen
   const handleCheckout = async () => {
-    if (!email || !email.includes("@")) {
-      setBookingError("Vänligen ange en giltig e-postadress.");
+    const emailProblem = emailError(email);
+    if (emailProblem) {
+      setEmailFieldError(emailProblem);
       return;
     }
 
@@ -291,10 +364,9 @@ export default function BookingPage() {
         if (response.status === 409) {
           // Nollställ valda stolar och trigga omhämtning av upptagna stolar från backend
           resetSelection();
-          setSeatRefreshKey((prev) => prev + 1);
 
           throw new Error(
-            "Tyvärr hann någon annan boka en eller flera av de valda stolarna. Kartan har uppdaterats med de senaste lediga platserna.",
+           "Tyvärr hann en eller flera av de valda platserna bokas av någon annan innan bokningen slutfördes.",
           );
         }
         throw new Error(
@@ -307,6 +379,10 @@ export default function BookingPage() {
       }
 
       setShowEmailModal(false);
+      
+      resetSelection();
+
+      clearBookingDraft();
 
       // Biljettypens namn utifrån id, t.ex. 1 -> "Vuxen"
       const ticketTypeName = (id: number) =>
@@ -348,12 +424,30 @@ export default function BookingPage() {
   const handleCloseModal = () => {
     setShowEmailModal(false);
     setBookingError(null);
-    // Triggar omhämtning av stolarna när modalen stängs
-    setSeatRefreshKey((prev) => prev + 1);
+    setEmailFieldError(undefined);
   };
 
+  const handleLoginClick = () => {
+    if (!showingId) return;
+
+    saveBookingDraft({
+      showingId: Number(showingId),
+      selectedSeats,
+      adultTickets,
+      childTickets,
+      seniorTickets,
+      resumeCheckout: true,
+      savedAt: Date.now(),
+    });
+
+    navigate("/login", {
+      state: {
+        from: `/booking/${showingId}`,
+      },
+    });
+  };
   if (showingLoading || seatsLoading) {
-    return <div className="text-center text-light p-5">Laddar visning...</div>;
+    return <div className="text-center text-light p-5">Hämtar visning…</div>;
   }
 
   if (showingError || seatsError) {
@@ -477,7 +571,7 @@ export default function BookingPage() {
       <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 
       <h1 className="h4 fw-bold text-center mb-4 heading-gold">
-        BOKA BILJETTER
+        Boka biljetter
       </h1>
 
       <Container className="pb-5">
@@ -502,13 +596,16 @@ export default function BookingPage() {
                     <div className="film-krediter mt-1">
                       <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
                       <div className="mb-1">
-                        <strong className="text-white">Datum: </strong> {currentDate}
+                        <strong className="text-white">Datum: </strong>{" "}
+                        {currentDate}
                       </div>
                       <div className="mb-1">
-                        <strong className="text-white">Tid: </strong> {currentTime}
+                        <strong className="text-white">Tid: </strong>{" "}
+                        {currentTime}
                       </div>
                       <div className="mb-1">
-                        <strong className="text-white">Salong: </strong> {currentAuditoriumName}
+                        <strong className="text-white">Salong: </strong>{" "}
+                        {currentAuditoriumName}
                       </div>
                     </div>
                   </Col>
@@ -522,6 +619,17 @@ export default function BookingPage() {
           <Col xs={12} md={7} lg={8} className="d-flex">
             <Card className="glass-card overflow-x-auto w-100">
               <Card.Body className="p-3 p-md-4">
+                {seatWarning && (
+                  <div
+                    ref={seatWarningRef}
+                    className="alert alert-warning mb-3"
+                  >
+                    {seatWarning}
+                  </div>
+                )}
+                <h3 className="h3 fw-bold text-center mb-3">
+                  Välj dina platser genom att klicka på stolarna
+                </h3>
                 <SeatMap
                   auditoriumName={currentAuditoriumName}
                   seats={seats}
@@ -537,11 +645,12 @@ export default function BookingPage() {
             <Card className="glass-card w-100">
               <Card.Body className="p-3 p-md-4">
                 <h3 className="h5 fw-bold text-center heading-gold mb-4">
-                  BILJETTER
+                  Biljetter
                 </h3>
 
                 <TicketCounter
                   label={adultType?.name || "Vuxen"}
+                  description="Från 12 år"
                   price={adultPrice}
                   count={adultTickets}
                   onDecrease={() =>
@@ -556,6 +665,7 @@ export default function BookingPage() {
                 />
                 <TicketCounter
                   label={childType?.name || "Barn"}
+                  description="Till 11 år"
                   price={childPrice}
                   count={childTickets}
                   onDecrease={() =>
@@ -570,6 +680,7 @@ export default function BookingPage() {
                 />
                 <TicketCounter
                   label={seniorType?.name || "Pensionär"}
+                  description="Från 65 år"
                   price={seniorPrice}
                   count={seniorTickets}
                   onDecrease={() =>
@@ -583,26 +694,34 @@ export default function BookingPage() {
                   }
                 />
 
-                <div className="mb-3">
+                <div className="mb-3 selected-seats-container">
                   <p className="mb-1 fw-bold">
                     Valda platser ({selectedSeats.length}):
                   </p>
                   {selectedSeats.length > 0 ? (
-                    <ul className="list-unstyled small mb-0 ps-2">
+                    <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
                       {selectedSeats.map((seat) => (
                         <li key={seat.seatId}>
-                          Rad {seat.seatsRow}, Stol {seat.seatsNumber}
+                          Rad {seat.seatsRow}, stol {seat.seatsNumber}
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-muted small mb-0">Inga valda</p>
+                      <p
+                        className="mb-0"
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "rgba(245, 247, 250, 0.7)",
+                        }}
+                      >
+                        Inga platser valda
+                      </p>
                   )}
                 </div>
 
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
-                <h4 className="h5 mb-3">Total: {totalPrice} kr</h4>
+                <h4 className="h5 mb-3">Totalt: {totalPrice} kr</h4>
 
                 <button
                   type="button"
@@ -636,12 +755,21 @@ export default function BookingPage() {
                         )}
                       </Form.Label>
                       <Form.Control
+                        size="lg"
                         type="email"
-                        placeholder="din.epost@example.se"
+                        autoComplete="email"
+                        placeholder="namn@exempel.se"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailFieldError(undefined);
+                        }}
+                        isInvalid={!!emailFieldError}
                         disabled={isSubmitting || !!user} // Inaktiverar ändring om inloggad
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {emailFieldError}
+                      </Form.Control.Feedback>
                       {user && (
                         <Form.Text className="text-muted">
                           Bokningsbekräftelsen kopplas till ditt konto (
@@ -649,15 +777,28 @@ export default function BookingPage() {
                         </Form.Text>
                       )}
                     </Form.Group>
+
+                    {!user && (
+                      <Form.Text className="d-block mt-3">
+                        Har du redan ett konto?{" "}
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 align-baseline"
+                          onClick={handleLoginClick}
+                        >
+                          Logga in
+                        </button>
+                      </Form.Text>
+                    )}
                   </Modal.Body>
                   <Modal.Footer>
                     <button
                       type="button"
                       className="cta-btn checkout-btn fw-bold py-2 px-4"
                       onClick={handleCheckout}
-                      disabled={isSubmitting || !email}
+                      disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Bokar..." : "SLUTFÖR BOKNING"}
+                      {isSubmitting ? "Bokar…" : "Slutför bokning"}
                     </button>
                   </Modal.Footer>
                 </Modal>

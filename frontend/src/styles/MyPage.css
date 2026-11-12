@@ -2,13 +2,13 @@
    Variablerna gäller även modalerna, som React-Bootstrap lägger utanför .mypage */
 .mypage,
 .mypage-modal {
-  --mp-guld: var(--fv-guldgul, #dfa213);
-  --mp-vinrod: var(--fv-vinrod, #8e1733);
-  --mp-vinrod-hover: var(--fv-vinrod-hover, #a81c3c);
-  --mp-midnatt: var(--fv-midnatt, #100e1c);
-  --mp-panel: #1d1b2e;
-  --mp-kort: #262438;
-  --mp-text: var(--fv-offwhite, #f5f7fa);
+  --mp-guld: var(--fv-guldgul);
+  --mp-vinrod: var(--fv-vinrod);
+  --mp-vinrod-hover: var(--fv-vinrod-hover);
+  --mp-midnatt: var(--fv-midnatt);
+  --mp-panel: var(--fv-panel-bg);
+  --mp-kort: var(--fv-kort-bg-ljus);
+  --mp-text: var(--fv-offwhite);
   --mp-dampad: rgba(245, 247, 250, 0.72);
   --mp-linje: rgba(245, 247, 250, 0.14);
 }
@@ -105,16 +105,13 @@
   opacity: 1;
 }
 
-.mypage .form-control::placeholder {
-  color: rgba(245, 247, 250, 0.55);
-}
-
 .mypage .invalid-feedback {
-  color: #ff8a9d; /* läsbar mot mörk bakgrund */
+  color: var(--fv-fel-rosa); /* läsbar mot mörk bakgrund */
 }
 
 .mypage-help {
   color: var(--mp-dampad) !important;
+   font-size: 1rem;
 }
 
 /* ---------- Knappar ---------- */
@@ -160,14 +157,14 @@
 
 .mypage-btn-red {
   background: var(--mp-vinrod);
-  color: #fff;
+  color: var(--fv-vit);
   border: 1.5px solid var(--mp-vinrod);
 }
 
 .mypage-btn-red:hover:not(:disabled) {
   background: var(--mp-vinrod-hover);
   border-color: var(--mp-vinrod-hover);
-  color: #fff;
+  color: var(--fv-vit);
 }
 
 .mypage-actions {
@@ -240,17 +237,30 @@
   margin: 0.2rem 0 0.25rem;
 }
 
+/* Bokningsnumret överst i kortet, stort och guldgult (#517) */
 .mypage-bookingnr {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--mp-dampad);
-  margin: 0;
-  word-break: break-all;
+  margin: 0 0 0.5rem;
 }
 
 .mypage-bookingnr span {
+  display: block;
   font-family: ui-monospace, "Consolas", monospace;
-  color: var(--mp-text);
+  font-size: 1.15rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  text-transform: none;
+  color: var(--mp-guld);
+  word-break: break-all;
+}
+
+@media (min-width: 768px) {
+  .mypage-bookingnr span {
+    font-size: 1.3rem;
+  }
 }
 
 .mypage-booking-actions {
@@ -259,6 +269,11 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   text-align: center;
+}
+
+/* Bara en knapp (Adminportalen): knappen i full bredd, även på mobil */
+.mypage-booking-actions-single {
+  grid-template-columns: 1fr;
 }
 
 .mypage-booking-actions small {
@@ -311,9 +326,15 @@
 .mypage-badge {
   justify-self: start;
   padding: 0.1rem 1rem;
-  border: 1.5px dashed var(--mp-text);
+  border: 1.5px solid var(--mp-text);
   border-radius: 6px;
   font-size: 0.9rem;
+}
+
+.mypage-badge-cancelled {
+  background: var(--mp-vinrod);
+  border: 1.5px solid var(--mp-vinrod);
+  color: var(--fv-vit);
 }
 
 /* Mobil: titel + pris överst, datum och biljetter under */
@@ -401,4 +422,9 @@
 .mypage a:hover,
 .mypage a:focus {
   text-decoration: underline;
+}
+
+/* Adminportalen: bokningsnumret skrivs med versaler, men inte exempeltexten */
+.mypage .form-control.text-uppercase::placeholder {
+  text-transform: none;
 }

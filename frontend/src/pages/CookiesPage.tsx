@@ -119,7 +119,7 @@ export default function CookiesPage() {
                 att göra sajten bättre.
               </p>
               <p className="mypage-help mb-0">
-                Vi använder ingen statistik i dag. Om vi börjar göra det sker
+                Vi använder ingen statistik idag. Om vi börjar göra det sker
                 det bara om du har slagit på den här.
               </p>
             </section>
@@ -130,6 +130,10 @@ export default function CookiesPage() {
                 Trailrarna visas via YouTube i ett läge som inte sparar cookies
                 förrän du trycker på play. När du spelar en trailer kan YouTube
                 spara cookies enligt sina egna regler.
+              </p>
+              <p className="mypage-help mt-2 mb-0">
+                På startsidan spelas trailers automatiskt bara om du har
+                godkänt alla cookies. Annars visas filmens affisch.
               </p>
             </section>
 

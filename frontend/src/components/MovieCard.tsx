@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
+import noPoster from "../assets/img/no-poster.webp";
 
 export interface MovieCardProps {
   movieId: number | string;
@@ -10,6 +11,7 @@ export interface MovieCardProps {
   ageRating?: number | null;
   showDetails?: boolean;
   datum?: string;
+  navigatedFrom?: string; 
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -19,6 +21,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   ageRating,
   showDetails = true,
   datum,
+  navigatedFrom
 }) => {
   let imageUrl = "";
   try {
@@ -29,10 +32,14 @@ const MovieCard: React.FC<MovieCardProps> = ({
     imageUrl = typeof images === "string" ? images : "";
   }
 
-  // Bygg sökvägen, med valt datum om det finns
-  const targetPath = datum
-    ? `/movies/${movieId}?datum=${datum}`
-    : `/movies/${movieId}`;
+  // Bygg sökvägen, med valt datum och från beskrvining om det finns
+  const targetPath = `/movies/${movieId}${
+    datum || navigatedFrom
+    ? `?${datum ? `datum=${datum}` : ""}${
+      datum && navigatedFrom ? "&" : ""
+    }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
+    : ""
+  }`;
 
   return (
     <Card
@@ -48,13 +55,11 @@ const MovieCard: React.FC<MovieCardProps> = ({
       >
         <Card.Img
           variant="top"
-          src={
-            imageUrl || "https://via.placeholder.com/300x450?text=Ingen+bild"
-          }
+          src={imageUrl || noPoster}
           alt={title}
+          loading="lazy"
         />
 
-        {/* Åldersmärkning uppe i högra hörnet (#484) */}
         <AgeBadge
           ageRating={ageRating}
           className="position-absolute top-0 end-0 m-2 z-2"

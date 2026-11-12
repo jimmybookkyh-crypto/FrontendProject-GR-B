@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import screenIcon from "../assets/img/screenIco.png";
+import screenIcon from "../assets/img/screenIco.webp";
 import type { Seat } from "../interface/types";
 
-// används endast i seatmap därför får den ligga kvar 
+import findBestSeats from "../utils/seats";
+
 interface SeatMapProps {
   auditoriumName: string;
   seats: Seat[];
@@ -11,9 +12,6 @@ interface SeatMapProps {
   onSeatClick: (seat: Seat) => void;
 }
 
-/**
- * Hjälpfunktion: Grupperar stolar per rad och sorterar dem i nummerordning
- */
 export const groupSeatsByRow = (seats: Seat[]): Seat[][] => {
   const rowsMap = new Map<number, Seat[]>();
 
@@ -26,8 +24,8 @@ export const groupSeatsByRow = (seats: Seat[]): Seat[][] => {
 
   return Array.from(rowsMap.entries())
     .sort(([a], [b]) => a - b)
-    .map(([, rowSeats]) => //oxlint klagade på _ 
-      rowSeats.sort((a, b) => a.seatsNumber - b.seatsNumber)
+    .map(([, rowSeats]) =>
+      rowSeats.sort((a, b) => a.seatsNumber - b.seatsNumber),
     );
 };
 
@@ -38,8 +36,12 @@ export default function SeatMap({
   selectedSeats,
   onSeatClick,
 }: SeatMapProps) {
-  // Grupperar stolarna rad för rad
   const rows = useMemo(() => groupSeatsByRow(seats), [seats]);
+
+  const bestSeats = useMemo(
+    () => findBestSeats(seats, occupiedSeats, selectedSeats, auditoriumName),
+    [seats, occupiedSeats, selectedSeats, auditoriumName],
+  );
 
   return (
     <div className="seat-map-container">
@@ -47,48 +49,44 @@ export default function SeatMap({
         {auditoriumName}
       </h3>
 
-      {/* Bioduk-bild */}
       <div className="d-flex justify-content-center w-100 mb-3">
-        <img
-          src={screenIcon}
-          alt="Bioduk"
-          className="screen-icon img-fluid"
-        />
+        <img src={screenIcon} alt="Bioduk" className="screen-icon img-fluid" />
       </div>
 
-      {/* Stolsnätverk */}
       <div className="d-flex flex-column align-items-center">
         {rows.map((row, rowIndex) => (
           <div
             key={`row-${rowIndex + 1}`}
             className="d-flex flex-nowrap justify-content-center align-items-center mb-1"
           >
-
-            {/* Stolsknappar */}
             {row.map((seat) => {
-              // ✅ 1. Säkra jämförelse med Number() så att strängar och siffror matchar
               const isOccupied = occupiedSeats.some(
-                (occId) => Number(occId) === Number(seat.seatId)
+                (occId) => Number(occId) === Number(seat.seatId),
               );
 
               const isSelected = selectedSeats.some(
-                (s) => Number(s.seatId) === Number(seat.seatId)
+                (s) => Number(s.seatId) === Number(seat.seatId),
               );
+              const isRecommended =
+                bestSeats !== null &&
+                Number(bestSeats.seatId) === Number(seat.seatId);
 
               return (
                 <button
                   key={seat.seatId}
                   type="button"
-                  // ✅ 2. Inkluderar både 'occupied' och 'seat-occupied' för att täcka alla CSS-stilar
-                  className={`seat ${isOccupied
+                  className={`seat ${
+                    isOccupied
                       ? "occupied seat-occupied"
                       : isSelected
                         ? "selected seat-selected"
-                        : "available seat-available"
-                    }`}
+                        : isRecommended
+                          ? "recommended seat-recommended"
+                          : "available seat-available"
+                  }`}
                   disabled={isOccupied}
                   onClick={() => !isOccupied && onSeatClick(seat)}
-                  title={`Rad ${seat.seatsRow}, Stol ${seat.seatsNumber}`}
+                  title={`Rad ${seat.seatsRow}, stol ${seat.seatsNumber}${isRecommended ? " – rekommenderad plats" : ""}`}
                 >
                   {seat.seatsNumber}
                 </button>
@@ -98,11 +96,11 @@ export default function SeatMap({
         ))}
       </div>
 
-      {/* Teckenförklaring */}
       <div className="d-flex justify-content-center gap-3 mt-3 flex-wrap fs-5">
         <span>⚪ Ledig</span>
         <span>⚫ Upptagen</span>
         <span>🟡 Vald</span>
+        <span>🟢 För bästa upplevelse</span>
       </div>
     </div>
   );

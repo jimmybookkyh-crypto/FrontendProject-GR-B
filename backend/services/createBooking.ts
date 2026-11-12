@@ -6,6 +6,78 @@ import {
   CreatedBooking,
   CreateBookingInput,
 } from "../interface/types.js";
+import {
+  buildCancelUrl,
+  sendConfirmationEmail,
+} from "./sendConfirmationEmail.js";
+import { broadcastSeats } from "../websocket.js";
+
+/* Hämtar det mejlet behöver och skickar bekräftelsen.
+   Körs efter COMMIT utan await, så ett fel här kan aldrig stoppa eller ångra bokningen.
+   Fel loggas i terminalen. */
+async function sendMailForBooking(args: {
+  bookingNumber: string;
+  showingId: number;
+  guestEmail: string; // adressen från bokningsmodalen
+  userId: number | null; // null = gäst
+  cancelToken: string | null; // only guest bookings have one
+  tickets: BookedTicket[];
+  totalPrice: number;
+}): Promise<void> {
+  try {
+    // Samma format som GET /showings: date::text och klockslaget som "18:30"
+    const showing = await pool.query<{
+      title: string;
+      date: string;
+      time: string;
+      auditoriumName: string;
+    }>(
+      `select m.title, s.date::text as date, left(s."time"::text, 5) as "time",
+              a.name as "auditoriumName"
+        from showings s
+        join movies m on m."movieId" = s."movieId"
+        join auditoriums a on a."auditoriumId" = s."auditoriumId"
+        where s."showingId" = $1`,
+      [args.showingId],
+    );
+
+    if (showing.rows.length === 0) {
+      throw new Error("Visningen hittades inte");
+    }
+
+    // Inloggad: mejlet går till kontots adress. Gäst: till adressen från modalen.
+    let to = args.guestEmail;
+
+    if (args.userId !== null) {
+      const account = await pool.query<{ email: string }>(
+        `select email from users where "userId" = $1`,
+        [args.userId],
+      );
+
+      if (account.rows.length > 0) to = account.rows[0].email;
+    }
+
+    await sendConfirmationEmail({
+      to,
+      bookingNumber: args.bookingNumber,
+      movieTitle: showing.rows[0].title,
+      date: showing.rows[0].date,
+      time: showing.rows[0].time,
+      auditoriumName: showing.rows[0].auditoriumName,
+      tickets: args.tickets,
+      totalPrice: args.totalPrice,
+      isMember: args.userId !== null,
+      // Guests get the cancellation link. The token is only ever sent in this email.
+      cancelUrl: args.cancelToken ? buildCancelUrl(args.cancelToken) : undefined,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Okänt fel";
+    console.error("Bekräftelsemejl misslyckades", {
+      bookingNumber: args.bookingNumber,
+      message,
+    });
+  }
+}
 
 /* userId kommer från token (res.locals.user), aldrig från anropets body.
    null = gästbokning. */
@@ -105,11 +177,17 @@ export async function createBooking(
 
     const bookingNumber = randomBytes(4).toString("hex").toUpperCase();
 
+    // Guest bookings get a long random cancel token (64 characters), so the guest can
+    // cancel from the link in the email. Member bookings get none (they use My pages).
+    // The token is never part of "returning", so it never reaches the browser.
+    const cancelToken =
+      userId === null ? randomBytes(32).toString("hex") : null;
+
     const booking = await client.query<Booking>(
-      `insert into bookings ("bookingNumber", email, "showingId", "userId")
-        values ($1, $2, $3, $4)
+      `insert into bookings ("bookingNumber", email, "showingId", "userId", "cancelToken")
+        values ($1, $2, $3, $4, $5)
         returning "bookingId", "bookingNumber", email, "showingId", "userId", created_at`,
-      [bookingNumber, email, showingId, userId],
+      [bookingNumber, email, showingId, userId, cancelToken],
     );
 
     const bookingId = booking.rows[0].bookingId;
@@ -148,8 +226,35 @@ export async function createBooking(
 
     await client.query("COMMIT");
 
+    const bookedSeats = await pool.query(
+      `
+  select "seatId"
+  from booked_seats_view
+  where "showingId" = $1
+  `,
+      [showingId]
+    );
+
+    const bookedSeatIds = bookedSeats.rows.map(
+      (row) => Number(row.seatId)
+    );
+
+    broadcastSeats(showingId, bookedSeatIds);
+    
     // pg ger bigint som text ("42"), men typen säger tal. Därför Number().
     const row = booking.rows[0];
+
+    // Bekräftelsemejlet skickas efter COMMIT och väntas inte in.
+    // Misslyckas det är bokningen sparad ändå, och felet loggas i terminalen.
+    void sendMailForBooking({
+      bookingNumber: row.bookingNumber,
+      showingId,
+      guestEmail: email,
+      userId,
+      cancelToken,
+      tickets: bookedTickets,
+      totalPrice,
+    });
 
     return {
       ...row,

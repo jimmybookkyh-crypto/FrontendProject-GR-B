@@ -3,8 +3,8 @@ import { useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import entre from "../assets/filmvisarna-entre.jpg";
-import backgroundImage from "../assets/img/biodukbg.png";
+import entre from "../assets/filmvisarna-entre.webp";
+import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import "../styles/About.css";
 
@@ -25,19 +25,18 @@ const OPPETTIDER = [
 const SALONGER = [
   {
     id: "salong-1",
-    namn: "Salong 1 - Stora salongen",
+    namn: "Salong 1 – Stora salongen",
     platser: 81,
     punkter: ["Stor bioduk", "Laserprojektion", "Infinity Vision"],
   },
   {
     id: "salong-2",
-    namn: "Salong 2 - Lilla salongen",
+    namn: "Salong 2 – Lilla salongen",
     platser: 55,
     punkter: ["Mindre salong", "Intim och bekväm", "Modernt ljud"],
   },
 ];
 
-/* TODO: exempelmeny och exempelpriser, byt till den riktiga menyn */
 const SNACKS = [
   {
     kategori: "Popcorn",
@@ -140,41 +139,59 @@ function Huvudkort() {
   return (
     <div className="om-kort">
       <section aria-labelledby="om-rubrik">
-        <h2 id="om-rubrik" className="om-rubrik">Om biografen</h2>
+        <h2 id="om-rubrik" className="om-rubrik">
+          Om biografen
+        </h2>
         <p>
-          Filmvisarna i Småstad är en modern biograf med industriell karaktär, varm inredning och
-          avancerad filmteknik. Biografen har 2 salonger med totalt 136 platser och erbjuder flera
-          olika bioupplevelser för dig som vill gå på bio i Småstad.
+          Filmvisarna i Småstad är en modern biograf med industriell karaktär,
+          varm inredning och avancerad filmteknik. Biografen har två salonger med
+          totalt 136 platser och erbjuder flera olika bioupplevelser för dig som
+          vill gå på bio i Småstad.
         </p>
         <p>
-          Salong 1 har en av Sveriges största biodukar, laserprojektion och modernt ljud. Salongen
-          är dessutom Infinity Vision-certifierad, en kvalitetsstämpel för en stor och omslutande
-          bioupplevelse med imponerande bild och mäktigt ljud.
+          Salong 1 har en av Sveriges största biodukar, laserprojektion och
+          modernt ljud. Salongen är dessutom Infinity Vision-certifierad, en
+          kvalitetsstämpel för en stor och omslutande bioupplevelse med
+          imponerande bild och mäktigt ljud.
         </p>
         <p>
-          Salong 2 är vår mindre salong, med en intim och bekväm känsla och modernt ljud. Här sitter
-          du nära filmen, perfekt för dig som vill se en film i lugn och ro tillsammans med färre
-          människor.
+          Salong 2 är vår mindre salong, med en intim och bekväm känsla och
+          modernt ljud. Här sitter du nära filmen, perfekt för dig som vill se
+          en film i lugn och ro tillsammans med färre människor.
         </p>
         <p>
-          Våra salonger har sin egen stil och tillsammans skapar de en personlig och bekväm
-          bioupplevelse. På sitt invigningsår 2020 fick Biostaden utmärkelsen Boxoffice Blue Ribbon
-          Cinema, som uppmärksammar biografer som erbjuder en särskilt enastående bioupplevelse.
+          Våra salonger har sin egen stil och tillsammans skapar de en personlig
+          och bekväm bioupplevelse. På sitt invigningsår 2020 fick Filmvisarna
+          utmärkelsen Boxoffice Blue Ribbon Cinema, som uppmärksammar biografer
+          som erbjuder en särskilt enastående bioupplevelse.
         </p>
       </section>
 
-      {/* TODO: exempel på faciliteter, ändra så att de stämmer */}
       <section className="om-delsektion" aria-labelledby="fac-rubrik">
-        <h2 id="fac-rubrik" className="om-rubrik">Faciliteter</h2>
+        <h2 id="fac-rubrik" className="om-rubrik">
+          Faciliteter
+        </h2>
         <ul className="om-faciliteter">
-          <li><IkonParkering /> Parkering nära</li>
-          <li><IkonCafe /> Café &amp; Bar</li>
-          <li><IkonRullstol /> Rullstolsanpassat</li>
+          <li>
+            <IkonParkering /> Parkering nära
+          </li>
+          <li>
+            <IkonCafe /> Café &amp; bar
+          </li>
+          <li>
+            <IkonRullstol /> Rullstolsanpassat
+          </li>
         </ul>
       </section>
 
-      <section id="salonger" className="om-delsektion" aria-labelledby="salonger-rubrik">
-        <h2 id="salonger-rubrik" className="om-rubrik">Salonger</h2>
+      <section
+        id="salonger"
+        className="om-delsektion"
+        aria-labelledby="salonger-rubrik"
+      >
+        <h2 id="salonger-rubrik" className="om-rubrik">
+          Salonger
+        </h2>
         <Row className="g-3">
           {SALONGER.map((salong) => (
             <Col sm={6} key={salong.id}>
@@ -219,8 +236,17 @@ function HittaTillOss() {
   const karta = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(adress)}`;
 
   return (
-    <section id="hitta-till-oss" className="om-kort om-hitta" aria-labelledby="hitta-rubrik">
-      <img className="om-hitta-bild" src={entre} alt="Biografens entré en vinterkväll, med upplyst FV-skylt" />
+    <section
+      id="hitta-till-oss"
+      className="om-kort om-hitta"
+      aria-labelledby="hitta-rubrik"
+    >
+      <img
+        className="om-hitta-bild"
+        src={entre}
+        alt="Biografens entré en vinterkväll, med upplyst FV-skylt"
+        loading="lazy"
+      />
       <div className="om-hitta-info">
         <h2 id="hitta-rubrik">Hitta hit</h2>
         <ul className="om-kontakt">
@@ -250,7 +276,7 @@ function SnacksMeny() {
   return (
     <section id="snacks-meny" className="om-sektion" aria-labelledby="snacks-rubrik">
       <div className="om-kort">
-        <h2 id="snacks-rubrik" className="om-rubrik">Snacks meny</h2>
+        <h2 id="snacks-rubrik" className="om-rubrik">Snacksmeny</h2>
         <Row className="g-4">
           {SNACKS.map((grupp) => (
             <Col md={4} key={grupp.kategori}>
@@ -273,7 +299,6 @@ function SnacksMeny() {
   );
 }
 
-/* Var i fönstret avsnittet ska hamna när man kommer från dropdownen */
 const SCROLL_LAGE: Record<string, ScrollLogicalPosition> = {
   salonger: "end",
   "hitta-till-oss": "center",

@@ -22,6 +22,8 @@ import {
 } from "../utils/requireAuth.js";
 import { optionalAuth } from "../utils/optionalAuth.js";
 import { getMyBookings } from "../services/myBookings.js";
+import { broadcastSeats } from "../websocket.js";
+
 
 const bookingsRouter = Router();
 
@@ -87,7 +89,7 @@ bookingsRouter.get(
 
       if (booking === null) {
         return res.status(404).json({
-          error: { message: "Bokningen finns ej" },
+          error: { message: "Bokningen finns inte" },
         });
       }
 
@@ -159,7 +161,7 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
 
     if (bookingResult.rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -192,6 +194,180 @@ bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
   }
 });
 
+// Cancel tokens are created in createBooking.ts: 64 characters, 0-9 and a-f
+const CANCEL_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
+
+// Returns the token if it has the right format, otherwise null
+function parseCancelToken(value: unknown): string | null {
+  return typeof value === "string" && CANCEL_TOKEN_PATTERN.test(value)
+    ? value
+    : null;
+}
+
+// GET /bookings/token/:token  (P17.2)
+// Open route, no login: the token from the confirmation email proves that the visitor has the email.
+// Returns the booking with movie, showing, auditorium and tickets, so the page can show what is cancelled.
+// The token itself and the email address are never part of the response.
+bookingsRouter.get("/token/:token", async (req, res) => {
+  const cancelToken = parseCancelToken(req.params.token);
+
+  // A wrong or made-up token gives the same answer as an unknown one
+  if (cancelToken === null) {
+    return res.status(404).json({
+      error: { message: "Bokningen finns inte" },
+    });
+  }
+
+  try {
+    const bookingResult = await pool.query(
+      `select b."bookingId", b."bookingNumber", b."showingId", b.status,
+              (b.status = 'confirmed'
+                and (s.date + s."time") - interval '2 hours' > now()) as "canCancel",
+              s.date::text as date,
+              left(s."time"::text, 5) as "time",
+              m."movieId", m.title as "movieTitle", m.images, m."ageRating",
+              a.name as "auditoriumName"
+       from bookings b
+       join showings s on s."showingId" = b."showingId"
+       join movies m on m."movieId" = s."movieId"
+       join auditoriums a on a."auditoriumId" = s."auditoriumId"
+       where b."cancelToken" = $1`,
+      [cancelToken],
+    );
+
+    if (bookingResult.rows.length === 0) {
+      return res.status(404).json({
+        error: { message: "Bokningen finns inte" },
+      });
+    }
+
+    const booking = bookingResult.rows[0];
+
+    const ticketsResult = await pool.query(
+      `select tt.name as "ticketType", tt.price::float as price,
+              se."seatsRow", se."seatsNumber"
+       from tickets t
+       join seats se on se."seatId" = t."seatId"
+       join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
+       where t."bookingId" = $1
+       order by se."seatsRow", se."seatsNumber"`,
+      [booking.bookingId],
+    );
+
+    return res.status(200).json({
+      data: { ...booking, tickets: ticketsResult.rows },
+    });
+  } catch (error) {
+    // The token is a secret, so it is not logged
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("GET /bookings/token/:token failed", { message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid hämtning av bokning" },
+    });
+  }
+});
+
+// PATCH /bookings/token/:token/cancel  (P17.2)
+// Open route, no login: cancels a guest booking with the token from the confirmation email.
+// Same rules as on My pages: until 2 hours before the showing, and an already cancelled booking gives 409.
+bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
+  const cancelToken = parseCancelToken(req.params.token);
+
+  if (cancelToken === null) {
+    return res.status(404).json({
+      error: { message: "Bokningen finns inte" },
+    });
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Locks the booking and checks its status and whether it is too late to cancel
+    const found = await client.query<{
+      bookingId: number;
+      showingId: number;
+      status: string;
+      tooLate: boolean;
+    }>(
+      `select b."bookingId", b."showingId", b.status,
+              ((sh.date + sh."time") - interval '2 hours' <= now()) as "tooLate"
+        from bookings b
+        join showings sh on sh."showingId" = b."showingId"
+        where b."cancelToken" = $1
+        for update of b`,
+      [cancelToken],
+    );
+
+    if (found.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({
+        error: { message: "Bokningen finns inte" },
+      });
+    }
+
+    if (found.rows[0].status === "cancelled") {
+      await client.query("ROLLBACK");
+      return res.status(409).json({
+        error: { message: "Bokningen är redan avbokad" },
+      });
+    }
+
+    if (found.rows[0].tooLate) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: {
+          message: "Avbokning går bara fram till 2 timmar före visningen",
+        },
+      });
+    }
+
+    const result = await client.query(
+      `update bookings
+        set status = 'cancelled', "cancelledAt" = now()
+        where "bookingId" = $1
+        returning "bookingId", status, "cancelledAt"`,
+      [found.rows[0].bookingId],
+    );
+
+    await client.query("COMMIT");
+
+    // Tells open seat maps that the seats are free again.
+    // The booking is already cancelled, so a failure here must not turn the answer into an error.
+    try {
+      const showingId = Number(found.rows[0].showingId);
+      const bookedSeats = await pool.query(
+        `select "seatId" from booked_seats_view where "showingId" = $1`,
+        [showingId],
+      );
+      broadcastSeats(
+        showingId,
+        bookedSeats.rows.map((row) => Number(row.seatId)),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Seat broadcast after guest cancellation failed", {
+        message,
+      });
+    }
+
+    return res.status(200).json({ data: result.rows[0] });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("PATCH /bookings/token/:token/cancel failed", { message });
+
+    return res.status(500).json({
+      error: { message: "Fel vid avbokning" },
+    });
+  } finally {
+    client.release();
+  }
+});
+
 // GET /bookings/:id  (bokningen + dess biljetter)
 // Ägaren eller admin (T126d)
 bookingsRouter.get("/:id", requireAuth, async (req, res) => {
@@ -219,7 +395,7 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 
     if (booking.rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -362,7 +538,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -411,7 +587,7 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
     if (found.rows.length === 0) {
       await client.query("ROLLBACK");
       return res.status(404).json({
-        error: { message: "Bokningen finns ej" },
+        error: { message: "Bokningen finns inte" },
       });
     }
 
@@ -440,6 +616,31 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
     );
 
     await client.query("COMMIT");
+
+    const showingResult = await client.query(
+      `
+  select "showingId"
+  from bookings
+  where "bookingId" = $1
+  `,
+      [id]
+    );
+
+    const showingId = Number(showingResult.rows[0].showingId);
+
+    const bookedSeats = await pool.query(
+      `
+  select "seatId"
+  from booked_seats_view
+  where "showingId" = $1
+  `,
+      [showingId]
+    );
+    const bookedSeatIds = bookedSeats.rows.map(
+      (row) => Number(row.seatId)
+    );
+
+    broadcastSeats(showingId, bookedSeatIds);
 
     return res.status(200).json({ data: result.rows[0] });
     

@@ -1,0 +1,395 @@
+/* ==========================================================
+   HEROSEKTIONEN PÅ STARTSIDAN (P28, #438)
+   Används av components/HeroSection.tsx
+   ========================================================== */
+
+/* ---------- Hero-carousel ---------- */
+.hero-wrapper {
+  position: relative; /* paus-knappen placeras i herobildens hörn */
+}
+
+/* Paus-knapp: stoppar och startar bildspelet (WCAG 2.2.2) */
+.hero-pause-toggle {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.25rem;
+  z-index: 4; /* över pilarnas klickyta */
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(253, 252, 250, 0.5);
+  background: rgba(16, 14, 28, 0.65);
+  color: var(--fv-offwhite);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hero-pause-toggle:hover,
+.hero-pause-toggle:focus-visible {
+  color: var(--fv-guldgul);
+  border-color: var(--fv-guldgul);
+}
+
+.hero-pause-toggle:focus-visible {
+  outline: 2px solid var(--fv-vit);
+  outline-offset: 3px;
+}
+
+/* Ljudknapp (P28.1): till vänster om paus-knappen, bara när en trailer spelas */
+.hero-sound-toggle {
+  position: absolute;
+  right: calc(1.5rem + 44px + 0.75rem);
+  bottom: 1.25rem;
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(253, 252, 250, 0.5);
+  background: rgba(16, 14, 28, 0.65);
+  color: var(--fv-offwhite);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.hero-sound-toggle:hover,
+.hero-sound-toggle:focus-visible,
+.hero-sound-toggle[aria-pressed="true"] {
+  color: var(--fv-guldgul);
+  border-color: var(--fv-guldgul);
+}
+
+.hero-sound-toggle:focus-visible {
+  outline: 2px solid var(--fv-vit);
+  outline-offset: 3px;
+}
+
+.hero-carousel {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ---------- Herobild (P28) ---------- */
+.hero-slide {
+  position: relative;
+  height: 340px;
+  overflow: hidden;
+  background-color: var(--fv-midnatt);
+}
+
+
+/* Affischen suddig som bakgrund */
+.hero-slide-bg {
+  position: absolute;
+  inset: -40px;
+  background-size: cover;
+  background-position: center 25%;
+  filter: blur(18px) brightness(0.45) saturate(1.2);
+  transition: opacity 1.2s ease;
+}
+
+/* Mörk toning till vänster och nertill, så att texten alltid går att läsa */
+.hero-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(16, 14, 28, 0.85) 0%, rgba(16, 14, 28, 0.35) 55%, rgba(16, 14, 28, 0) 100%),
+    linear-gradient(0deg, rgba(16, 14, 28, 0.7) 0%, rgba(16, 14, 28, 0) 45%);
+  pointer-events: none;
+}
+
+/* Affischen skarp till höger */
+.hero-slide-poster {
+  position: absolute;
+  right: 10%;
+  bottom: 28px;
+  height: 280px;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(253, 252, 250, 0.28);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  z-index: 1;
+  transition:
+    opacity 1.2s ease,
+    filter 1.2s ease,
+    transform 1.2s ease;
+}
+
+/* ---------- Trailer i herobilden (P28.1) ---------- */
+
+/* Affischen löses upp när trailern tonas in */
+.hero-slide-bg.is-hidden {
+  opacity: 0;
+}
+
+.hero-slide-poster.is-hidden {
+  opacity: 0;
+  filter: blur(6px);
+  transform: scale(1.04);
+}
+
+.hero-slide-video {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.hero-slide-video.is-visible {
+  opacity: 1;
+}
+
+/* Snabb uttoning strax före slutet, innan YouTube visar paus-ikonen */
+.hero-slide-video.is-ending {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Spelaren är alltid 1920 × 1080 (så att YouTube väljer HD).
+   Skalan räknas ut i HeroMedia så att videon täcker herobilden. */
+.hero-slide-video iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  max-width: none;
+  border: 0;
+  transform-origin: center;
+}
+
+/* ---------- Text och knapp i herobilden ---------- */
+.hero-slide-content {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  max-width: 760px;
+  padding: 0 4.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hero-slide-label {
+  margin: 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fv-guldgul);
+}
+
+.hero-slide-title {
+  margin: 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.5rem); /* max 56 px */
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  color: var(--fv-offwhite);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Namn och åldersgräns på samma rad */
+.hero-slide-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Åldersmärket (AgeBadge) lite större i herobilden, med skugga mot bilden */
+.hero-slide-age {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.hero-slide-text {
+  margin: 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.05rem;
+  color: var(--fv-ljuslila);
+  max-width: 32rem;
+}
+
+/* Biljettknappen (TicketButton): lagom bred, inte hela raden */
+.hero-slide-ticket {
+  margin-top: 0.5rem;
+}
+
+.hero-slide-ticket .boka-knapp {
+  width: auto;
+  min-height: 48px;
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- Hero-carousel: pilar och streck ---------- */
+.hero-carousel .carousel-control-prev,
+.hero-carousel .carousel-control-next {
+  width: 4rem;
+  opacity: 1; /* Bootstrap dämpar annars pilarna till 50% */
+  z-index: 3; /* över texten och affischen */
+}
+
+.hero-carousel .carousel-control-prev {
+  justify-content: flex-start;
+  padding-left: 1rem;
+}
+
+.hero-carousel .carousel-control-next {
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+.hero-carousel .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next-icon {
+  background-image: none; /* tar bort Bootstraps standardikon helt */
+  width: 1.6rem;
+  height: 3.5rem;
+  background-color: var(--fv-guldgul);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 50% 50%);
+  filter: drop-shadow(1px 0 0 var(--fv-vit)) drop-shadow(-1px 0 0 var(--fv-vit))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.hero-carousel .carousel-control-prev-icon {
+  transform: scaleX(-1); /* speglar formen så den pekar vänster */
+}
+
+.hero-carousel .carousel-control-prev:hover .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next:hover .carousel-control-next-icon {
+  background-color: var(--fv-guldgul-hover);
+  transform: scale(1.08);
+}
+
+.hero-carousel .carousel-control-prev:hover .carousel-control-prev-icon {
+  transform: scaleX(-1) scale(1.08);
+}
+
+.hero-carousel .carousel-indicators {
+  z-index: 3;
+  margin-bottom: 0.5rem;
+}
+
+/* Mobil: affischen skarp som bakgrund, mörk toning nertill för namn och knapp */
+@media (max-width: 767.98px) {
+  .hero-slide {
+    height: 420px;
+  }
+
+
+  /* Skarp men mörkad bakgrund, så att även ljusa affischer (t.ex. gula) fungerar */
+  .hero-slide-bg {
+    inset: 0;
+    background-position: center 20%;
+    filter: brightness(0.65) saturate(1.05);
+  }
+
+  /* Stark toning nerifrån som täcker hela textytan */
+  .hero-slide::after {
+    background: linear-gradient(
+      0deg,
+      rgba(16, 14, 28, 0.97) 0%,
+      rgba(16, 14, 28, 0.9) 35%,
+      rgba(16, 14, 28, 0.55) 60%,
+      rgba(16, 14, 28, 0.1) 85%,
+      rgba(16, 14, 28, 0) 100%
+    );
+  }
+
+  /* Raden (t.ex. "Mörkrets riddare · 2–8 nov") får skugga mot ljusa bilder */
+  .hero-slide-label {
+    font-size: 0.85rem;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 12px rgba(0, 0, 0, 0.8);
+  }
+
+  .hero-slide-title {
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 14px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Mindre åldersmärke på mobil */
+  .hero-slide-title-row {
+    gap: 0.5rem;
+  }
+
+  .hero-slide-age {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .hero-slide-poster,
+  .hero-slide-text {
+    display: none;
+  }
+
+  .hero-slide-content {
+    padding: 0 3.5rem 2.25rem;
+  }
+
+  .hero-slide-ticket .boka-knapp {
+    min-height: 44px;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ==========================================================
+   LÄSPLATTA / LIGGANDE MOBIL: min-width 768px
+   ========================================================== */
+@media (min-width: 768px) {
+  .hero-slide {
+    height: 380px;
+  }
+
+  .hero-slide-poster {
+    height: 300px;
+  }
+}
+
+/* ==========================================================
+   DESKTOP: min-width 1200px
+   ========================================================== */
+@media (min-width: 1200px) {
+  .hero-slide {
+    height: 460px;
+  }
+
+  .hero-slide-poster {
+    height: 380px;
+  }
+
+  .hero-slide-content {
+    padding-left: 6rem;
+  }
+}
