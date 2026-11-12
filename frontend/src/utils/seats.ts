@@ -1,5 +1,8 @@
-
 import type { Seat } from "../interface/types";
+
+// Poängbaserad rekommendationsalgoritm
+// Den går igenom alla lediga stolar, 
+//  beräknar ett poängvärde för varje stol och returnerar den stol som får lägst poäng.
 
 //konfigurering för olika auditorier, 
 // för att prioritera vissa rader framför andra 
@@ -8,119 +11,189 @@ import type { Seat } from "../interface/types";
 //rowWeight = prioriterar en bredare placering och vikt hoss mitten raderna (0-1)
 //seatWeight = priotiering av mitten av raden (0-1)
 const CONFIG = {
-    "Stora Salongen": {
-        optimalStart: 0.55, 
-        optimalEnd: 0.80,
-        rowWeight: 0.60,
-        seatWeight: 0.70,
-    },
-    "Lilla Salongen": {
-        optimalStart: 0.80,
-        optimalEnd: 0.99,
-        rowWeight: 0.55,
-        seatWeight: 0.90,
-    }
+  "Stora Salongen": {
+    optimalStart: 0.55, 
+    optimalEnd: 0.80,
+    rowWeight: 0.50,
+    seatWeight: 0.50,
+    bookedNeighborWeight: 10,
+  },
+  "Lilla Salongen": {
+    optimalStart: 0.80,
+    optimalEnd: 0.99,
+    rowWeight: 0.50,
+    seatWeight: 0.50,
+    bookedNeighborWeight: 10,
+  }
 };
 
+
+// räknar ut hur långt en rad ligger från det optimala området
+// ju längre bak desto högre priorietering får raden
 function calculateRowPenalty(
-    rowPosition: number,
-    optimalStart: number,
-    optimalEnd: number
+  rowPosition: number,
+  optimalStart: number,
+  optimalEnd: number
 ): number {
 
-    if(rowPosition >= optimalStart &&
-        rowPosition <= optimalEnd) 
-        {
-        return 0;
-    }
+  if(rowPosition >= optimalStart &&
+    rowPosition <= optimalEnd) 
+    {
+    return 0;
+  }
     
-    if(rowPosition < optimalStart) {
-        return (optimalStart - rowPosition) / optimalStart;
-    }
+  if(rowPosition < optimalStart) {
+    return (optimalStart - rowPosition) / optimalStart;
+  }
 
-    return (rowPosition - optimalEnd) / (1 - optimalEnd); 
+  return (rowPosition - optimalEnd) / (1 - optimalEnd); 
 };
 
 export default function findBestSeats(
-    seats : Seat[],
-    bookedSeatsId: number[],
-    selectedSeats: Seat[], 
-    auditoriumName: string
-    ): Seat | null {
+  seats : Seat[],
+  bookedSeatsId: number[],
+  selectedSeats: Seat[], 
+  auditoriumName: string
+  ): Seat | null {
 
-    // samla alla bokade och valda stolar
-    const allOccupiedSeatsId = new Set([
-        ...bookedSeatsId,
-        ...selectedSeats.map((seat) => seat.seatId),
-    ]);
+  // samla alla bokade och valda stolar
+  const allOccupiedSeatsId = new Set([
+    ...bookedSeatsId,
+    ...selectedSeats.map((seat) => seat.seatId),
+  ]);
 
-    //filtrera bort  som är bokade
-    const availableSeats = seats.filter(
-        (seat) => !allOccupiedSeatsId.has(Number(seat.seatId))
+  //filtrera bort  som är bokade
+  const availableSeats = seats.filter(
+    (seat) => !allOccupiedSeatsId.has(Number(seat.seatId))
+  );
+
+  //early return
+  if (availableSeats.length === 0 || auditoriumName === undefined || auditoriumName === null) {
+    return null;
+  }
+
+  //hämta alla rader, även om de är upptagna och sortera efter storleksordning
+  const rows = [ ...new Set(seats.map((seat) => seat.seatsRow))]
+  .sort((a, b) => a - b);
+
+  //konfigurera efter autidioriumName, för att prioritera vissa rader och stolar före andra
+  const config = CONFIG[auditoriumName as keyof typeof CONFIG]; 
+
+  //gruppera alla stolar efter rad
+  const seatsByRow = new Map<number, Seat[]>();
+
+  // behövs för att kunna beräkna var mitten av varje rad ligger
+  for (const seat of seats) {
+    const rowSeats = seatsByRow.get(seat.seatsRow) ?? [];
+    rowSeats.push(seat);
+    seatsByRow.set(seat.seatsRow, rowSeats);   
+  } 
+
+  for (const rowSeats of seatsByRow.values()) {
+    rowSeats.sort((a, b) => a.seatsNumber - b.seatsNumber);
+  }
+
+  // Hitta alla lediga stolar direkt intill någon av de valda stolarna
+  const adjacentSeats = availableSeats.filter((seat) =>
+    selectedSeats.some(
+      (selectedSeat) =>
+        selectedSeat.seatsRow === seat.seatsRow &&
+        Math.abs(selectedSeat.seatsNumber - seat.seatsNumber) === 1
+    )
+  );
+
+  // Dela upp grannstolarna beroende på om de har bokade grannar
+  const adjacentSeatsWithoutBookedNeighbors = adjacentSeats.filter((seat) => {
+    const rowSeats = seatsByRow.get(seat.seatsRow) ?? [];
+
+    return !rowSeats.some(
+      (neighborSeat) =>
+        Math.abs(neighborSeat.seatsNumber - seat.seatsNumber) === 1 &&
+        bookedSeatsId.includes(Number(neighborSeat.seatId))
+    );
+  });
+
+  // Prioritera i följande ordning:
+  // 1. Grannstolar utan bokade grannar.
+  // 2. Alla grannstolar om de bästa alternativen saknas.
+  // 3. Alla lediga stolar om inga grannstolar finns.
+  const candidateSeats =
+    adjacentSeatsWithoutBookedNeighbors.length > 0
+      ? adjacentSeatsWithoutBookedNeighbors
+      : adjacentSeats.length > 0
+        ? adjacentSeats
+        : availableSeats;
+
+  let bestSeat: Seat | null = null;
+  let bestScore = Infinity;
+  // Eftersom alla beräknade poäng är lägre än oändlighet 
+  //  kommer den första tillgängliga stolen alltid att bli den första kandidaten
+
+  for (const seat of candidateSeats) {
+    const rowIndex = rows.indexOf(seat.seatsRow);
+
+    const rowSeats = seatsByRow.get(seat.seatsRow)!
+    .sort((a, b) => a.seatsNumber - b.seatsNumber);
+
+    const seatIndex = rowSeats.findIndex(
+      (s) => s.seatId === seat.seatId
     );
 
-    //early return
-    if (availableSeats.length === 0 || auditoriumName === undefined || auditoriumName === null) {
-        return null;
+    const rowPosition = 
+      rows.length === 1
+        ? 0.5
+        : rowIndex / (rows.length - 1);
+
+    // beräkna avstånd från salongens optimala rad
+    const rowPenalty = calculateRowPenalty(
+      rowPosition,
+      config.optimalStart,
+      config.optimalEnd
+    );
+
+    //beräkna asvtånd från radens mitt
+    const centerIndex = (rowSeats.length -1) / 2;
+    
+    const maxSeatDistance = Math.max(centerIndex, 1);
+
+    const seatPenalty = Math.abs(seatIndex - centerIndex) / maxSeatDistance;
+
+    // Kontrollera om stolen har en redan bokad granne
+    const bookedNeighbors = rowSeats.filter(
+      (neighborSeat) =>
+        Math.abs(
+            neighborSeat.seatsNumber - seat.seatsNumber
+        ) === 1 &&
+        bookedSeatsId.includes(Number(neighborSeat.seatId))
+    ).length;
+
+    // Om stolen ligger intill en vald stol ska gruppen
+    // prioriteras framför risken med bokade grannar.
+    const isAdjacentToSelected = selectedSeats.some(
+      (selectedSeat) =>
+        selectedSeat.seatsRow === seat.seatsRow &&
+        Math.abs(
+            selectedSeat.seatsNumber - seat.seatsNumber
+        ) === 1
+    );
+
+    // Bokade grannar ger extra penalty,
+    // men inte när stolen ligger intill en vald stol.
+    const bookedNeighborPenalty = isAdjacentToSelected
+      ? 0
+      : bookedNeighbors * config.bookedNeighborWeight;
+
+    // Slutlig poängberäkning
+    const score =
+      rowPenalty * config.rowWeight +
+      seatPenalty * config.seatWeight +
+      bookedNeighborPenalty;
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestSeat = seat;
     }
+  }
 
-    //hämta alla rader, även om de är upptagna och sorta de efter storleksordning
-    const rows = [ ...new Set(seats.map((seat) => seat.seatsRow))]
-    .sort((a, b) => a - b);
-
-    //konfigurera efter autidioriumName, för att prioritera vissa rader framför andra
-    const config = CONFIG[auditoriumName as keyof typeof CONFIG]; 
-
-    //gruppera alla stolar efter rad
-    const seatsByRow = new Map<number, Seat[]>();
-
-    for (const seat of seats) {
-        const rowSeats = seatsByRow.get(seat.seatsRow) ?? [];
-        rowSeats.push(seat);
-        seatsByRow.set(seat.seatsRow, rowSeats);   
-    } 
-
-    let bestSeat: Seat | null = null;
-    let bestScore = Infinity;
-
-    for (const seat of availableSeats) {
-        const rowIndex = rows.indexOf(seat.seatsRow);
-
-        const rowSeats = seatsByRow.get(seat.seatsRow)!
-        .sort((a, b) => a.seatsNumber - b.seatsNumber);
-
-        const seatIndex = rowSeats.findIndex(
-            (s) => s.seatId === seat.seatId
-        );
-
-        const rowPosition = 
-            rows.length === 1
-                ? 0.5
-                : rowIndex / (rows.length - 1);
-
-        // beräkna avstånd från salongens optimala rad
-        const rowPenalty = calculateRowPenalty(
-            rowPosition,
-            config.optimalStart,
-            config.optimalEnd
-        );
-
-        //beräkna asvtånd från radens mitt
-        const centerIndex = (rowSeats.length -1) / 2;
-        
-        const maxSeatDistance = Math.max(centerIndex, 1);
-
-        const seatPenalty = Math.abs(seatIndex - centerIndex) / maxSeatDistance;
-
-        // lägre peäng = bättre placering
-
-        const score = rowPenalty * config.rowWeight + seatPenalty * config.seatWeight;
-
-        if (score < bestScore) {
-            bestScore = score;
-            bestSeat = seat;
-        }
-    }
-
-    return bestSeat;
+  return bestSeat;
 }
