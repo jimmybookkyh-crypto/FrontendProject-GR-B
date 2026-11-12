@@ -30,9 +30,10 @@ function appUrl(): string {
   return (process.env.APP_URL || "http://localhost:5173").replace(/\/+$/, "");
 }
 
-// Link to the login page, used in the member email
-function loginUrl(): string {
-  return `${appUrl()}/login`;
+// Link to My pages, used in the member email.
+// My pages sends logged-out visitors to the login page and back again afterwards.
+function myPagesUrl(): string {
+  return `${appUrl()}/mypage`;
 }
 
 // Link that lets a guest cancel the booking without logging in (P17.2).
@@ -64,7 +65,7 @@ export function buildConfirmationEmail(data: ConfirmationEmailData) {
   const extra = data.isMember
     ? {
         lead: "Logga in för att se eller avboka din bokning på Mina sidor",
-        url: loginUrl(),
+        url: myPagesUrl(),
       }
     : data.cancelUrl
       ? { lead: "Avboka din bokning", url: data.cancelUrl }
