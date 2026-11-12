@@ -189,7 +189,7 @@ Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 =
 - Angelica Jonsson Landström - AngelicaJL97
 - Eva Maria Köning - MrsKoning
 - Jimmy Book - jimmybookkyh-crypto
-- Robin - Fluuffyyy
+- Robin Karlsson - Fluuffyyy
 
 
 ## Förbättringsförslag
