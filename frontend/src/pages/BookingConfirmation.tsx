@@ -9,7 +9,7 @@ import BackButton from "../components/BackButton";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
-import { routes } from "../utils/paths.ts";
+import { paths, routes } from "../utils/paths.ts";
 
 type ConfirmationState = {
   bookingNumber: string;
@@ -78,7 +78,7 @@ export default function BookingConfirmation() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // The link in the confirmation email carries a cancel token: /bookingconfirmation?token=...
+  // The link in the confirmation email carries a cancel token: /bekraftelse?token=...
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
@@ -163,7 +163,7 @@ export default function BookingConfirmation() {
           backgroundPosition: "center",
         }}
       >
-        {booking.from === "mypage" && <BackButton to="/mypage" />}
+        {booking.from === "mypage" && <BackButton to={paths.myPage} />}
         <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
           Bokningsbekräftelse
         </h1>
@@ -273,8 +273,8 @@ export default function BookingConfirmation() {
                   {!token && (
                     <p className="fw-normal opacity-75 mt-3 mb-4">
                       <em>
-                        Bekräftelsen har skickats till din e-post. Hittar du
-                        den inte? Titta i skräpposten.
+                        Bekräftelsen har skickats till din e-post. Hittar du den
+                        inte? Titta i skräpposten.
                       </em>
                     </p>
                   )}
@@ -304,7 +304,7 @@ export default function BookingConfirmation() {
                       <button
                         type="button"
                         className="btn btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
-                        onClick={() => navigate("/mypage")}
+                        onClick={() => navigate(paths.myPage)}
                       >
                         Tillbaka till Mina sidor
                       </button>

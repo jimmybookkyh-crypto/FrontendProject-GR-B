@@ -18,7 +18,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import "../styles/MyPage.css";
-import { routes } from "../utils/paths.ts";
+import { paths, routes } from "../utils/paths.ts";
 
 export default function Register() {
   const { formData, formAttribute, resetForm } = useFormData({
@@ -81,8 +81,8 @@ export default function Register() {
         //inloggad direkt: tillbaka dit man var (annars startsidan), med välkomstmeddelande
         navigate(from, { replace: true, state: { welcome: true } });
       } else {
-        //kontot är skapat men inloggningen misslyckades: till /login med ett meddelande
-        navigate("/login", {
+        //kontot är skapat men inloggningen misslyckades: till inloggningssidan med ett meddelande
+        navigate(paths.login, {
           replace: true,
           state: {
             from,
@@ -176,6 +176,6 @@ export default function Register() {
 
 Register.route = {
   path: routes.register,
-  order: 15,
+  order: 15, //vet inte vilket nummer ska vara här
   label: "Bli medlem",
 };

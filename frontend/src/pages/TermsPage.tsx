@@ -3,11 +3,9 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import { Link } from "react-router";
 import "../styles/MyPage.css";
-import { routes } from "../utils/paths.ts";
-  
+import { paths, routes } from "../utils/paths.ts";
 
 const TERMS_UPDATED = "5 november 2026";
-
 
 const CONTACT = {
   company: "Filmvisarna AB",
@@ -15,7 +13,6 @@ const CONTACT = {
   postalAddress: "123 45 Småstad",
   email: "info@filmvisarna.bio",
 };
-
 
 export default function TermsPage() {
   return (
@@ -70,8 +67,8 @@ export default function TermsPage() {
               </p>
               <ul className="mb-2">
                 <li>
-                  Barn under 7 år får se filmer med 7-årsgräns i sällskap med
-                  en vuxen.
+                  Barn under 7 år får se filmer med 7-årsgräns i sällskap med en
+                  vuxen.
                 </li>
                 <li>
                   Barn som har fyllt 7 år får se filmer med 11-årsgräns i
@@ -106,8 +103,8 @@ export default function TermsPage() {
               </p>
               <p className="mb-2">
                 Uppgifterna sparas så länge du har ett konto. Raderar du kontot
-                tar vi bort dina personuppgifter. Tidigare bokningar sparas
-                utan uppgifter om vem som bokade.
+                tar vi bort dina personuppgifter. Tidigare bokningar sparas utan
+                uppgifter om vem som bokade.
               </p>
               <p className="mb-0">
                 Du kan ändra dina uppgifter och radera ditt konto under Mina
@@ -122,20 +119,23 @@ export default function TermsPage() {
               </h2>
               <p className="mb-0">
                 Vi sparar bara det som behövs för att sajten ska fungera, och
-                statistik bara om du har godkänt det. Läs mer och ändra ditt
-                val på sidan <Link to="/cookies">Cookies</Link>.
+                statistik bara om du har godkänt det. Läs mer och ändra ditt val
+                på sidan <Link to={paths.cookies}>Cookies</Link>.
               </p>
             </section>
 
-            <section className="mypage-panel" aria-labelledby="villkor-tillganglighet">
+            <section
+              className="mypage-panel"
+              aria-labelledby="villkor-tillganglighet"
+            >
               <h2 id="villkor-tillganglighet" className="mypage-panel-title">
                 Tillgänglighet
               </h2>
               <p className="mb-0">
-                Vi vill att alla ska kunna boka biljetter hos oss. Sajten ska
-                gå att använda med tangentbord och skärmläsare och vara lätt
-                att läsa på både mobil och dator. Om något inte fungerar för
-                dig vill vi gärna veta det.
+                Vi vill att alla ska kunna boka biljetter hos oss. Sajten ska gå
+                att använda med tangentbord och skärmläsare och vara lätt att
+                läsa på både mobil och dator. Om något inte fungerar för dig
+                vill vi gärna veta det.
               </p>
             </section>
 
@@ -153,7 +153,8 @@ export default function TermsPage() {
             </section>
 
             <p className="mypage-help text-center mb-0">
-              Villkoren uppdaterades senast {TERMS_UPDATED} av {CONTACT.company}.
+              Villkoren uppdaterades senast {TERMS_UPDATED} av {CONTACT.company}
+              .
             </p>
           </Col>
         </Row>

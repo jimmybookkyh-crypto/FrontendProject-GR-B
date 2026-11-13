@@ -28,18 +28,26 @@ import type {
 } from "../interface/types";
 import useSeatUpdates from "../hooks/useSeatUpdates";
 import useBookingDraft from "../hooks/useBookingDraft";
-import { loadBookingDraft, saveBookingDraft, clearBookingDraft } from "../utils/bookingDraft.ts";
-import { routes } from "../utils/paths.ts";
+import {
+  loadBookingDraft,
+  saveBookingDraft,
+  clearBookingDraft,
+} from "../utils/bookingDraft.ts";
+import { paths, routes } from "../utils/paths.ts";
 
 export default function BookingPage() {
   const navigate = useNavigate();
+  // Läs showingId från URL:en (/bokning/:showingId)
   const { showingId } = useParams();
 
+  // Hämta den inloggade användaren från AuthContext
   const { user } = useAuth();
 
+  // State för e-post och userId
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
 
+  // Förifyll e-post och userId automatiskt när användaren är inloggad
   useEffect(() => {
     if (user?.email) {
       setEmail(user.email);
@@ -50,6 +58,7 @@ export default function BookingPage() {
     }
   }, [user]);
 
+  // Hämta visningsdetaljer från backend
   const {
     data: showingRaw,
     loading: showingLoading,
@@ -59,10 +68,12 @@ export default function BookingPage() {
   const showing = showingRaw;
   const currentMovieId = showing?.movieId;
 
+  // Hämta filmens detaljer (affisch, speltid, åldersgräns m.m.)
   const { data: movie } = useFetch<Movie>(
     currentMovieId ? `/movies/${currentMovieId}` : null,
   );
 
+  // Titeln finns redan i visningen, filmens titel är reserv
   const currentTitle = showing?.movieTitle || movie?.title || "Laddar...";
   const currentImages = movie?.images ?? [];
   const currentDate = formatDate(showing?.date);
@@ -71,6 +82,7 @@ export default function BookingPage() {
   const currentAuditoriumId = showing?.auditoriumId ?? 0;
   const currentAuditoriumName = showing?.auditoriumName || "Salong";
 
+  // Hämta alla stolar för salongen från /seats
   const {
     data: seatsRaw,
     loading: seatsLoading,
@@ -368,7 +380,7 @@ export default function BookingPage() {
 
       // Navigera till bekräftelsesidan och skicka med bokningen i state.
       // replace: true gör att bakåtknappen inte leder tillbaka till bokningsformuläret.
-      navigate("/bookingconfirmation", {
+      navigate(paths.bookingConfirmation, {
         replace: true,
         state: {
           bookingNumber: result.data.bookingNumber,
@@ -418,9 +430,9 @@ export default function BookingPage() {
       savedAt: Date.now(),
     });
 
-    navigate("/login", {
+    navigate(paths.login, {
       state: {
-        from: `/booking/${showingId}`,
+        from: paths.booking(showingId ?? ""),
       },
     });
   };
@@ -521,7 +533,9 @@ export default function BookingPage() {
                     className="btn checkout-btn rounded-pill py-2 px-5 fw-bold fs-5"
                     onClick={() =>
                       navigate(
-                        currentMovieId ? `/movies/${currentMovieId}` : "/",
+                        currentMovieId
+                          ? paths.movie(currentMovieId)
+                          : paths.start,
                       )
                     }
                   >

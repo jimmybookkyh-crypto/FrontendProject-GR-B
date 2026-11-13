@@ -12,20 +12,19 @@ import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
 import { validDate, langtDatum, plusDagar } from "../utils/date";
-import type { Movie, Showing, } from "../interface/types";
+import type { Movie, Showing } from "../interface/types";
 import { useEffect } from "react";
-import { routes } from "../utils/paths.ts";
+import { paths, routes } from "../utils/paths.ts";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
-  const { id } = useParams(); // id från adressen, t.ex. /movies/3
+  const { id } = useParams(); // id från adressen, t.ex. /filmer/3
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Kontrollera om användaren kommer från Filmkatalogen
   const fromCatalog = searchParams.get("fran") === "katalog";
 
-
-  // TODO: Valt datum ligger i adressen (/movies/3?datum=2026-10-26), så det finns kvar
+  // TODO: Valt datum ligger i adressen (/filmer/3?datum=2026-10-26), så det finns kvar
   // vid omladdning och när man går tillbaka från bokningen. Saknas det = idag.
   // OBS: adressparametern heter fortfarande "datum" så att befintliga länkar fungerar.
   const selectedDate = validDate(searchParams.get("datum"));
@@ -33,22 +32,18 @@ export default function MovieDetails() {
   function changeDate(date: string) {
     // Behåll fran=katalog när användaren byter datum
     setSearchParams(
-      fromCatalog
-        ? { fran: "katalog", datum: date }
-        : { datum: date },
-      { replace: true }
+      fromCatalog ? { fran: "katalog", datum: date } : { datum: date },
+      { replace: true },
     );
   }
-
 
   function goBack() {
     if (window.history.state?.idx > 0) {
       navigate(-1);
     } else {
-      navigate("/moviecatalog");
+      navigate(paths.movies);
     }
   }
-
 
   const {
     data: movie,
@@ -60,9 +55,7 @@ export default function MovieDetails() {
     data: movieShowings,
     loading: showingsLoading,
     error: showingsError,
-  } = useFetch<Showing[]>(
-    id ? `/showings?movieId=${id}` : null
-  );
+  } = useFetch<Showing[]>(id ? `/showings?movieId=${id}` : null);
 
   const today = plusDagar(0);
 
@@ -72,7 +65,7 @@ export default function MovieDetails() {
         ...new Set(
           movieShowings
             .filter((showing) => showing.date >= today)
-            .map((showing) => showing.date)
+            .map((showing) => showing.date),
         ),
       ].sort()
     : [];
@@ -83,7 +76,6 @@ export default function MovieDetails() {
   // Behåll valt datum om det finns bland alla framtida visningsdatum.
   const firstAvailableShowing = selectedDate;
 
-  
   useEffect(() => {
     if (showingsLoading || !movieShowings) return;
 
@@ -95,7 +87,7 @@ export default function MovieDetails() {
           next.set("datum", allUpcomingShowings[0]);
           return next;
         },
-        { replace: true }
+        { replace: true },
       );
     }
   }, [
@@ -105,7 +97,6 @@ export default function MovieDetails() {
     allUpcomingShowings,
     setSearchParams,
   ]);
-  
 
   return (
     <div
@@ -123,16 +114,11 @@ export default function MovieDetails() {
 
         {movie && (
           <div className="film-stack d-flex flex-column gap-3">
-
             {/* Laddning av filmens visningar */}
-            {showingsLoading && (
-              <LoadingSpinner text="Hämtar visningar…" />
-            )}
+            {showingsLoading && <LoadingSpinner text="Hämtar visningar…" />}
 
             {/* Fel vid hämtning av visningar */}
-            {showingsError && (
-              <ErrorMessage message={showingsError} />
-            )}
+            {showingsError && <ErrorMessage message={showingsError} />}
 
             {/* Filmen saknar kommande visningar */}
             {!showingsLoading &&
@@ -142,7 +128,7 @@ export default function MovieDetails() {
                 <p className="text-center text-white">
                   Filmen har inga kommande visningar just nu.
                 </p>
-            )}
+              )}
 
             {/* Visa datumremsa och visningstider när visningarna har hämtats */}
             {!showingsLoading &&
@@ -248,7 +234,8 @@ function MovieInfo({ movie }: { movie: Movie }) {
               {Array.isArray(movie.productioncountries) &&
                 movie.productioncountries.length > 0 && (
                   <div className="mb-1">
-                    <strong>Land:</strong> {movie.productioncountries.join(", ")}
+                    <strong>Land:</strong>{" "}
+                    {movie.productioncountries.join(", ")}
                   </div>
                 )}
               {movie.distributor && (
@@ -325,7 +312,7 @@ function ShowingsBox({
                     key={showing.showingId}
                     auditoriumName={showing.auditoriumName}
                     time={showing.time}
-                    onClick={() => navigate(`/booking/${showing.showingId}`)}
+                    onClick={() => navigate(paths.booking(showing.showingId))}
                   />
                 ))}
               </div>
