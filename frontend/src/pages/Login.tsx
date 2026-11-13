@@ -13,6 +13,8 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import "../styles/MyPage.css";
+import { routes } from "../utils/paths.ts";
+  
 
 export default function Login() {
     const {
@@ -153,7 +155,7 @@ export default function Login() {
 }
 
 Login.route = {
-  path: "/login",
+  path: routes.login,
   order: 0,
   label: "Logga in",
 };

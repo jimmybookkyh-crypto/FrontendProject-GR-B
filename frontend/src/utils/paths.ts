@@ -15,8 +15,9 @@ export const routes = {
   notFound: "*",
 } as const;
 
-export const oldRoutes = {
+export const legacyRoutes = {
   login: "/login",
+  myPage: "/mypage",
   bookingConfirmation: "/bookingconfirmation",
 } as const;
 

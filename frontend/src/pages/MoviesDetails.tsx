@@ -14,6 +14,7 @@ import AgeBadge from "../components/AgeBadge";
 import { validDate, langtDatum, plusDagar } from "../utils/date";
 import type { Movie, Showing, } from "../interface/types";
 import { useEffect } from "react";
+import { routes } from "../utils/paths.ts";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
@@ -337,7 +338,7 @@ function ShowingsBox({
 }
 
 MovieDetails.route = {
-  path: "/movies/:id",
+  path: routes.movie,
   order: 1,
   label: "Filmdetaljer",
 };

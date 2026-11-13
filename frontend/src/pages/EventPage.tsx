@@ -11,6 +11,8 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
+import { routes } from "../utils/paths.ts";
+  
 
 
 const dateMonth = new Intl.DateTimeFormat("sv-SE", {
@@ -253,7 +255,7 @@ export default function EventPage() {
 }
 
 EventPage.route = {
-  path: "/event",
+  path: routes.events,
   order: 1,
   label: "Event",
 };

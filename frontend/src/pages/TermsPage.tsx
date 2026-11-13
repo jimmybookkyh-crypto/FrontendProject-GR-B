@@ -3,6 +3,8 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import { Link } from "react-router";
 import "../styles/MyPage.css";
+import { routes } from "../utils/paths.ts";
+  
 
 const TERMS_UPDATED = "5 november 2026";
 
@@ -161,7 +163,7 @@ export default function TermsPage() {
 }
 
 TermsPage.route = {
-  path: "/villkor",
+  path: routes.terms,
   order: 17,
   label: "Villkor & policies",
 };

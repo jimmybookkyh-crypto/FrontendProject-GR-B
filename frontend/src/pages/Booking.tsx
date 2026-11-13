@@ -29,21 +29,17 @@ import type {
 import useSeatUpdates from "../hooks/useSeatUpdates";
 import useBookingDraft from "../hooks/useBookingDraft";
 import { loadBookingDraft, saveBookingDraft, clearBookingDraft } from "../utils/bookingDraft.ts";
-
+import { routes } from "../utils/paths.ts";
 
 export default function BookingPage() {
   const navigate = useNavigate();
-  // Läs showingId från URL:en (/booking/:showingId)
   const { showingId } = useParams();
 
-  // Hämta den inloggade användaren från AuthContext
   const { user } = useAuth();
 
-  // State för e-post och userId
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
 
-  // Förifyll e-post och userId automatiskt när användaren är inloggad
   useEffect(() => {
     if (user?.email) {
       setEmail(user.email);
@@ -54,7 +50,6 @@ export default function BookingPage() {
     }
   }, [user]);
 
-  // Hämta visningsdetaljer från backend
   const {
     data: showingRaw,
     loading: showingLoading,
@@ -64,12 +59,10 @@ export default function BookingPage() {
   const showing = showingRaw;
   const currentMovieId = showing?.movieId;
 
-  // Hämta filmens detaljer (affisch, speltid, åldersgräns m.m.)
   const { data: movie } = useFetch<Movie>(
     currentMovieId ? `/movies/${currentMovieId}` : null,
   );
 
-  // Titeln finns redan i visningen, filmens titel är reserv
   const currentTitle = showing?.movieTitle || movie?.title || "Laddar...";
   const currentImages = movie?.images ?? [];
   const currentDate = formatDate(showing?.date);
@@ -78,7 +71,6 @@ export default function BookingPage() {
   const currentAuditoriumId = showing?.auditoriumId ?? 0;
   const currentAuditoriumName = showing?.auditoriumName || "Salong";
 
-  // Hämta alla stolar för salongen från /seats
   const {
     data: seatsRaw,
     loading: seatsLoading,
@@ -116,40 +108,32 @@ export default function BookingPage() {
   const childPrice = childType?.price ?? 80;
   const seniorPrice = seniorType?.price ?? 120;
 
-  const draft = showingId
-    ? loadBookingDraft(Number(showingId))
-    : null;
-  
+  const draft = showingId ? loadBookingDraft(Number(showingId)) : null;
+
   // State
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>(
-    draft?.selectedSeats || []
+    draft?.selectedSeats || [],
   );
   const [seatWarning, setSeatWarning] = useState<string | null>(null);
   const seatWarningRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setSelectedSeats((current) => {
       const filtered = current.filter(
-        (seat) => !occupiedSeats.includes(Number(seat.seatId))
+        (seat) => !occupiedSeats.includes(Number(seat.seatId)),
       );
 
       if (filtered.length < current.length) {
         setSeatWarning(
-          "En eller flera av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade."
+          "En eller flera av dina valda platser bokades precis av någon annan. Välj en ny plats. De bästa lediga platserna är markerade.",
         );
       }
 
       return filtered;
     });
   }, [occupiedSeats]);
-  const [adultTickets, setAdultTickets] = useState(
-    draft?.adultTickets ?? 0
-  );
-  const [childTickets, setChildTickets] = useState(
-    draft?.childTickets ?? 0
-  );
-  const [seniorTickets, setSeniorTickets] = useState(
-    draft?.seniorTickets ?? 0
-  );
+  const [adultTickets, setAdultTickets] = useState(draft?.adultTickets ?? 0);
+  const [childTickets, setChildTickets] = useState(draft?.childTickets ?? 0);
+  const [seniorTickets, setSeniorTickets] = useState(draft?.seniorTickets ?? 0);
 
   useBookingDraft({
     showingId,
@@ -164,7 +148,7 @@ export default function BookingPage() {
   // Fel som visas direkt vid e-postfältet i modalen
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const totaltTickets = adultTickets + childTickets + seniorTickets;
 
   useEffect(() => {
@@ -182,13 +166,7 @@ export default function BookingPage() {
         resumeCheckout: false,
       });
     }
-  }, [
-    user,
-    draft,
-    selectedSeats.length,
-    totaltTickets,
-    showEmailModal,
-  ]);
+  }, [user, draft, selectedSeats.length, totaltTickets, showEmailModal]);
 
   useEffect(() => {
     if (!seatWarning) return;
@@ -366,7 +344,7 @@ export default function BookingPage() {
           resetSelection();
 
           throw new Error(
-           "Tyvärr hann en eller flera av de valda platserna bokas av någon annan innan bokningen slutfördes.",
+            "Tyvärr hann en eller flera av de valda platserna bokas av någon annan innan bokningen slutfördes.",
           );
         }
         throw new Error(
@@ -379,7 +357,7 @@ export default function BookingPage() {
       }
 
       setShowEmailModal(false);
-      
+
       resetSelection();
 
       clearBookingDraft();
@@ -707,15 +685,15 @@ export default function BookingPage() {
                       ))}
                     </ul>
                   ) : (
-                      <p
-                        className="mb-0"
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "rgba(245, 247, 250, 0.7)",
-                        }}
-                      >
-                        Inga platser valda
-                      </p>
+                    <p
+                      className="mb-0"
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "rgba(245, 247, 250, 0.7)",
+                      }}
+                    >
+                      Inga platser valda
+                    </p>
                   )}
                 </div>
 
@@ -812,7 +790,7 @@ export default function BookingPage() {
 }
 
 BookingPage.route = {
-  path: "/booking/:showingId",
+  path: routes.booking,
   order: 3,
   label: "Bokningssida",
 };

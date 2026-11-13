@@ -9,6 +9,7 @@ import BackButton from "../components/BackButton";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
+import { routes } from "../utils/paths.ts";
 
 type ConfirmationState = {
   bookingNumber: string;
@@ -373,7 +374,7 @@ export default function BookingConfirmation() {
 }
 
 BookingConfirmation.route = {
-  path: "/bookingconfirmation",
+  path: routes.bookingConfirmation,
   order: 14,
   label: "Bokningsbekräftelse",
 };

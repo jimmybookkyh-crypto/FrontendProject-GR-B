@@ -13,19 +13,15 @@ import MyProfile from "../components/MyProfile.tsx";
 import MyBookings from "../components/MyBookings.tsx";
 import type { MyBookingsResponse } from "../interface/types.ts";
 import "../styles/MyPage.css";
+import { routes } from "../utils/paths.ts";
+ 
 
-/* Mina sidor (T126 / #330)
-   - Skyddad: utloggade skickas till /login (sidskyddet från T027b/#322).
-   - Vänster: Mina uppgifter, Byt lösenord, Radera konto.
-   - Höger: Kommande och Tidigare bokningar från GET /bookings/me. */
 export default function MyPage() {
   const { user, loading } = useAuth();
 
-  // Ökas efter avbokning så att listan hämtas om
   const [refreshKey, setRefreshKey] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Hämtar bara när någon är inloggad (null = vänta)
   const {
     data: bookings,
     loading: bookingsLoading,
@@ -34,7 +30,6 @@ export default function MyPage() {
     user ? `${MY_BOOKINGS_PATH}?v=${refreshKey}` : null,
   );
 
-  // Väntar tills AuthContext vet om någon är inloggad (vid omladdning)
   if (loading) return <LoadingSpinner text="Laddar Mina sidor…" />;
 
   if (!user) {
@@ -94,7 +89,7 @@ export default function MyPage() {
 }
 
 MyPage.route = {
-  path: "/mypage",
+  path: routes.myPage,
   order: 0,
   label: "Mina sidor",
 };
