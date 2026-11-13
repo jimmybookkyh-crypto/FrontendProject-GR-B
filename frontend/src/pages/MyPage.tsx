@@ -13,9 +13,10 @@ import MyProfile from "../components/MyProfile.tsx";
 import MyBookings from "../components/MyBookings.tsx";
 import type { MyBookingsResponse } from "../interface/types.ts";
 import "../styles/MyPage.css";
+import { paths, routes } from "../utils/paths.ts";
 
 /* Mina sidor (T126 / #330)
-   - Skyddad: utloggade skickas till /login (sidskyddet från T027b/#322).
+   - Skyddad: utloggade skickas till /logga-in (sidskyddet från T027b/#322).
    - Vänster: Mina uppgifter, Byt lösenord, Radera konto.
    - Höger: Kommande och Tidigare bokningar från GET /bookings/me. */
 export default function MyPage() {
@@ -38,7 +39,7 @@ export default function MyPage() {
   if (loading) return <LoadingSpinner text="Laddar Mina sidor…" />;
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: "/mypage" }} />;
+    return <Navigate to={paths.login} replace state={{ from: paths.myPage }} />;
   }
 
   const firstName = (user.username ?? "").trim().split(" ")[0];
@@ -94,7 +95,7 @@ export default function MyPage() {
 }
 
 MyPage.route = {
-  path: "/mypage",
+  path: routes.myPage,
   order: 0,
   label: "Mina sidor",
 };

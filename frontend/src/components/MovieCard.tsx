@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
 import noPoster from "../assets/img/no-poster.webp";
+import { paths } from "../utils/paths.ts";
 
 export interface MovieCardProps {
   movieId: number | string;
@@ -11,7 +12,7 @@ export interface MovieCardProps {
   ageRating?: number | null;
   showDetails?: boolean;
   datum?: string;
-  navigatedFrom?: string; 
+  navigatedFrom?: string;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -21,7 +22,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   ageRating,
   showDetails = true,
   datum,
-  navigatedFrom
+  navigatedFrom,
 }) => {
   let imageUrl = "";
   try {
@@ -33,12 +34,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
   }
 
   // Bygg sökvägen, med valt datum och från beskrvining om det finns
-  const targetPath = `/movies/${movieId}${
+  const targetPath = `${paths.movie(movieId)}${
     datum || navigatedFrom
-    ? `?${datum ? `datum=${datum}` : ""}${
-      datum && navigatedFrom ? "&" : ""
-    }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
-    : ""
+      ? `?${datum ? `datum=${datum}` : ""}${
+          datum && navigatedFrom ? "&" : ""
+        }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
+      : ""
   }`;
 
   return (
