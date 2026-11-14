@@ -7,6 +7,12 @@ import {
   hasStatisticsConsent,
 } from "../utils/cookieConsent";
 import "../styles/HeroSection.css";
+import { paths } from "../utils/paths.ts";
+import {
+  getFirstValue,
+  moviePoster,
+  moviePosterUrl,
+} from "../utils/images.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -65,16 +71,6 @@ type HeroSlideData = {
   buttonTo: string;
   buttonLabel: string;
 };
-
-function getFirstValue(value?: string[] | string): string {
-  if (!value) return "";
-  try {
-    const parsed = typeof value === "string" ? JSON.parse(value) : value;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof value === "string" ? value : "";
-  }
-}
 
 function getFirstSentence(text?: string | null): string {
   if (!text) return "";
@@ -165,7 +161,7 @@ function buildEventSlides(
     title: event.name,
     text: event.tagline ?? getFirstParagraph(event.info),
     ...getMovieMedia(movieById.get(eventMovieId)),
-    buttonTo: `/event#event-${event.eventId}`,
+    buttonTo: `${paths.events}#event-${event.eventId}`,
     buttonLabel: "Läs om eventet →",
   };
 
@@ -184,7 +180,7 @@ function buildEventSlides(
       ageRating: movie?.ageRating,
       text: getFirstSentence(movie?.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${id}?datum=${nextShowing.date}`,
+      buttonTo: `${paths.movie(id)}?datum=${nextShowing.date}`,
       buttonLabel: `Biljetter → ${formatShortDate(nextShowing.date)}`,
     };
   });
@@ -207,7 +203,7 @@ function buildFallbackSlides(movies: HeroMovie[]): HeroSlideData[] {
       ageRating: movie.ageRating,
       text: getFirstSentence(movie.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${movie.movieId}`,
+      buttonTo: paths.movie(movie.movieId),
       buttonLabel: "Se filmen →",
     }));
 }
@@ -694,7 +690,9 @@ function HeroMedia({
       {poster && (
         <div
           className={`hero-slide-bg${hiddenClass}`}
-          style={{ backgroundImage: `url(${poster})` }}
+          style={{
+            backgroundImage: `url(${moviePosterUrl(poster, 800)})`,
+          }}
           aria-hidden="true"
         />
       )}
@@ -718,7 +716,7 @@ function HeroMedia({
       {poster && (
         <img
           className={`hero-slide-poster${hiddenClass}`}
-          src={poster}
+          {...moviePoster(poster, "190px")}
           alt={title}
           fetchPriority={isFirst ? "high" : "auto"}
           loading={isFirst ? "eager" : "lazy"}

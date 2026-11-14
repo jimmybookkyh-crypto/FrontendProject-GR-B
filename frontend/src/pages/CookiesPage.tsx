@@ -11,6 +11,8 @@ import {
 } from "../utils/cookieConsent";
 import "../styles/MyPage.css";
 import "../styles/CookiesPage.css";
+import { routes } from "../utils/paths.ts";
+  
 
 // Datum som "5 november 2026"
 const formatSwedishDate = (date: string) =>
@@ -156,7 +158,7 @@ export default function CookiesPage() {
 }
 
 CookiesPage.route = {
-  path: "/cookies",
+  path: routes.cookies,
   order: 16,
   label: "Cookies",
 };

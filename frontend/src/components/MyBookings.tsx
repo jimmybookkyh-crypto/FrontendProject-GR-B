@@ -11,21 +11,13 @@ import {
 } from "../utils/format.ts";
 import { kortDatum } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
+import { paths } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 type MyBookingsProps = {
   bookings: MyBookingsResponse;
   onCancelled: (message: string) => void;
 };
-
-function posterUrl(images: MyBooking["images"]): string {
-  if (!images) return "";
-  try {
-    const parsed = typeof images === "string" ? JSON.parse(images) : images;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof images === "string" ? images : "";
-  }
-}
 
 function platserText(booking: MyBooking): string {
   return formatPlatser(booking.tickets)
@@ -38,14 +30,18 @@ function biljetterText(booking: MyBooking): string {
 }
 
 function Poster({ booking }: { booking: MyBooking }) {
-  const url = posterUrl(booking.images);
+  const poster = moviePoster(booking.images, "80px");
   return (
     <Link
-      to={`/movies/${booking.movieId}`}
+      to={paths.movie(booking.movieId)}
       className="mypage-poster"
       aria-label={`Mer om ${booking.movieTitle}`}
     >
-      {url ? <img src={url} alt="" loading="lazy" /> : <span>Affisch</span>}
+      {poster.src ? (
+        <img {...poster} alt="" loading="lazy" />
+      ) : (
+        <span>Affisch</span>
+      )}
     </Link>
   );
 }
@@ -58,27 +54,27 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
 
   const { upcoming, past } = bookings;
 
-    function showBooking(booking: MyBooking) {
-      navigate("/bookingconfirmation", {
-        state: {
-          bookingNumber: booking.bookingNumber,
-          movieId: Number(booking.movieId),
-          movieTitle: booking.movieTitle,
-          images: booking.images ?? [],
-          ageRating: booking.ageRating ?? null,
-          date: booking.date,
-          time: booking.time,
-          auditoriumName: booking.auditoriumName,
-          tickets: booking.tickets.map((t) => ({
-            ticketTypeName: t.ticketType,
-            price: t.price,
-            seatsRow: t.seatsRow,
-            seatsNumber: t.seatsNumber,
-          })),
-          from: "mypage",
-        },
-      });
-    }
+  function showBooking(booking: MyBooking) {
+    navigate(paths.bookingConfirmation, {
+      state: {
+        bookingNumber: booking.bookingNumber,
+        movieId: Number(booking.movieId),
+        movieTitle: booking.movieTitle,
+        images: booking.images ?? [],
+        ageRating: booking.ageRating ?? null,
+        date: booking.date,
+        time: booking.time,
+        auditoriumName: booking.auditoriumName,
+        tickets: booking.tickets.map((t) => ({
+          ticketTypeName: t.ticketType,
+          price: t.price,
+          seatsRow: t.seatsRow,
+          seatsNumber: t.seatsNumber,
+        })),
+        from: "mypage",
+      },
+    });
+  }
 
   async function confirmCancel() {
     if (!toCancel) return;
@@ -116,7 +112,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
         {upcoming.length === 0 ? (
           <div className="mypage-empty">
             <p>Du har inga kommande bokningar.</p>
-            <Link to="/moviecatalog" className="mypage-btn mypage-btn-red">
+            <Link to={paths.movies} className="mypage-btn mypage-btn-red">
               Se våra filmer
             </Link>
           </div>

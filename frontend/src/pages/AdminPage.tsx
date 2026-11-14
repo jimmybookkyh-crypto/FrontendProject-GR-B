@@ -21,6 +21,8 @@ import {
 } from "../utils/format.ts";
 import type { AdminBooking } from "../interface/types.ts";
 import "../styles/MyPage.css";
+import { routes } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 export default function AdminPage() {
   return (
@@ -31,7 +33,7 @@ export default function AdminPage() {
 }
 
 AdminPage.route = {
-  path: "/admin",
+  path: routes.admin,
   order: 0,
   label: "Admin",
 };
@@ -160,16 +162,6 @@ function AdminPortal() {
   );
 }
 
-function posterUrl(images: AdminBooking["images"]): string {
-  if (!images) return "";
-  try {
-    const parsed = typeof images === "string" ? JSON.parse(images) : images;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof images === "string" ? images : "";
-  }
-}
-
 function AdminBookingCard({
   booking,
   onCancelled,
@@ -181,7 +173,7 @@ function AdminBookingCard({
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 
-  const poster = posterUrl(booking.images);
+  const poster = moviePoster(booking.images, "80px");
   const isCancelled = booking.status === "cancelled";
   const canCancel = !isCancelled && !booking.hasStarted;
   const seats = formatPlatser(booking.tickets).join(" · ");
@@ -211,8 +203,8 @@ function AdminBookingCard({
     <section className="mypage-panel" aria-labelledby="admin-booking-title">
       <div className="mypage-booking">
         <div className="mypage-poster">
-          {poster ? (
-            <img src={poster} alt="" loading="lazy" />
+          {poster.src ? (
+            <img {...poster} alt="" loading="lazy" />
           ) : (
             <span>Affisch</span>
           )}

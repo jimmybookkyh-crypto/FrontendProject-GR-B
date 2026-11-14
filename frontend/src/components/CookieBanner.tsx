@@ -6,13 +6,12 @@ import {
   CONSENT_CHANGED_EVENT,
 } from "../utils/cookieConsent";
 import "../styles/buttons.css";
-
+import { paths } from "../utils/paths.ts";
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(() => getCookieConsent() === null);
   const bannerRef = useRef<HTMLElement>(null);
 
-  
   useEffect(() => {
     const handleChange = () => setVisible(getCookieConsent() === null);
     window.addEventListener(CONSENT_CHANGED_EVENT, handleChange);
@@ -61,7 +60,7 @@ export default function CookieBanner() {
           Vi sparar det som behövs i din webbläsare för att du ska kunna logga
           in och för att vi ska komma ihåg ditt val. Längre fram vill vi också
           använda cookies för statistik, men bara om du godkänner det.{" "}
-          <Link to="/cookies" style={{ color: "#DFA213" }}>
+          <Link to={paths.cookies} style={{ color: "#DFA213" }}>
             Läs mer om cookies
           </Link>
         </p>
