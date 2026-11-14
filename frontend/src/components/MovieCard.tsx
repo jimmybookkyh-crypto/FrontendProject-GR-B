@@ -4,6 +4,7 @@ import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
 import noPoster from "../assets/img/no-poster.webp";
 import { paths } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 export interface MovieCardProps {
   movieId: number | string;
@@ -24,14 +25,10 @@ const MovieCard: React.FC<MovieCardProps> = ({
   datum,
   navigatedFrom,
 }) => {
-  let imageUrl = "";
-  try {
-    const parsedImages =
-      typeof images === "string" ? JSON.parse(images) : images;
-    imageUrl = Array.isArray(parsedImages) ? parsedImages[0] : parsedImages;
-  } catch {
-    imageUrl = typeof images === "string" ? images : "";
-  }
+  const poster = moviePoster(
+    images,
+    "(min-width: 992px) 25vw, (min-width: 768px) 33vw, 50vw",
+  );
 
   // Bygg sökvägen, med valt datum och från beskrvining om det finns
   const targetPath = `${paths.movie(movieId)}${
@@ -56,7 +53,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
       >
         <Card.Img
           variant="top"
-          src={imageUrl || noPoster}
+          src={poster.src || noPoster}
+          srcSet={poster.srcSet}
+          sizes={poster.sizes}
           alt={title}
           loading="lazy"
         />

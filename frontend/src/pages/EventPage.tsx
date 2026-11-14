@@ -12,6 +12,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 import { routes } from "../utils/paths.ts";
+import { eventImage } from "../utils/images.ts";
   
 
 
@@ -83,6 +84,7 @@ function EventCard({
   const { movies } = groupShowings(data ?? []);
 
   const dateRange = formatDatePeriod(period.startDate, period.endDate);
+  const image = eventImage(event.image, "(min-width: 992px) 520px, 100vw");
 
   return (
     <article
@@ -95,7 +97,9 @@ function EventCard({
           <div className="event-image-border">
             <img
               className="event-image"
-              src={event.image ?? backgroundImage}
+              src={image.src || backgroundImage}
+              srcSet={image.srcSet}
+              sizes={image.sizes}
               alt={event.altText ?? ""}
               loading="lazy"
             />
