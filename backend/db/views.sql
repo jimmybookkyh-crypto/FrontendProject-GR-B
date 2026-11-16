@@ -1,4 +1,3 @@
-/* GET /showings/:id/seats - Get all booked seats for a specific showing */
 CREATE OR REPLACE VIEW public.booked_seats_view AS
 SELECT
   b."showingId",
@@ -13,55 +12,6 @@ JOIN public.seats s
   ON t."seatId" = s."seatId"
 WHERE b.status = 'confirmed';
 
-/* GET /showings/:id/bookings - Get all bookings for a specific showing */
-CREATE OR REPLACE VIEW public.showing_bookings_view AS
-SELECT
-  b."bookingId",
-  b."bookingNumber",
-  b."showingId",
-  b."userId",
-  b.created_at
-FROM public.bookings b;
-
-/* GET /bookings/:id/tickets - Get all tickets for a specific booking */
-CREATE OR REPLACE VIEW public.booking_tickets_view AS
-SELECT
-    t."ticketId",
-    t."bookingId",
-    tt."ticketTypeId",
-    tt.name AS "ticketType",
-    tt.price,
-    s."seatId",
-    s."seatsRow",
-    s."seatsNumber"
-FROM public.tickets t
-JOIN public."ticketTypes" tt
-    ON t."ticketTypeId" = tt."ticketTypeId"
-JOIN public.seats s
-    ON t."seatId" = s."seatId";
-
-/* GET /bookings?status=past - Get booking history for past bookings */
-CREATE OR REPLACE VIEW public.booking_history_view AS
-SELECT
-    b."bookingId",
-    b."bookingNumber",
-    b."userId",
-    b."showingId",
-    m."movieId",
-    m.title AS "movieTitle",
-    s.date,
-    s."time",
-    a."auditoriumId",
-    a.name AS "auditoriumName"
-FROM public.bookings b
-JOIN public.showings s
-    ON b."showingId" = s."showingId"
-JOIN public.movies m
-    ON s."movieId" = m."movieId"
-JOIN public.auditoriums a
-    ON s."auditoriumId" = a."auditoriumId";
-
-/* GET /events/:id/showings - Get all showings for a specific event */
 CREATE OR REPLACE VIEW public.event_showings_view AS
 SELECT
     e."eventId",
@@ -81,7 +31,5 @@ JOIN public.movies m
 JOIN public.auditoriums a
     ON s."auditoriumId" = a."auditoriumId";
 
-  /* Stänger vyerna för Supabases publika API (anon/authenticated).
-      Backend ansluter som postgres och påverkas inte. */
    revoke all on public.booked_seats_view   from anon, authenticated;
    revoke all on public.event_showings_view from anon, authenticated;
