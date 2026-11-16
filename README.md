@@ -1,6 +1,6 @@
 **GitHub-repo:** [jimmybookkyh-crypto/FrontendProject-GR-B](https://github.com/jimmybookkyh-crypto/FrontendProject-GR-B)
 
-# Filmvisarna 
+# Filmvisarna
 
 En bokningssajt för biografen Filmvisarna i Småstad
 Som besökare kan man se vilka filmer som går just nu samt titta på filmernas trailers, välja vilken visning och platser i salongskartan och boka biljetter både som medlem eller som gäst.
@@ -13,7 +13,8 @@ Grupprojekt i kursen Frontend-projekt (FE25, KYH), 14 september–20 november 20
 ## Funktioner
 
 ### För besökare
-- Startsida med herosektion som visar månadens event och trailers 
+
+- Startsida med herosektion som visar månadens event och trailers
 - Filmkatalog med filter på datum Idag / Imorgon / Kalender och åldersgräns
 - Filmdetaljsida med poster, trailer, beskrivning, skådespelare, regissör och kommande visningar
 - Eventsida med kommande temaveckor
@@ -29,11 +30,13 @@ Grupprojekt i kursen Frontend-projekt (FE25, KYH), 14 september–20 november 20
 - Information om cookies och val av statistikcookies
 
 ### För inloggade användare
+
 - Skapa konto och logga in
 - Mina sidor: kommande bokningar och bokningshistorik, avbokning, uppdatering av profil
 - Man kan inte radera sitt konto om man har kommande bokningar, tidigare bokningar anonymiseras när kontot raderas.
 
 ### För admin
+
 - Adminportal: sök bokning på bokningsnummer och se alla detaljer
 - Hantera filmer, visningar, biljettpriser och användarkonton
 
@@ -41,15 +44,15 @@ Grupprojekt i kursen Frontend-projekt (FE25, KYH), 14 september–20 november 20
 
 ## Teknik
 
-| Del | Teknik |
-| --- | --- |
-| Frontend | React 19, TypeScript, React Router, React Bootstrap / Bootstrap 5, Vite |
-| Backend | Node.js, Express 5, TypeScript (körs med `tsx`) |
-| Databas | PostgreSQL hostad på Supabase, `pg` |
-| Inloggning | `jsonwebtoken`, `bcryptjs` |
-| Realtid | `ws` (WebSocket) |
-| Mejl | Nodemailer (SMTP) |
-| Linting | Oxlint |
+| Del        | Teknik                                                                  |
+| ---------- | ----------------------------------------------------------------------- |
+| Frontend   | React 19, TypeScript, React Router, React Bootstrap / Bootstrap 5, Vite |
+| Backend    | Node.js, Express 5, TypeScript (körs med `tsx`)                         |
+| Databas    | PostgreSQL hostad på Supabase, `pg`                                     |
+| Inloggning | `jsonwebtoken`, `bcryptjs`                                              |
+| Realtid    | `ws` (WebSocket)                                                        |
+| Mejl       | Nodemailer (SMTP)                                                       |
+| Linting    | Oxlint                                                                  |
 
 ## Kom igång
 
@@ -70,13 +73,13 @@ npm install
 
 Kopiera `.env.example` till `.env` i projektets rot och fyll i värdena:
 
-| Variabel | Beskrivning |
-| --- | --- |
-| `PORT` | Port för backend `3000` |
-| `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Anslutning till databasen |
-| `JWT_SECRET`, `JWT_EXPIRES_IN` | Hemlig nyckel för att signera inloggningstoken, och hur länge en token gäller |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Utskick av bekräftelsemejl vid tomma skickas inga mejl, men bokningen fungerar ändå. |
-| `APP_URL` | Sajtens adress, används för länkar i mejlet (tomt = `http://localhost:5173`) |
+| Variabel                                                                                    | Beskrivning                                                                          |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `PORT`                                                                                      | Port för backend `3000`                                                              |
+| `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Anslutning till databasen                                                            |
+| `JWT_SECRET`, `JWT_EXPIRES_IN`                                                              | Hemlig nyckel för att signera inloggningstoken, och hur länge en token gäller        |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`                             | Utskick av bekräftelsemejl vid tomma skickas inga mejl, men bokningen fungerar ändå. |
+| `APP_URL`                                                                                   | Sajtens adress, används för länkar i mejlet (tomt = `http://localhost:5173`)         |
 
 `.env` checkas aldrig in i git.
 
@@ -97,19 +100,23 @@ Bilderna anges med bildnamn, inte URL: `movies.images` = `["thor-love-and-thunde
 npm start
 ```
 
-Startar både backend (`http://localhost:3000`) och frontend (`http://localhost:5173`). Första gången skapas också bilderna i olika storlekar (se [Bilder](#bilder)), vilket tar någon minut.
+### Startordning för backend och frontend
+
+Vid uppstart med `npm start` används `concurrently` för att starta backend och frontend.
+Frontend använder `wait-on` för att vänta tills backends port 3000 är tillgänglig innan Vite startas.
+Detta förhindrar att frontend gör API-anrop innan backend har startat och minskar risken för misslyckade API-anrop vid första uppstarten.
 
 ## Skript
 
-| Kommando | Beskrivning |
-| --- | --- |
-| `npm start` | Startar backend och frontend samtidigt |
-| `npm run dev` | Startar bara frontend |
-| `npm run backend` | Startar bara backend |
-| `npm run build` | Skapar bilderna, typkontrollerar och bygger frontend |
+| Kommando               | Beskrivning                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `npm start`            | Startar backend och frontend samtidigt                                                                        |
+| `npm run dev`          | Startar bara frontend                                                                                         |
+| `npm run backend`      | Startar bara backend                                                                                          |
+| `npm run build`        | Skapar bilderna, typkontrollerar och bygger frontend                                                          |
 | `npm run scale-images` | Skapar WebP-bilder i olika storlekar från `source-images/` (hoppar över befintliga, `--force` skapar om alla) |
-| `npm run preview` | Visar den byggda versionen lokalt (kör `npm run build` först) |
-| `npm run lint` | Kör Oxlint |
+| `npm run preview`      | Visar den byggda versionen lokalt (kör `npm run build` först)                                                 |
+| `npm run lint`         | Kör Oxlint                                                                                                    |
 
 ## Projektstruktur
 
@@ -127,9 +134,9 @@ Startar både backend (`http://localhost:3000`) och frontend (`http://localhost:
 │   ├── public/
 │   │   └── images/  # Skapas av npm run scale-images, finns inte i git
 │   └── src/
-│       ├── components/  # Återanvändbara komponenter 
+│       ├── components/  # Återanvändbara komponenter
 │       ├── hooks/       # Egna hooks
-│       ├── pages/       # Sidor 
+│       ├── pages/       # Sidor
 │       ├── Partials/    # Header och Footer
 │       ├── styles/      # CSS
 │       └── utils/       # API-anrop, auth, hjälpfunktioner
@@ -142,21 +149,21 @@ Startar både backend (`http://localhost:3000`) och frontend (`http://localhost:
 
 ## Sidor
 
-| Sökväg | Sida |
-| --- | --- |
-| `/` | Startsida |
-| `/filmer` | Filmkatalog |
-| `/filmer/:id` | Filmdetaljer |
+| Sökväg                | Sida                        |
+| --------------------- | --------------------------- |
+| `/`                   | Startsida                   |
+| `/filmer`             | Filmkatalog                 |
+| `/filmer/:id`         | Filmdetaljer                |
 | `/bokning/:showingId` | Bokning av en föreställning |
-| `/bekraftelse` | Bokningsbekräftelse |
-| `/event` | Event |
-| `/logga-in` | Logga in |
-| `/bli-medlem` | Bli medlem |
-| `/mina-sidor` | Mina sidor |
-| `/admin` | Admin |
-| `/om-oss` | Om oss |
-| `/cookies` | Cookies |
-| `/villkor` | Villkor |
+| `/bekraftelse`        | Bokningsbekräftelse         |
+| `/event`              | Event                       |
+| `/logga-in`           | Logga in                    |
+| `/bli-medlem`         | Bli medlem                  |
+| `/mina-sidor`         | Mina sidor                  |
+| `/admin`              | Admin                       |
+| `/om-oss`             | Om oss                      |
+| `/cookies`            | Cookies                     |
+| `/villkor`            | Villkor                     |
 
 Alla adresser finns samlade i `frontend/src/utils/paths.ts`. Gamla adresser (`/login`, `/mypage`, `/bookingconfirmation`) skickas vidare till de nya, så att länkar i tidigare bekräftelsemejl fungerar. Okända adresser visar en 404-sida.
 
@@ -164,13 +171,13 @@ Alla adresser finns samlade i `frontend/src/utils/paths.ts`. Gamla adresser (`/l
 
 Affischer och eventbilder ligger i projektet som WebP i flera storlekar, inte hos externa sajter. Webbläsaren väljer själv rätt storlek med `srcset`.
 
-| Del | Var |
-| --- | --- |
-| Originalbilder (committas) | `source-images/movies/` och `source-images/events/` |
-| Skalningsskript (Sharp) | `scripts/resize-images.js` |
-| Skalade bilder (committas inte) | `frontend/public/images/<movies\|events>/<bildnamn>/<bredd>.webp` |
-| Storlekar | Affischer 200, 400 och 800 px (beskurna till 2:3), eventbilder 600 och 1200 px |
-| Hjälpfunktioner i frontend | `frontend/src/utils/images.ts` (`moviePoster`, `eventImage`) |
+| Del                             | Var                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------ |
+| Originalbilder (committas)      | `source-images/movies/` och `source-images/events/`                            |
+| Skalningsskript (Sharp)         | `scripts/resize-images.js`                                                     |
+| Skalade bilder (committas inte) | `frontend/public/images/<movies\|events>/<bildnamn>/<bredd>.webp`              |
+| Storlekar                       | Affischer 200, 400 och 800 px (beskurna till 2:3), eventbilder 600 och 1200 px |
+| Hjälpfunktioner i frontend      | `frontend/src/utils/images.ts` (`moviePoster`, `eventImage`)                   |
 
 Lägga till en bild för en ny film:
 
@@ -183,17 +190,16 @@ Lägga till en bild för en ny film:
 
 Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 = kräver admin.
 
-| Resurs | Endpoints |
-| --- | --- |
-| `/movies` | `GET /`, `GET /current`, `GET /not-current`, `GET /age-rating/:ageRating`, `GET /age-rating/:ageRating/current`, `GET /:id`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id` |
-| `/showings` | `GET /`, `GET /:id`, `GET /:id/seats`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id` |
-| `/bookings` | `POST /`, 🔒 `GET /me`, `GET /confirmation/:bookingNumber`, `GET /token/:token`, `PATCH /token/:token/cancel`, 🔒 `GET /:id`, 🔒 `PATCH /:id/cancel`, 👑 `GET /`, 👑 `PATCH /:id` |
-| `/users` | `POST /auth/register`, `POST /auth/login`, 🔒 `GET /:id`, 🔒 `PATCH /:id`, 🔒 `DELETE /:id`, 👑 `GET /` |
-| `/events` | `GET /`, `GET /:id`, `GET /:id/showings`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id` |
-| `/auditorium` | `GET /`, `GET /:id` |
-| `/seats` | `GET /` |
-| `/tickets` | `GET /ticketTypes` |
-
+| Resurs        | Endpoints                                                                                                                                                                         |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/movies`     | `GET /`, `GET /current`, `GET /not-current`, `GET /age-rating/:ageRating`, `GET /age-rating/:ageRating/current`, `GET /:id`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`       |
+| `/showings`   | `GET /`, `GET /:id`, `GET /:id/seats`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`                                                                                             |
+| `/bookings`   | `POST /`, 🔒 `GET /me`, `GET /confirmation/:bookingNumber`, `GET /token/:token`, `PATCH /token/:token/cancel`, 🔒 `GET /:id`, 🔒 `PATCH /:id/cancel`, 👑 `GET /`, 👑 `PATCH /:id` |
+| `/users`      | `POST /auth/register`, `POST /auth/login`, 🔒 `GET /:id`, 🔒 `PATCH /:id`, 🔒 `DELETE /:id`, 👑 `GET /`                                                                           |
+| `/events`     | `GET /`, `GET /:id`, `GET /:id/showings`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`                                                                                          |
+| `/auditorium` | `GET /`, `GET /:id`                                                                                                                                                               |
+| `/seats`      | `GET /`                                                                                                                                                                           |
+| `/tickets`    | `GET /ticketTypes`                                                                                                                                                                |
 
 ## Arbetssätt
 
@@ -215,7 +221,6 @@ Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 =
 - Jimmy Book - jimmybookkyh-crypto
 - Robin Karlsson - Fluuffyyy
 
-
 ## Förbättringsförslag
 
 - Betalning online och att ohämtade biljetter släpps 2 timmar före visningen
@@ -226,7 +231,7 @@ Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 =
 - Sökfunktion för filmer
 - Priser per visning tex premiärpris
 - Statistikcookies kopplade till en riktig analystjänst
-- Bokningsbekräftelse via mail innehåller QR eller biljetten i pdf så att besökarna kan ladda ner den till "plånboken" i sin mobil. 
+- Bokningsbekräftelse via mail innehåller QR eller biljetten i pdf så att besökarna kan ladda ner den till "plånboken" i sin mobil.
 
 ---
 
