@@ -9,7 +9,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons, { type FilterTab } from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit"; 
-
+import { routes } from "../utils/paths.ts";
 
 type Movie = {
   movieId: string;
@@ -31,15 +31,15 @@ const FILTER_TABS: FilterTab<Filter>[] = [
 
 export default function MovieCatalog() {
   const [activeFilter, setActiveFilter] = useState<Filter>("allaFilmer");
-  const [ageLimit, setAgeLimit] = useAgeLimit(); 
+  const [ageLimit, setAgeLimit] = useAgeLimit();
 
-    const {
-      data: filmer,
-      loading,
-      error,
-    } = useFetch<Movie[]>(FILTER_PATH[activeFilter]);
+  const {
+    data: filmer,
+    loading,
+    error,
+  } = useFetch<Movie[]>(FILTER_PATH[activeFilter]);
 
-    const visibleMovies = filmer ? filterByAgeLimit(filmer, ageLimit) : null;
+  const visibleMovies = filmer ? filterByAgeLimit(filmer, ageLimit) : null;
 
   return (
     <>
@@ -94,7 +94,7 @@ export default function MovieCatalog() {
 }
 
 MovieCatalog.route = {
-  path: "/moviecatalog",
+  path: routes.movies,
   order: 1,
   label: "Filmkatalog",
 };

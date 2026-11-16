@@ -1,6 +1,7 @@
 import { Container, Row, Col, Figure } from "react-bootstrap";
 import { Link } from "react-router";
 import logo from "../assets/logo.png";
+import { paths } from "../utils/paths.ts";
 
 const linkStyle = { color: "#f5f7fa" };
 
@@ -19,7 +20,7 @@ export default function footer() {
             <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
               <li>
                 <Link
-                  to="/cookies"
+                  to={paths.cookies}
                   className="text-decoration-none"
                   style={linkStyle}
                 >
@@ -28,7 +29,7 @@ export default function footer() {
               </li>
               <li>
                 <Link
-                  to="/about"
+                  to={paths.about}
                   className="text-decoration-none"
                   style={linkStyle}
                 >
@@ -40,7 +41,7 @@ export default function footer() {
 
           <Col className="d-flex justify-content-center align-items-center">
             <Link
-              to="/"
+              to={paths.start}
               className="d-flex align-items-center text-decoration-none"
               style={linkStyle}
             >
@@ -64,7 +65,7 @@ export default function footer() {
             <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
               <li>
                 <Link
-                  to="/villkor"
+                  to={paths.terms}
                   className="text-decoration-none"
                   style={linkStyle}
                 >
@@ -73,7 +74,7 @@ export default function footer() {
               </li>
               <li>
                 <Link
-                  to="/about#hitta-till-oss"
+                  to={`${paths.about}#hitta-till-oss`}
                   className="text-decoration-none"
                   style={linkStyle}
                 >

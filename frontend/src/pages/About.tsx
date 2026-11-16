@@ -7,6 +7,8 @@ import entre from "../assets/filmvisarna-entre.webp";
 import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import "../styles/About.css";
+import { routes } from "../utils/paths.ts";
+  
 
 
 const KONTAKT = {
@@ -348,7 +350,7 @@ export default function About() {
 }
 
 About.route = {
-  path: "/about",
+  path: routes.about,
   order: 2,
   label: "Om oss",
 };

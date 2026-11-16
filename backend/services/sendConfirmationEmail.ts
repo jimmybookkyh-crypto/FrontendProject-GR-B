@@ -7,6 +7,7 @@ import {
   formatPlatser,
   formatPris,
 } from "../../frontend/src/utils/format.ts";
+import { paths } from "../../frontend/src/utils/paths.ts";
 
 /* Det mejlet behöver veta om en bokning */
 export interface ConfirmationEmailData {
@@ -33,13 +34,13 @@ function appUrl(): string {
 // Link to My pages, used in the member email.
 // My pages sends logged-out visitors to the login page and back again afterwards.
 function myPagesUrl(): string {
-  return `${appUrl()}/mypage`;
+  return `${appUrl()}${paths.myPage}`;
 }
 
 // Link that lets a guest cancel the booking without logging in (P17.2).
 // It opens the confirmation page with the cancel token in the address.
 export function buildCancelUrl(cancelToken: string): string {
-  return `${appUrl()}/bookingconfirmation?token=${encodeURIComponent(cancelToken)}`;
+  return `${appUrl()}${paths.bookingConfirmation}?token=${encodeURIComponent(cancelToken)}`;
 }
 
 // Filmtitlar kan innehålla tecken som & och <, så allt som skrivs in i HTML görs ofarligt

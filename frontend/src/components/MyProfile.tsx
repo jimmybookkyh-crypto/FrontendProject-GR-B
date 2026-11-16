@@ -6,15 +6,21 @@ import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../utils/authContext.tsx";
 import { userService } from "../utils/userService.ts";
 import PasswordInput from "./PasswordInput.tsx";
-import { emailError, hasErrors, passwordError, requiredError, usernameError } from "../utils/validateUtil.ts";
+import {
+  emailError,
+  hasErrors,
+  passwordError,
+  requiredError,
+  usernameError,
+} from "../utils/validateUtil.ts";
 import type { AuthUser } from "../interface/types.ts";
 import type { FieldErrors } from "../interface/types.ts";
+import { paths } from "../utils/paths.ts";
 
 /* Mina uppgifter, Byt lösenord och Radera konto (T126 / #330).
    Fälten är låsta tills man klickar "Ändra mina uppgifter".
    Nuvarande lösenord krävs för att spara – det kontrolleras genom en ny inloggning,
    eftersom backend inte kontrollerar det själv än (T168, sprint 4). */
-
 
 export default function MyProfile({ user }: { user: AuthUser }) {
   const { updateUser, logout } = useAuth();
@@ -127,8 +133,8 @@ export default function MyProfile({ user }: { user: AuthUser }) {
     setDeleteError(null);
     try {
       await userService.deleteAccount(user.userId);
-      // Navigera först: annars hinner MyPage skicka en utloggad användare till /login
-      navigate("/", { replace: true });
+      // Navigera först: annars hinner MyPage skicka en utloggad användare till inloggningen
+      navigate(paths.start, { replace: true });
       logout();
     } catch (error) {
       setDeleteError(

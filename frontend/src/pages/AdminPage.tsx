@@ -21,6 +21,7 @@ import {
 } from "../utils/format.ts";
 import type { AdminBooking } from "../interface/types.ts";
 import "../styles/MyPage.css";
+import { routes } from "../utils/paths.ts";
 
 export default function AdminPage() {
   return (
@@ -31,7 +32,7 @@ export default function AdminPage() {
 }
 
 AdminPage.route = {
-  path: "/admin",
+  path: routes.admin,
   order: 0,
   label: "Admin",
 };

@@ -7,6 +7,7 @@ import {
   hasStatisticsConsent,
 } from "../utils/cookieConsent";
 import "../styles/HeroSection.css";
+import { paths } from "../utils/paths.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -165,7 +166,7 @@ function buildEventSlides(
     title: event.name,
     text: event.tagline ?? getFirstParagraph(event.info),
     ...getMovieMedia(movieById.get(eventMovieId)),
-    buttonTo: `/event#event-${event.eventId}`,
+    buttonTo: `${paths.events}#event-${event.eventId}`,
     buttonLabel: "Läs om eventet →",
   };
 
@@ -184,7 +185,7 @@ function buildEventSlides(
       ageRating: movie?.ageRating,
       text: getFirstSentence(movie?.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${id}?datum=${nextShowing.date}`,
+      buttonTo: `${paths.movie(id)}?datum=${nextShowing.date}`,
       buttonLabel: `Biljetter → ${formatShortDate(nextShowing.date)}`,
     };
   });
@@ -207,7 +208,7 @@ function buildFallbackSlides(movies: HeroMovie[]): HeroSlideData[] {
       ageRating: movie.ageRating,
       text: getFirstSentence(movie.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${movie.movieId}`,
+      buttonTo: paths.movie(movie.movieId),
       buttonLabel: "Se filmen →",
     }));
 }

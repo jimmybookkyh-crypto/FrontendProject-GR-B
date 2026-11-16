@@ -1,10 +1,13 @@
-
-import { useState } from 'react';
-import { useLocation, useNavigate, Link  } from "react-router";
+import { useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router";
 import type { ChangeEvent, SubmitEvent } from "react";
 import useFormData from "../utils/useFormData.ts";
 import { useAuth } from "../utils/authContext.tsx";
-import { hasErrors, requiredError, type FieldErrors } from "../utils/validateUtil.ts";
+import {
+  hasErrors,
+  requiredError,
+  type FieldErrors,
+} from "../utils/validateUtil.ts";
 import PasswordInput from "../components/PasswordInput.tsx";
 import { getReturnTo } from "../utils/returnTo.ts";
 import Alert from "react-bootstrap/Alert";
@@ -13,147 +16,145 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
 import "../styles/MyPage.css";
+import { paths, routes } from "../utils/paths.ts";
 
 export default function Login() {
-    const {
-        formData,
-        formAttribute,
-        resetForm} = useFormData({
-        username: '',
-        password: ''
-    });
+  const { formData, formAttribute, resetForm } = useFormData({
+    username: "",
+    password: "",
+  });
 
-    const { login } = useAuth();
-    const navigate = useNavigate();
-    const location = useLocation();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const from = getReturnTo(location.state);
-    
-    const notice: string =
-      typeof location.state?.notice === "string" ? location.state.notice : "";
+  const from = getReturnTo(location.state);
 
-    const [error, setError] = useState("");
-    const [errors, setErrors] = useState<FieldErrors<"username" | "password">>(
-      {},
-    );
-    const [loading, setLoading] = useState(false);
-        
-    function field(name: "username" | "password") {
+  const notice: string =
+    typeof location.state?.notice === "string" ? location.state.notice : "";
+
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<FieldErrors<"username" | "password">>(
+    {},
+  );
+  const [loading, setLoading] = useState(false);
+
+  function field(name: "username" | "password") {
     const attributes = formAttribute(name);
     return {
-        ...attributes,
-        onChange: (event: ChangeEvent<HTMLInputElement>) => {
-            attributes.onChange(event);
-            setErrors((prev) => ({ ...prev, [name]: undefined }));
-            setError("");
-        },
-    };
-}
-    async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
-
+      ...attributes,
+      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+        attributes.onChange(event);
+        setErrors((prev) => ({ ...prev, [name]: undefined }));
         setError("");
-        const found: FieldErrors<"username" | "password"> = {
-            username: requiredError(formData.username, "Fyll i ditt användarnamn."),
-            password: requiredError(formData.password, "Fyll i ditt lösenord."),
-        };
-        setErrors(found);
-        if (hasErrors(found)) return;
+      },
+    };
+  }
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-        setLoading(true);
+    setError("");
+    const found: FieldErrors<"username" | "password"> = {
+      username: requiredError(formData.username, "Fyll i ditt användarnamn."),
+      password: requiredError(formData.password, "Fyll i ditt lösenord."),
+    };
+    setErrors(found);
+    if (hasErrors(found)) return;
 
-        try {
-            await login(formData.username, formData.password);
-            resetForm();
-            navigate(from, { replace: true, state: { justLoggedIn: true } }); 
-        } catch (error) {
-            setError(
-                error instanceof Error 
-                ? error.message 
-                : "Inloggningen misslyckades. Försök igen."
-            );
-        } finally {
-            setLoading(false);
-        }
+    setLoading(true);
+
+    try {
+      await login(formData.username, formData.password);
+      resetForm();
+      navigate(from, { replace: true, state: { justLoggedIn: true } });
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Inloggningen misslyckades. Försök igen.",
+      );
+    } finally {
+      setLoading(false);
     }
+  }
 
-    return (
-      <div className="mypage">
-        <Container className="py-5 py-lg-5">
-          <Row className="g-4 py-5 justify-content-md-center">
-            <Col xs={12} lg={4}>
-              <Form noValidate onSubmit={handleSubmit} className="mypage-panel">
-                <h2 className="mypage-panel-title">Logga in</h2>
-                {notice && (
-                  <Alert variant="success" role="status" className="mt-4 mb-0">
-                    {notice}
-                  </Alert>
-                )}
+  return (
+    <div className="mypage">
+      <Container className="py-5 py-lg-5">
+        <Row className="g-4 py-5 justify-content-md-center">
+          <Col xs={12} lg={4}>
+            <Form noValidate onSubmit={handleSubmit} className="mypage-panel">
+              <h2 className="mypage-panel-title">Logga in</h2>
+              {notice && (
+                <Alert variant="success" role="status" className="mt-4 mb-0">
+                  {notice}
+                </Alert>
+              )}
 
-                <Form.Group className="mt-4" controlId="login-username">
-                  <Form.Label>Användarnamn</Form.Label>
-                  <Form.Control
-                    className="mt-2"
-                    {...field("username")}
-                    isInvalid={!!errors.username}
-                    placeholder="användarnamn"
-                    type="text"
-                    autoComplete="username"
+              <Form.Group className="mt-4" controlId="login-username">
+                <Form.Label>Användarnamn</Form.Label>
+                <Form.Control
+                  className="mt-2"
+                  {...field("username")}
+                  isInvalid={!!errors.username}
+                  placeholder="användarnamn"
+                  type="text"
+                  autoComplete="username"
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.username}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mt-4" controlId="login-password">
+                <Form.Label>Lösenord</Form.Label>
+                <div className="mt-2">
+                  <PasswordInput
+                    id="login-password"
+                    className="form-control"
+                    {...field("password")}
+                    invalid={!!errors.password}
+                    placeholder="lösenord"
+                    autoComplete="current-password"
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.username}
+                </div>
+                {errors.password && (
+                  <Form.Control.Feedback type="invalid" className="d-block">
+                    {errors.password}
                   </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mt-4" controlId="login-password">
-                  <Form.Label>Lösenord</Form.Label>
-                  <div className="mt-2">
-                    <PasswordInput
-                      id="login-password"
-                      className="form-control"
-                      {...field("password")}
-                      invalid={!!errors.password}
-                      placeholder="lösenord"
-                      autoComplete="current-password"
-                    />
-                  </div>
-                  {errors.password && (
-                    <Form.Control.Feedback type="invalid" className="d-block">
-                      {errors.password}
-                    </Form.Control.Feedback>
-                  )}
-                </Form.Group>
-
-                {error && (
-                  <div className="invalid-feedback d-block mt-4">{error}</div>
                 )}
+              </Form.Group>
 
-                <button
-                  className="mypage-btn mypage-btn-outline mt-4"
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? "Loggar in…" : "Logga in"}
-                </button>
-                <Form.Text
-                  id="login-help"
-                  className="mypage-help login-help d-block mt-3"
-                >
-                  Inte medlem än?
-                  <Link className="ms-2" to="/bli-medlem" state={{ from }}>
-                    Bli medlem här
-                  </Link>
-                </Form.Text>
-              </Form>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
+              {error && (
+                <div className="invalid-feedback d-block mt-4">{error}</div>
+              )}
+
+              <button
+                className="mypage-btn mypage-btn-outline mt-4"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Loggar in…" : "Logga in"}
+              </button>
+              <Form.Text
+                id="login-help"
+                className="mypage-help login-help d-block mt-3"
+              >
+                Inte medlem än?
+                <Link className="ms-2" to={paths.register} state={{ from }}>
+                  Bli medlem här
+                </Link>
+              </Form.Text>
+            </Form>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
 }
 
 Login.route = {
-  path: "/login",
+  path: routes.login,
   order: 0,
   label: "Logga in",
 };
