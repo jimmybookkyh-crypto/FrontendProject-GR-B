@@ -12,21 +12,12 @@ import {
 import { kortDatum } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
 import { paths } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 type MyBookingsProps = {
   bookings: MyBookingsResponse;
   onCancelled: (message: string) => void;
 };
-
-function posterUrl(images: MyBooking["images"]): string {
-  if (!images) return "";
-  try {
-    const parsed = typeof images === "string" ? JSON.parse(images) : images;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof images === "string" ? images : "";
-  }
-}
 
 function platserText(booking: MyBooking): string {
   return formatPlatser(booking.tickets)
@@ -39,14 +30,18 @@ function biljetterText(booking: MyBooking): string {
 }
 
 function Poster({ booking }: { booking: MyBooking }) {
-  const url = posterUrl(booking.images);
+  const poster = moviePoster(booking.images, "80px");
   return (
     <Link
       to={paths.movie(booking.movieId)}
       className="mypage-poster"
       aria-label={`Mer om ${booking.movieTitle}`}
     >
-      {url ? <img src={url} alt="" loading="lazy" /> : <span>Affisch</span>}
+      {poster.src ? (
+        <img {...poster} alt="" loading="lazy" />
+      ) : (
+        <span>Affisch</span>
+      )}
     </Link>
   );
 }
