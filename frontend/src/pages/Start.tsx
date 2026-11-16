@@ -8,7 +8,7 @@ import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Datumremsa from "../components/Datumremsa";
-import { langtDatum, plusDagar, validDate } from "../utils/date";
+import { formatLongDate, addDays, validDate } from "../utils/date";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
@@ -28,7 +28,7 @@ type Movie = {
 type StartShowing = Pick<Showing, "movieId" | "hasStarted">;
 
 export default function Start() {
-  const idag = plusDagar(0);
+  const idag = addDays(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const valtDatum = validDate(searchParams.get("datum"));
 
@@ -96,7 +96,7 @@ export default function Start() {
         <Container className="filmkatalog">
           <h2 className="datum-rubrik">
             {valtDatum === idag ? "Idag · " : ""}
-            {langtDatum(valtDatum)}
+            {formatLongDate(valtDatum)}
           </h2>
 
           {laddar && <LoadingSpinner text="Hämtar filmer…" />}

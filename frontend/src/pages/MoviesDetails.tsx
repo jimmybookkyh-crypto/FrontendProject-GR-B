@@ -11,7 +11,7 @@ import Datumremsa from "../components/Datumremsa";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
-import { validDate, langtDatum, plusDagar } from "../utils/date";
+import { validDate, formatLongDate, addDays } from "../utils/date";
 import type { Movie, Showing } from "../interface/types";
 import { useEffect } from "react";
 import { paths, routes } from "../utils/paths.ts";
@@ -57,7 +57,7 @@ export default function MovieDetails() {
     error: showingsError,
   } = useFetch<Showing[]>(id ? `/showings?movieId=${id}` : null);
 
-  const today = plusDagar(0);
+  const today = addDays(0);
 
   // Alla framtida datum då filmen har visningar
   const allUpcomingShowings = movieShowings
@@ -286,7 +286,7 @@ function ShowingsBox({
         <div className="visningar-rad d-flex flex-column flex-md-row align-items-center gap-3 gap-md-4">
           <div className="visningar-datum text-center text-md-start">
             <div className="valt-datum small text-uppercase">Valt datum</div>
-            <div className="datum-vit fw-bold fs-4">{langtDatum(date)}</div>
+            <div className="datum-vit fw-bold fs-4">{formatLongDate(date)}</div>
           </div>
 
           <div className="visningar-tider flex-grow-1 w-100">

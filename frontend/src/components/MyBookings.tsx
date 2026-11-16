@@ -4,12 +4,12 @@ import Alert from "react-bootstrap/Alert";
 import Modal from "react-bootstrap/Modal";
 import { bookingService } from "../utils/bookingService.ts";
 import {
-  formatBiljettyper,
-  formatPlatser,
-  formatPris,
-  formatVisning,
+  formatTicketTypes,
+  formatSeats,
+  formatPrice,
+  formatShowing,
 } from "../utils/format.ts";
-import { kortDatum } from "../utils/date.ts";
+import { formatShortDate } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
 import { paths } from "../utils/paths.ts";
 import { moviePoster } from "../utils/images.ts";
@@ -20,13 +20,13 @@ type MyBookingsProps = {
 };
 
 function platserText(booking: MyBooking): string {
-  return formatPlatser(booking.tickets)
+  return formatSeats(booking.tickets)
     .map((rad) => rad.replace(":", " ·"))
     .join(" · ");
 }
 
 function biljetterText(booking: MyBooking): string {
-  return formatBiljettyper(booking.tickets.map((t) => t.ticketType));
+  return formatTicketTypes(booking.tickets.map((t) => t.ticketType));
 }
 
 function Poster({ booking }: { booking: MyBooking }) {
@@ -129,14 +129,14 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                   </p>
                   <h3 className="mypage-movie-title">{booking.movieTitle}</h3>
                   <p className="mb-1">
-                    {formatVisning(booking.date, booking.time)} ·{" "}
+                    {formatShowing(booking.date, booking.time)} ·{" "}
                     {booking.auditoriumName}
                   </p>
                   <p className="mb-1">
                     {platserText(booking)} · {biljetterText(booking)}
                   </p>
                   <p className="mypage-total">
-                    Totalt {formatPris(booking.totalPrice)}
+                    Totalt {formatPrice(booking.totalPrice)}
                     <small className="mypage-pay-note">
                       , betalas i kassan.
                     </small>
@@ -188,11 +188,11 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
               <li key={booking.bookingId} className="mypage-past-row">
                 <span className="mypage-past-title">{booking.movieTitle}</span>
                 <span>
-                  {kortDatum(booking.date)} · {booking.time}
+                  {formatShortDate(booking.date)} · {booking.time}
                 </span>
                 <span>{biljetterText(booking)}</span>
                 <span className="mypage-past-price">
-                  {formatPris(booking.totalPrice)}
+                  {formatPrice(booking.totalPrice)}
                 </span>
                 <span
                   className={
@@ -224,7 +224,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
             <>
               <p className="mb-1 fw-bold">{toCancel.movieTitle}</p>
               <p className="mb-1">
-                {formatVisning(toCancel.date, toCancel.time)} ·{" "}
+                {formatShowing(toCancel.date, toCancel.time)} ·{" "}
                 {toCancel.auditoriumName}
               </p>
               <p className="mb-3">{platserText(toCancel)}</p>

@@ -4,7 +4,7 @@ import Col from "react-bootstrap/Col";
 import Collapse from "react-bootstrap/Collapse";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { kortDatum, plusDagar } from "../utils/date";
+import { formatShortDate, addDays } from "../utils/date";
 
 /* Datumremsan: Idag, Imorgon, fem dagar till och en Kalender-knapp.
    Sidan som använder den äger valt datum (valtDatum) och får veta
@@ -19,9 +19,9 @@ type DatumremsaProps = {
 
 /* Texten på dagsknappen: "Idag", "Imorgon" eller t.ex. "lör 24 okt" */
 function knappText(datum: string): string {
-  if (datum === plusDagar(0)) return "Idag";
-  if (datum === plusDagar(1)) return "Imorgon";
-  return kortDatum(datum);
+  if (datum === addDays(0)) return "Idag";
+  if (datum === addDays(1)) return "Imorgon";
+  return formatShortDate(datum);
 }
 
 export default function Datumremsa({ 
@@ -30,10 +30,10 @@ export default function Datumremsa({
   dateList 
 }: DatumremsaProps) {
   const [kalenderOppen, setKalenderOppen] = useState(false);
-  const idag = plusDagar(0);
+  const idag = addDays(0);
 
   // 7 dagar: idag, imorgon och fem dagar till eller showings datum som finns
-  const dagar =  dateList ?? [0, 1, 2, 3, 4, 5, 6].map((n) => plusDagar(n));
+  const dagar =  dateList ?? [0, 1, 2, 3, 4, 5, 6].map((n) => addDays(n));
   // Kalenderknappen lyser när kalendern är öppen, eller när man valt ett
   // datum i kalendern som inte finns bland dagsknapparna.
   const kalenderAktiv = kalenderOppen || !dagar.includes(valtDatum);

@@ -1,50 +1,51 @@
 /* Gemensam formatering med svenska inställningar.
    Använd samma funktioner på Mina sidor och bekräftelsesidan, så ser det likadant ut. */
-import { kortDatum } from "./date.ts";
+import { formatShortDate } from "./date.ts";
 
-const prisFormat = new Intl.NumberFormat("sv-SE", {
+const priceFormat = new Intl.NumberFormat("sv-SE", {
   style: "currency",
   currency: "SEK",
   maximumFractionDigits: 0,
 });
 
 /* 360 -> "360 kr", 1240 -> "1 240 kr" */
-export function formatPris(belopp: number): string {
-  return prisFormat.format(belopp);
+export function formatPrice(amount: number): string {
+  return priceFormat.format(amount);
 }
 
 /* "2026-10-26" + "18:30" -> "mån 26 okt kl. 18:30" */
-export function formatVisning(datum: string, tid: string): string {
-  return `${kortDatum(datum)} kl. ${tid.slice(0, 5)}`;
+export function formatShowing(date: string, time: string): string {
+  return `${formatShortDate(date)} kl. ${time.slice(0, 5)}`;
 }
 
 /* Grupperar stolar per rad: [{rad 5, stol 7}, {rad 5, stol 8}] -> "Rad 5: stol 7, 8" */
-export function formatPlatser(
-  platser: { seatsRow: number; seatsNumber: number }[],
+export function formatSeats(
+  seats: { seatsRow: number; seatsNumber: number }[],
 ): string[] {
-  const perRad = new Map<number, number[]>();
+  const seatsByRow = new Map<number, number[]>();
 
-  for (const plats of platser) {
-    const stolar = perRad.get(plats.seatsRow) ?? [];
-    stolar.push(plats.seatsNumber);
-    perRad.set(plats.seatsRow, stolar);
+  for (const seat of seats) {
+    const seatNumbers = seatsByRow.get(seat.seatsRow) ?? [];
+    seatNumbers.push(seat.seatsNumber);
+    seatsByRow.set(seat.seatsRow, seatNumbers);
   }
 
-  return [...perRad.entries()]
+  return [...seatsByRow.entries()]
     .sort(([a], [b]) => a - b)
     .map(
-      ([rad, stolar]) =>
-        `Rad ${rad}: stol ${stolar.sort((a, b) => a - b).join(", ")}`,
+      ([row, seatNumbers]) =>
+        `Rad ${row}: stol ${seatNumbers.sort((a, b) => a - b).join(", ")}`,
     );
 }
 
 /* Antal biljetter per typ: ["Vuxen", "Vuxen", "Barn"] -> "2 vuxen, 1 barn" */
-export function formatBiljettyper(typer: string[]): string {
-  const antal = new Map<string, number>();
-  for (const typ of typer) antal.set(typ, (antal.get(typ) ?? 0) + 1);
+export function formatTicketTypes(types: string[]): string {
+  const counts = new Map<string, number>();
+  for (const ticketType of types)
+    counts.set(ticketType, (counts.get(ticketType) ?? 0) + 1);
 
-  return [...antal.entries()]
-    .map(([typ, n]) => `${n} ${typ.toLowerCase()}`)
+  return [...counts.entries()]
+    .map(([ticketType, n]) => `${n} ${ticketType.toLowerCase()}`)
     .join(", ");
 }
 
@@ -72,7 +73,8 @@ export const formatTime = (timeString?: string): string => {
   const parts = cleanTime.split(":");
 
   if (parts.length >= 2) {
-    return `${parts[0]}:${parts[1]}`;  }
+    return `${parts[0]}:${parts[1]}`;
+  }
 
   return timeString;
 };
