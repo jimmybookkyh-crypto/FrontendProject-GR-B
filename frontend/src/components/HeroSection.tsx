@@ -13,6 +13,7 @@ import {
   moviePoster,
   moviePosterUrl,
 } from "../utils/images.ts";
+import { formatPeriod } from "../utils/format.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -105,24 +106,6 @@ function formatShortDate(date: string): string {
     .replace(/\./g, "");
 }
 
-const dayMonthFormat = new Intl.DateTimeFormat("sv-SE", {
-  day: "numeric",
-  month: "short",
-});
-
-function formatPeriod(start: string, end: string): string {
-  const startDate = new Date(`${start}T00:00:00`);
-  const endDate = new Date(`${end}T00:00:00`);
-  const clean = (value: string) => value.replace(/\./g, "");
-  const endText = clean(dayMonthFormat.format(endDate));
-
-  if (start === end) return endText;
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()}–${endText}`;
-  }
-  return `${clean(dayMonthFormat.format(startDate))}–${endText}`;
-}
-
 function getMovieMedia(movie: HeroMovie | undefined) {
   const clip = movie ? HERO_TRAILER_CLIPS[Number(movie.movieId)] : undefined;
   return {
@@ -140,7 +123,7 @@ function buildEventSlides(
   upcoming: HeroEventShowing[],
   movieById: Map<string, HeroMovie>,
 ): HeroSlideData[] {
-  const periodText = formatPeriod(period.startDate, period.endDate);
+  const periodText = formatPeriod(period.startDate, period.endDate, "short");
   const today = getNowKey().slice(0, 10);
   const hasStarted = period.startDate <= today;
 

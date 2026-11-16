@@ -76,3 +76,28 @@ export const formatTime = (timeString?: string): string => {
 
   return timeString;
 };
+
+// Datumintervall med långt eller kort månadsnamn
+const periodFormats = {
+  long: new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "long" }),
+  short: new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "short" }),
+};
+
+export function formatPeriod(
+  start: string,
+  end: string,
+  month: "long" | "short" = "long",
+): string {
+  const startDate = new Date(`${start}T00:00:00`);
+  const endDate = new Date(`${end}T00:00:00`);
+  // Kort format ger "okt." - ta bort punkten
+  const format = (date: Date) =>
+    periodFormats[month].format(date).replace(/\./g, "");
+  const endText = format(endDate);
+
+  if (start === end) return endText;
+  if (startDate.getMonth() === endDate.getMonth()) {
+    return `${startDate.getDate()}–${endText}`;
+  }
+  return `${format(startDate)}–${endText}`;
+}
