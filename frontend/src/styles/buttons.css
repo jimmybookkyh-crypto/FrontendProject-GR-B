@@ -52,7 +52,7 @@
 
 .menu .dropdown-item {
   font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
-  font-size: 1.5rem;
+  font-size: 19px;
   letter-spacing: 0.08em;
   color: #fff;
   padding: 0.6rem 1.25rem;
@@ -69,7 +69,7 @@
   border-bottom: 0;
 }
 
-@media(max-width: 960px){
+@media(min-width: 992px){
   .menu .dropdown-toggle {
     width: 100%;
     padding: 0.4rem 1rem;
