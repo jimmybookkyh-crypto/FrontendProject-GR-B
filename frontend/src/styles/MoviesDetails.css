@@ -111,10 +111,7 @@
     padding-right: 1.5rem;
     border-right: 1px solid rgba(253, 252, 250, 0.28);
   }
-}
-
-@media (min-width: 768px) {
-  .film-sida .ratio-16x9 {
+    .film-sida .ratio-16x9 {
     --bs-aspect-ratio: 40%;
   }
 }
@@ -122,12 +119,14 @@
 /* ---------- Visningsknappen: salong och tid på en rad ---------- */
 .film-sida .tid-knapp {
   white-space: nowrap;
+  font-size: 1rem;
 }
 
 /* Bara på mobil: lite mindre text så att längre salongsnamn ryms.
    På iPad och desktop behåller knappen sin vanliga storlek. */
-@media (max-width: 767.98px) {
+
+@media (min-width: 576px) {
   .film-sida .tid-knapp {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 }
