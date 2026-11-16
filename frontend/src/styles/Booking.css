@@ -94,8 +94,8 @@
 
 .seat {
   flex: 0 0 auto;
-  width: clamp(22px, 3.2vw, 40px);
-  height: clamp(22px, 3.2vw, 40px);
+  width: clamp(23px, 6vw, 40px);
+  height: clamp(23px, 6vw, 40px);
   margin: clamp(2px, 0.35vw, 5px);
   padding: 0;
   border: none;
@@ -103,7 +103,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(8px, 1.3vw, 12px);
+  font-size: clamp(11px, 1.3vw, 12px);
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -201,10 +201,10 @@
   appearance: textfield;
 }
 
-@media (max-width: 767px) {
+@media (min-width: 576px) {
   .seat {
-    width: clamp(20px, 6vw, 30px);
-    height: clamp(20px, 6vw, 30px);
+    width: clamp(23px, 6vw, 35px);
+    height: clamp(23px, 6vw, 35px);
     margin: 1.5px;
     font-size: clamp(9px, 2.4vw, 13px);
   }
@@ -230,15 +230,13 @@
   }
 }
 
-@media (min-width: 767px) and (max-width: 1200px) {
+@media (min-width: 768px){
   .seat {
-    width: clamp(20px, 3.5vw, 25px);
-    height: clamp(20px, 3.5vw, 25px);
+    width: clamp(23px, 4vw, 25px);
+    height: clamp(23px, 4vw, 25px);
     font-size: clamp(8px, 2vw, 10px);
+    margin: 2px;
   }
-    .selected-seats-list {
-      max-height: 80px;
-    }
 
   .ticket-info {
     flex-direction: column;
@@ -263,6 +261,12 @@
     max-width: 250px;
   }
 
+  .seat {
+    width: clamp(30px, 5vw, 40px);
+    height: clamp(30px, 5vw, 40px);
+    font-size: clamp(12px, 2vw, 12px);
+    margin: 3px;
+  }
   .showing-movie-wrapper .movie-card .card-img-top {
     width: 100%;
     max-height: 350px;
@@ -270,5 +274,6 @@
     object-position: center;
     display: block;
   }
+  
 }
 
