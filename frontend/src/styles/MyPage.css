@@ -257,12 +257,6 @@
   word-break: break-all;
 }
 
-@media (min-width: 768px) {
-  .mypage-bookingnr span {
-    font-size: 1.3rem;
-  }
-}
-
 .mypage-booking-actions {
   grid-column: 1 / -1;
   display: grid;
@@ -291,6 +285,18 @@
   .mypage-booking-actions {
     grid-column: auto;
     grid-template-columns: 1fr;
+  }
+
+    .mypage-past-row {
+    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
+  }
+
+  .mypage-badge {
+    justify-self: center;
+  }
+
+  .mypage-bookingnr span {
+    font-size: 1.3rem;
   }
 }
 
@@ -355,16 +361,6 @@
     grid-column: 2;
     grid-row: 2 / span 2;
     justify-self: end;
-  }
-}
-
-@media (min-width: 768px) {
-  .mypage-past-row {
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
-  }
-
-  .mypage-badge {
-    justify-self: center;
   }
 }
 
