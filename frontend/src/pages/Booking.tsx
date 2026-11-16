@@ -13,9 +13,8 @@ import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
+import { formatDate, formatTime } from "../utils/format";
 import {
-  formatDate,
-  formatTime,
   calculateTotalPrice,
   getMaxAllowedTickets,
 } from "../utils/BookingHelpers";
