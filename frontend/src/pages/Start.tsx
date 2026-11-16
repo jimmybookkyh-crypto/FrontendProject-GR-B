@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import Biodukbg from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -14,6 +13,7 @@ import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import HeroSection from "../components/HeroSection";
 import type { Showing } from "../interface/types";
+import BgImage from "../components/BgImgBd";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -69,12 +69,12 @@ export default function Start() {
   const filmerDenDagen =
     filmer && visningar
       ? filmer.filter((film) =>
-          visningar.some(
-            (showing) =>
-              !showing.hasStarted &&
-              String(showing.movieId) === String(film.movieId),
-          ),
-        )
+        visningar.some(
+          (showing) =>
+            !showing.hasStarted &&
+            String(showing.movieId) === String(film.movieId),
+        ),
+      )
       : null;
   const visibleMovies = filmerDenDagen
     ? filterByAgeLimit(filmerDenDagen, ageLimit)
@@ -84,55 +84,54 @@ export default function Start() {
 
   return (
     <>
-      <div
-        className="sida-innehall min-vh-100"
-        style={{ backgroundImage: `url(${Biodukbg})` }}
-      >
-        <HeroSection />
-        <Container className="filter-sektion" ref={filterSectionRef}>
-          <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
-        </Container>
-        <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
-        <Container className="filmkatalog">
-          <h2 className="datum-rubrik">
-            {valtDatum === idag ? "Idag · " : ""}
-            {langtDatum(valtDatum)}
-          </h2>
+      <BgImage>
+        <div>
+          <HeroSection />
+          <Container className="filter-sektion" ref={filterSectionRef}>
+            <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
+          </Container>
+          <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
+          <Container className="filmkatalog">
+            <h2 className="datum-rubrik">
+              {valtDatum === idag ? "Idag · " : ""}
+              {langtDatum(valtDatum)}
+            </h2>
 
-          {laddar && <LoadingSpinner text="Hämtar filmer…" />}
-          {fel && <ErrorMessage message={fel} />}
+            {laddar && <LoadingSpinner text="Hämtar filmer…" />}
+            {fel && <ErrorMessage message={fel} />}
 
-          {filmerDenDagen && filmerDenDagen.length === 0 && (
-            <IngaVisningar
-              onVisaIdag={
-                valtDatum === idag ? undefined : () => setValtDatum(idag)
-              }
-            />
-          )}
-          {filmerDenDagen &&
-            filmerDenDagen.length > 0 &&
-            visibleMovies?.length === 0 && (
-              <div className="inga-visningar">
-                <h3>Inga filmer för vald åldersgräns</h3>
-                <p>Välj en annan åldersgräns eller ett annat datum.</p>
-                <Button
-                  className="filter-knapp"
-                  onClick={() => setAgeLimit(null)}
-                >
-                  Visa alla åldrar
-                </Button>
-              </div>
+            {filmerDenDagen && filmerDenDagen.length === 0 && (
+              <IngaVisningar
+                onVisaIdag={
+                  valtDatum === idag ? undefined : () => setValtDatum(idag)
+                }
+              />
             )}
-          {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid movies={visibleMovies} datum={valtDatum} navigatedFrom="start" />
-          )}
-        </Container>
-      </div>
+            {filmerDenDagen &&
+              filmerDenDagen.length > 0 &&
+              visibleMovies?.length === 0 && (
+                <div className="inga-visningar">
+                  <h3>Inga filmer för vald åldersgräns</h3>
+                  <p>Välj en annan åldersgräns eller ett annat datum.</p>
+                  <Button
+                    className="filter-knapp"
+                    onClick={() => setAgeLimit(null)}
+                  >
+                    Visa alla åldrar
+                  </Button>
+                </div>
+              )}
+            {visibleMovies && visibleMovies.length > 0 && (
+              <MovieGrid movies={visibleMovies} datum={valtDatum} navigatedFrom="start" />
+            )}
+          </Container>
+        </div>
+      </BgImage>
     </>
   );
 }
 
-function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
+function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void; }) {
   return (
     <div className="inga-visningar">
       <h3>Inga visningar detta datum</h3>
