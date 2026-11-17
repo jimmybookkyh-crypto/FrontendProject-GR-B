@@ -22,7 +22,7 @@ export default function Header() {
 
   return (
     <Navbar expand="lg" sticky="top" className="fv-navbar" data-bs-theme="dark">
-      <Navbar.Brand 
+      <Navbar.Brand
         as={Link}
         to={paths.start}
         viewTransition
@@ -99,29 +99,32 @@ export default function Header() {
         <Nav className={`me-auto fv-nav${aboutOpen ? " om-oss-open" : ""}`}>
           <Nav.Link
             as={NavLink}
-            to={paths.start}end
+            to={paths.start}
+            end
             viewTransition
             className="fv-link"
           >
             Hem
           </Nav.Link>
-          <Nav.Link 
+          <Nav.Link
             as={NavLink}
             to={paths.movies}
             viewTransition
-            className="fv-link">
+            className="fv-link"
+          >
             Filmer
           </Nav.Link>
           <Nav.Link
             as={NavLink}
             to={paths.events}
             viewTransition
-            className="fv-link">
+            className="fv-link"
+          >
             Event
           </Nav.Link>
 
           <NavDropdown
-            title="About"
+            title="Om oss"
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
             active={pathname.startsWith(paths.about)}
@@ -140,19 +143,22 @@ export default function Header() {
             <NavDropdown.Item
               as={Link}
               to={`${paths.about}#hitta-till-oss`}
-              viewTransition>
+              viewTransition
+            >
               Hitta till oss
             </NavDropdown.Item>
             <NavDropdown.Item
               as={Link}
               to={`${paths.about}#salonger`}
-              viewTransition>
+              viewTransition
+            >
               Salonger
             </NavDropdown.Item>
             <NavDropdown.Item
               as={Link}
               to={`${paths.about}#snacks-meny`}
-              viewTransition>
+              viewTransition
+            >
               Snacksmeny
             </NavDropdown.Item>
           </NavDropdown>

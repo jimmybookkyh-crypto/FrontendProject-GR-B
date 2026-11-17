@@ -56,7 +56,7 @@
 
 .booking-page .checkout-btn {
   background-color: var(--fv-vinrod);
-  border-color: var(--fv-vinrod);
+    border: none;
   color: var(--fv-vit);
   font-weight: 600;
   font-size: 1.1rem;
