@@ -242,7 +242,7 @@
   margin-top: 0.5rem;
 }
 
-.hero-slide-ticket .boka-knapp {
+.hero-slide-ticket .cta-btn {
   width: auto;
   min-height: 48px;
   padding: 0.7rem 2rem;
@@ -362,7 +362,7 @@
     padding: 0 3.5rem 2.25rem;
   }
 
-  .hero-slide-ticket .boka-knapp {
+  .hero-slide-ticket .cta-btn {
     min-height: 44px;
     padding: 0.6rem 1.5rem;
     font-size: 0.9rem;

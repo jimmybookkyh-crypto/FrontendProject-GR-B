@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
-// @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-// @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
+import "../styles/MyPage.css";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import AgeBadge from "../components/AgeBadge";
@@ -12,6 +11,8 @@ import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
+import {formatDate,formatTime,calculateTotalPrice,getMaxAllowedTickets,} from "../utils/BookingHelpers";
+import type {Showing,Movie,TicketType,Seat,Booking,} from "../interface/types";
 import { formatDate, formatPrice, formatTime } from "../utils/format";
 import {
   calculateTotalPrice,
@@ -26,11 +27,7 @@ import type {
 } from "../interface/types";
 import useSeatUpdates from "../hooks/useSeatUpdates";
 import useBookingDraft from "../hooks/useBookingDraft";
-import {
-  loadBookingDraft,
-  saveBookingDraft,
-  clearBookingDraft,
-} from "../utils/bookingDraft.ts";
+import {loadBookingDraft,saveBookingDraft,clearBookingDraft,} from "../utils/bookingDraft.ts";
 import { paths, routes } from "../utils/paths.ts";
 import BgImage from "../components/BgImgBd.tsx";
 
@@ -548,6 +545,46 @@ export default function BookingPage() {
     <BgImage>
     <div
         className="booking-page min-vh-100 text-light">
+        {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
+        <BackButton />
+
+        <h1 className="h4 fw-bold text-center mb-4 heading-gold">
+          Boka biljetter
+        </h1>
+
+        <Container className="pb-5">
+          <Row className="justify-content-center mb-4">
+            <Col xs={12} lg={8} xl={8}>
+              <Card className="glass-card wider-card">
+                <Card.Body className="p-3 p-md-4">
+                  <Row className="align-items-center g-3 g-md-4">
+                    <Col xs={5} md={4} className="text-center">
+                      {showing && (
+                        <MovieCard
+                          movieId={currentMovieId || 1}
+                          title={currentTitle}
+                          images={currentImages}
+                          ageRating={movie?.ageRating}
+                          showDetails={false}
+                        />
+                      )}
+                    </Col>
+
+                    <Col xs={7} md={8}>
+                      <div className="film-krediter mt-1">
+                        <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
+                        <div className="mb-1">
+                          <strong className="text-white">Datum: </strong>{" "}
+                          {currentDate}
+                        </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Tid: </strong>{" "}
+                          {currentTime}
+                        </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Salong: </strong>{" "}
+                          {currentAuditoriumName}
+                        </div>
       {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
       <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 
@@ -728,6 +765,97 @@ export default function BookingPage() {
                         {bookingError}
                       </div>
                     )}
+                  </div>
+
+                  <p className="mb-3">Antal biljetter: {totaltTickets}</p>
+                  <hr className="border-secondary" />
+                  <h4 className="h5 mb-3">Totalt: {totalPrice} kr</h4>
+
+                  <button
+                    type="button"
+                    className="checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
+                    disabled={
+                      selectedSeats.length === 0 ||
+                      totaltTickets !== selectedSeats.length
+                    }
+                    onClick={() => setShowEmailModal(true)}
+                  >
+                    Boka
+                  </button>
+
+                  <Modal show={showEmailModal} onHide={handleCloseModal} centered contentClassName="mypage-modal">
+                    <Modal.Header closeButton>
+                      <Modal.Title as="h2">
+                        Bekräfta e-post
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {bookingError && (
+                        <div className="alert alert-danger mb-3" role="alert">
+                          {bookingError}
+                        </div>
+                      )}
+                      <Form.Group controlId="bookingEmail">
+                        <Form.Label className="d-flex align-items-center gap-2">
+                          E-postadress
+                          {user && (
+                            <span className="badge bg-success">Inloggad</span>
+                          )}
+                        </Form.Label>
+                        <Form.Control
+                          size="lg"
+                          type="email"
+                          autoComplete="email"
+                          placeholder="namn@exempel.se"
+                          value={email}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            setEmailFieldError(undefined);
+                          }}
+                          isInvalid={!!emailFieldError}
+                          disabled={isSubmitting || !!user} // Inaktiverar ändring om inloggad
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {emailFieldError}
+                        </Form.Control.Feedback>
+                        {user && (
+                          <p className="mypage-greeting mt-4">
+                            Bokningsbekräftelsen kopplas till ditt konto (
+                            {user.email}).
+                          </p>
+                        )}
+                      </Form.Group>
+
+                      {!user && (
+                        <p className="mypage-greeting mt-4">
+                          Har du redan ett konto?{" "}
+                          <button
+                            type="button"
+                            className="btn btn-link p-1 fs-5 align-baseline"
+                            onClick={handleLoginClick}
+                          >
+                            Logga in
+                          </button>
+                        </p>
+                      )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <button
+                        type="button"
+                        className="cta-btn fw-bold py-2 px-4"
+                        onClick={handleCheckout}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Bokar…" : "Slutför bokning"}
+                      </button>
+                    </Modal.Footer>
+                  </Modal>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
                     <Form.Group controlId="bookingEmail">
                       <Form.Label className="text-dark d-flex align-items-center gap-2">
                         E-postadress
