@@ -66,7 +66,11 @@ export default function Login() {
     try {
       await login(formData.username, formData.password);
       resetForm();
-      navigate(from, { replace: true, state: { justLoggedIn: true } });
+     navigate(from, {
+       replace: true,
+       viewTransition: true,
+       state: { justLoggedIn: true },
+     });
     } catch (error) {
       setError(
         error instanceof Error
@@ -141,7 +145,12 @@ export default function Login() {
                 className="mypage-help login-help d-block mt-3"
               >
                 Inte medlem än?
-                <Link className="ms-2" to={paths.register} state={{ from }}>
+                <Link
+                  className="ms-2"
+                  to={paths.register}
+                  viewTransition
+                  state={{ from }}
+                >
                   Bli medlem här
                 </Link>
               </Form.Text>

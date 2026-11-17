@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
@@ -15,9 +15,6 @@ import HeroSection from "../components/HeroSection";
 import type { Showing } from "../interface/types";
 import BgImage from "../components/BgImgBd";
 
-/* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
-   Fälten heter som i backend (backend/interface/types.ts).
-   Ersätt med: import type { Movie } from "../interface/types"; */
 type Movie = {
   movieId: string;
   title: string;
@@ -58,7 +55,11 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  const { data: movies, loading, error } = useFetch<Movie[]>("/movies?limit=100");
+  const {
+    data: movies,
+    loading,
+    error,
+  } = useFetch<Movie[]>("/movies?limit=100");
 
   const {
     data: showings,
@@ -66,10 +67,18 @@ export default function Start() {
     error: showingsError,
   } = useFetch<StartShowing[]>(`/showings?date=${selectedDate}&limit=100`);
 
+  const [shownShowings, setShownShowings] = useState<StartShowing[] | null>(
+    null,
+  );
+  if (showings && showings !== shownShowings) {
+    setShownShowings(showings);
+  }
+  const currentShowings = showingsError ? null : (showings ?? shownShowings);
+
   const moviesOnDate =
-    movies && showings
+    movies && currentShowings
       ? movies.filter((movie) =>
-          showings.some(
+          currentShowings.some(
             (showing) =>
               !showing.hasStarted &&
               String(showing.movieId) === String(movie.movieId),
@@ -79,59 +88,59 @@ export default function Start() {
   const visibleMovies = moviesOnDate
     ? filterByAgeLimit(moviesOnDate, ageLimit)
     : null;
-  const isLoading = loading || loadingShowings;
+  const isLoading = (loading || loadingShowings) && !moviesOnDate;
   const fetchError = error ?? showingsError;
 
   return (
     <>
       <BgImage>
         <div>
-        <HeroSection />
-        <Container className="filter-sektion" ref={filterSectionRef}>
-          <DateStrip selectedDate={selectedDate} onSelectDate={selectDate} />
-        </Container>
-        <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
-        <Container className="filmkatalog">
-          <h2 className="datum-rubrik">
-            {selectedDate === today ? "Idag · " : ""}
-            {formatLongDate(selectedDate)}
-          </h2>
+          <HeroSection />
+          <Container className="filter-sektion" ref={filterSectionRef}>
+            <DateStrip selectedDate={selectedDate} onSelectDate={selectDate} />
+          </Container>
+          <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
+          <Container className="filmkatalog" aria-busy={loadingShowings}>
+            <h2 className="datum-rubrik">
+              {selectedDate === today ? "Idag · " : ""}
+              {formatLongDate(selectedDate)}
+            </h2>
 
-          {isLoading && <LoadingSpinner text="Hämtar filmer…" />}
-          {fetchError && <ErrorMessage message={fetchError} />}
+            {isLoading && <LoadingSpinner text="Hämtar filmer…" />}
+            {fetchError && <ErrorMessage message={fetchError} />}
 
-          {moviesOnDate && moviesOnDate.length === 0 && (
-            <NoShowings
-              onShowToday={
-                selectedDate === today
-                  ? undefined
-                  : () => setSelectedDate(today)
-              }
-            />
-          )}
-          {moviesOnDate &&
-            moviesOnDate.length > 0 &&
-            visibleMovies?.length === 0 && (
-              <div className="inga-visningar">
-                <h3>Inga filmer för vald åldersgräns</h3>
-                <p>Välj en annan åldersgräns eller ett annat datum.</p>
-                <Button
-                  className="filter-knapp"
-                  onClick={() => setAgeLimit(null)}
-                >
-                  Visa alla åldrar
-                </Button>
-              </div>
+            {moviesOnDate && moviesOnDate.length === 0 && (
+              <NoShowings
+                onShowToday={
+                  selectedDate === today
+                    ? undefined
+                    : () => setSelectedDate(today)
+                }
+              />
             )}
-          {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid
-              movies={visibleMovies}
-              date={selectedDate}
-              navigatedFrom="start"
-            />
-          )}
-        </Container>
-      </div>
+            {moviesOnDate &&
+              moviesOnDate.length > 0 &&
+              visibleMovies?.length === 0 && (
+                <div className="inga-visningar">
+                  <h3>Inga filmer för vald åldersgräns</h3>
+                  <p>Välj en annan åldersgräns eller ett annat datum.</p>
+                  <Button
+                    className="filter-knapp"
+                    onClick={() => setAgeLimit(null)}
+                  >
+                    Visa alla åldrar
+                  </Button>
+                </div>
+              )}
+            {visibleMovies && visibleMovies.length > 0 && (
+              <MovieGrid
+                movies={visibleMovies}
+                date={selectedDate}
+                navigatedFrom="start"
+              />
+            )}
+          </Container>
+        </div>
       </BgImage>
     </>
   );

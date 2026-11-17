@@ -34,6 +34,7 @@ function Poster({ booking }: { booking: MyBooking }) {
   return (
     <Link
       to={paths.movie(booking.movieId)}
+      viewTransition
       className="mypage-poster"
       aria-label={`Mer om ${booking.movieTitle}`}
     >
@@ -112,7 +113,11 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
         {upcoming.length === 0 ? (
           <div className="mypage-empty">
             <p>Du har inga kommande bokningar.</p>
-            <Link to={paths.movies} className="mypage-btn mypage-btn-red">
+            <Link
+              to={paths.movies}
+              viewTransition
+              className="mypage-btn mypage-btn-red"
+            >
               Se våra filmer
             </Link>
           </div>

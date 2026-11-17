@@ -107,6 +107,28 @@ form a:focus {
   }
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+/* ------- Movie card poster ------- */
+
+.movie-card-poster {
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.movie-card-poster.is-loaded {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .movie-card-poster {
+    transition: none;
+  }
+}
+
 html,
 body,
 #root {

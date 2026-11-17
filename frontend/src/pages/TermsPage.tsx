@@ -120,7 +120,11 @@ export default function TermsPage() {
               <p className="mb-0">
                 Vi sparar bara det som behövs för att sajten ska fungera, och
                 statistik bara om du har godkänt det. Läs mer och ändra ditt val
-                på sidan <Link to={paths.cookies}>Cookies</Link>.
+                på sidan{" "}
+                <Link to={paths.cookies} viewTransition>
+                  Cookies
+                </Link>
+                .
               </p>
             </section>
 

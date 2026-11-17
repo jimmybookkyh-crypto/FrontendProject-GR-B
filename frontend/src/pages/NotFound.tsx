@@ -20,7 +20,11 @@ export default function NotFound() {
           <Col xs={12} lg={8}>
             <section className="mypage-panel mypage-empty text-center">
               <p>Gå till startsidan och hitta din film därifrån.</p>
-              <Link to={paths.start} className="mypage-btn mypage-btn-red">
+              <Link
+                to={paths.start}
+                viewTransition
+                className="mypage-btn mypage-btn-red"
+              >
                 Till startsidan
               </Link>
             </section>

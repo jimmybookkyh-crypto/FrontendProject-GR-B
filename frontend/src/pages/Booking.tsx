@@ -380,6 +380,7 @@ export default function BookingPage() {
       // replace: true gör att bakåtknappen inte leder tillbaka till bokningsformuläret.
       navigate(paths.bookingConfirmation, {
         replace: true,
+        viewTransition: true,
         state: {
           bookingNumber: result.data.bookingNumber,
           movieId: Number(currentMovieId),
@@ -429,6 +430,7 @@ export default function BookingPage() {
     });
 
     navigate(paths.login, {
+      viewTransition: true,
       state: {
         from: paths.booking(showingId ?? ""),
       },
@@ -527,6 +529,7 @@ export default function BookingPage() {
                         currentMovieId
                           ? paths.movie(currentMovieId)
                           : paths.start,
+                        { viewTransition: true },
                       )
                     }
                   >

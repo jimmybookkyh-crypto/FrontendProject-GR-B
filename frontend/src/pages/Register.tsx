@@ -31,7 +31,6 @@ export default function Register() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  //sidan man kom ifrån (t.ex. Mina sidor), annars startsidan
   const from = getReturnTo(location.state);
 
   const [error, setError] = useState("");
@@ -40,7 +39,6 @@ export default function Register() {
   >({});
   const [loading, setLoading] = useState(false);
 
-  // Validerar formulärdata och uppdaterar felmeddelanden.
   function field(name: "username" | "email" | "password") {
     const attributes = formAttribute(name);
     return {
@@ -78,12 +76,15 @@ export default function Register() {
       resetForm();
 
       if (loggedIn) {
-        //inloggad direkt: tillbaka dit man var (annars startsidan), med välkomstmeddelande
-        navigate(from, { replace: true, state: { welcome: true } });
+        navigate(from, {
+          replace: true,
+          viewTransition: true,
+          state: { welcome: true },
+        });
       } else {
-        //kontot är skapat men inloggningen misslyckades: till inloggningssidan med ett meddelande
         navigate(paths.login, {
           replace: true,
+          viewTransition: true,
           state: {
             from,
             notice: "Ditt konto är skapat. Logga in för att fortsätta.",
@@ -176,6 +177,6 @@ export default function Register() {
 
 Register.route = {
   path: routes.register,
-  order: 15, //vet inte vilket nummer ska vara här
+  order: 15,
   label: "Bli medlem",
 };

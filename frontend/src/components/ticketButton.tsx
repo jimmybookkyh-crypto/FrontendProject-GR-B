@@ -7,8 +7,12 @@ export default function TicketButton({
   onClick,
 }: TicketButtonProps) {
   return (
-    // Plain Link, so Bootstrap's .btn styles do not override .cta-btn
-    <Link to={to} className="cta-btn text-decoration-none" onClick={onClick}>
+    <Link
+      to={to}
+      viewTransition
+      className="cta-btn text-decoration-none"
+      onClick={onClick}
+    >
       {label}
     </Link>
   );
