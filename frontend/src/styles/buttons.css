@@ -1,26 +1,13 @@
-.cta-btn,
-.booking-btn {
+.cta-btn {
   /* Same font everywhere, also inside modals that set their own font */
   font-family: var(--bs-body-font-family);
-background: var(--fv-vinrod);
+  background: var(--fv-vinrod);
   color: var(--fv-vit);
   border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 50px;
   font-weight: 600;
   transition: 0.25s ease;
-}
-
-.booking-btn:not(:disabled):hover {
-  color: var(--fv-vit) !important;
-  transform: translateY(-5px);
-  box-shadow: 0 0 10px rgba(142, 23, 51, 0.6);
-  transition: 0.25s ease;
-}
-
-.booking-btn:disabled {
-opacity: 0.5;
-cursor: not-allowed;
 }
 
 .cta-btn:not(:disabled):hover {
@@ -52,7 +39,7 @@ cursor: not-allowed;
   transform: translateY(-2px);
 }
 .dropdown-menu.menu {
-  --fv-yellow: #f5b400;
+  --fv-yellow: var(--fv-guldgul);
   --fv-bg: #0d0d14;
   --fv-panel: #222226;
   --fv-line: #2c2c3a;

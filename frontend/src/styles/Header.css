@@ -12,7 +12,7 @@
 }
 
 .navbar.fv-navbar {
-  --fv-yellow: var(--fv-header-gul);
+  --fv-yellow: var(--fv-guldgul);
   --fv-bg: var(--fv-header-bg);
   --fv-panel: var(--fv-header-panel);
   --fv-line: var(--fv-header-linje);

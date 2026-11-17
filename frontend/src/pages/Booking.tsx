@@ -691,7 +691,7 @@ export default function BookingPage() {
 
                   <button
                     type="button"
-                    className="booking-btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
+                    className="checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
                     disabled={
                       selectedSeats.length === 0 ||
                       totaltTickets !== selectedSeats.length
@@ -714,7 +714,7 @@ export default function BookingPage() {
                         </div>
                       )}
                       <Form.Group controlId="bookingEmail">
-                        <Form.Label className=" d-flex align-items-center gap-2">
+                        <Form.Label className="d-flex align-items-center gap-2">
                           E-postadress
                           {user && (
                             <span className="badge bg-success">Inloggad</span>
@@ -749,7 +749,7 @@ export default function BookingPage() {
                           Har du redan ett konto?{" "}
                           <button
                             type="button"
-                            className="btn btn-link p-1 fs-5   align-baseline"
+                            className="btn btn-link p-1 fs-5 align-baseline"
                             onClick={handleLoginClick}
                           >
                             Logga in
