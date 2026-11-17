@@ -1,18 +1,10 @@
-/* T193: Fyller på vanliga visningar så att kalendern alltid har visningar några veckor framåt.
-
-   Kör från kommandoraden:  npm run add-screenings
-   Körs också automatiskt från backend/scheduler.ts, efter eventjobben (T197).
-
-   - Fyller från i morgon och WEEKS_AHEAD veckor framåt (utils/screeningSchedule.ts)
-   - Kollar verkligt tillstånd: varje tid som redan har en visning hoppas över,
-     så det spelar ingen roll när eller hur ofta skriptet körs
-   - Bara filmer i den vanliga repertoaren (movies.current = true)
-   - Säkert att köra flera gånger: inga dubbletter och inga krockar i samma salong
-   - Tiden sparas med svensk tidszon, +01 på vintern och +02 på sommaren */
-
 import { pathToFileURL } from "url";
 import { pool } from "../db/pool.js";
-import { addDays, EVENT_ORDER, type EventPeriodDraft } from "../utils/eventSchedule.js";
+import {
+  addDays,
+  EVENT_ORDER,
+  type EventPeriodDraft,
+} from "../utils/eventSchedule.js";
 import {
   planScreenings,
   WEEKS_AHEAD,
@@ -27,11 +19,8 @@ export async function refillScreenings(): Promise<ScreeningDraft[]> {
   try {
     await client.query("BEGIN");
 
-    // Svensk tid i hela transaktionen, så att "15:00" sparas som 15:00+01 / 15:00+02
     await client.query(`SET LOCAL TIME ZONE 'Europe/Stockholm'`);
 
-    // Låset gör att två körningar inte kan lägga in samma visning samtidigt.
-    // Det släpps när transaktionen är klar.
     await client.query(`LOCK TABLE showings IN SHARE ROW EXCLUSIVE MODE`);
 
     const { rows: todayRows } = await client.query<{ today: string }>(
@@ -79,7 +68,13 @@ export async function refillScreenings(): Promise<ScreeningDraft[]> {
       [[...EVENT_ORDER], fromDate, toDate],
     );
 
-    const planned = planScreenings(fromDate, toDate, films, existing, eventPeriods);
+    const planned = planScreenings(
+      fromDate,
+      toDate,
+      films,
+      existing,
+      eventPeriods,
+    );
 
     for (const showing of planned) {
       await client.query(
@@ -99,7 +94,6 @@ export async function refillScreenings(): Promise<ScreeningDraft[]> {
   }
 }
 
-// Körs bara när filen startas direkt, inte när den importeras
 const isRunDirectly =
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href;
@@ -109,7 +103,9 @@ if (isRunDirectly) {
     const added = await refillScreenings();
 
     if (added.length === 0) {
-      console.log(`Visningar: inget att lägga till, kalendern är fylld ${WEEKS_AHEAD} veckor framåt.`);
+      console.log(
+        `Visningar: inget att lägga till, kalendern är fylld ${WEEKS_AHEAD} veckor framåt.`,
+      );
     } else {
       console.log(`Visningar: lade till ${added.length} st.`);
       console.table(added);

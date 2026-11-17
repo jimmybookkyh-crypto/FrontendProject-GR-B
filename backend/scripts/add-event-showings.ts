@@ -1,15 +1,3 @@
-/* T197: Lägger in eventvisningar för kommande eventperioder.
-
-   Kör från kommandoraden:  npm run add-event-showings
-   Körs också automatiskt från backend/scheduler.ts, efter add-event-periods.
-
-   - Gäller perioder för event 10, 11 och 12 som inte har börjat än
-   - Eventets filmer hämtas från tidigare visningar med samma eventId
-     (oavsett movies.current)
-   - Tider och fördelning: se planEventShowings i utils/eventSchedule.ts
-   - Säkert att köra flera gånger: tider som redan har en visning hoppas över
-   - Tiden sparas med svensk tidszon, +01 på vintern och +02 på sommaren */
-
 import { pathToFileURL } from "url";
 import { pool } from "../db/pool.js";
 import {
@@ -27,11 +15,8 @@ export async function addEventShowings(): Promise<EventShowingDraft[]> {
   try {
     await client.query("BEGIN");
 
-    // Svensk tid i hela transaktionen, så att "15:00" sparas som 15:00+01 / 15:00+02
     await client.query(`SET LOCAL TIME ZONE 'Europe/Stockholm'`);
 
-    // Låset gör att två körningar inte kan lägga in samma visning samtidigt.
-    // Det släpps när transaktionen är klar.
     await client.query(`LOCK TABLE showings IN SHARE ROW EXCLUSIVE MODE`);
 
     const { rows: periods } = await client.query<EventPeriodDraft>(
@@ -85,7 +70,13 @@ export async function addEventShowings(): Promise<EventShowingDraft[]> {
         await client.query(
           `insert into showings ("movieId", "auditoriumId", date, "time", "eventId")
            values ($1, $2, $3::date, ($3::date + $4::time)::timestamptz::timetz, $5)`,
-          [showing.movieId, showing.auditoriumId, showing.date, showing.time, showing.eventId],
+          [
+            showing.movieId,
+            showing.auditoriumId,
+            showing.date,
+            showing.time,
+            showing.eventId,
+          ],
         );
       }
 
@@ -102,7 +93,6 @@ export async function addEventShowings(): Promise<EventShowingDraft[]> {
   }
 }
 
-// Körs bara när filen startas direkt, inte när den importeras
 const isRunDirectly =
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href;

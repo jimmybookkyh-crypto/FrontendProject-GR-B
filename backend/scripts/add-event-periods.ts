@@ -1,15 +1,3 @@
-/* T197: Lägger in nästa eventperiod(er) i det rullande schemat.
-
-   Kör från kommandoraden:  npm run add-event-periods
-   Körs också automatiskt från backend/scheduler.ts.
-
-   - Läser alla perioder i eventPeriods och räknar ut vad som saknas
-     (reglerna finns i utils/eventSchedule.ts)
-   - Skriver bara till eventPeriods, events.date ändras inte
-   - Säkert att köra flera gånger: inga dubbletter och inga överlapp
-   - Tabellen låses under körningen, så två körningar samtidigt
-     kan inte lägga in samma period */
-
 import { pathToFileURL } from "url";
 import { pool } from "../db/pool.js";
 import {
@@ -23,7 +11,6 @@ export async function addEventPeriods(): Promise<EventPeriodDraft[]> {
   try {
     await client.query("BEGIN");
 
-    // Låset krockar med sig självt: en annan körning väntar tills vi är klara
     await client.query(`LOCK TABLE "eventPeriods" IN SHARE ROW EXCLUSIVE MODE`);
 
     const { rows: todayRows } = await client.query<{ today: string }>(
@@ -59,7 +46,6 @@ export async function addEventPeriods(): Promise<EventPeriodDraft[]> {
   }
 }
 
-// Körs bara när filen startas direkt, inte när den importeras
 const isRunDirectly =
   process.argv[1] !== undefined &&
   import.meta.url === pathToFileURL(process.argv[1]).href;
@@ -69,7 +55,9 @@ if (isRunDirectly) {
     const added = await addEventPeriods();
 
     if (added.length === 0) {
-      console.log("Eventperioder: inget att lägga till, schemat är redan fyllt.");
+      console.log(
+        "Eventperioder: inget att lägga till, schemat är redan fyllt.",
+      );
     } else {
       console.log(`Eventperioder: lade till ${added.length} st.`);
       console.table(added);
