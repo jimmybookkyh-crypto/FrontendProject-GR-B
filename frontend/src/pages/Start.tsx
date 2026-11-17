@@ -87,7 +87,7 @@ export default function Start() {
       <BgImage>
         <div>
           <HeroSection />
-          <Container className="filter-sektion" ref={filterSectionRef}>
+          <Container className="filter-sektion page-container py-4" ref={filterSectionRef}>
             <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
           </Container>
           <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />

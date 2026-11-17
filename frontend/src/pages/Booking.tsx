@@ -548,7 +548,7 @@ export default function BookingPage() {
   return (
     <BgImage>
       <div
-        className="booking-page min-vh-100 text-light">
+        className="booking-page min-vh-100 text-light page-container">
         {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
         <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 

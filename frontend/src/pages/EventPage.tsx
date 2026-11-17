@@ -90,7 +90,7 @@ function EventCard({
   return (
     <article
       id={isFirstPeriod ? `event-${event.eventId}` : undefined}
-      className="event-card"
+      className="event-card page-container"
       aria-labelledby={headingId}
     >
       <Row className="g-0">

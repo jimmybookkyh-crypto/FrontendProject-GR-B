@@ -324,7 +324,7 @@ export default function About() {
   return (
     <BgImage>
     <div
-      className="om-sida"
+      className="om-sida page-container"
     >
       <Hero />
       <Container className="om-innehall">

@@ -101,7 +101,7 @@ export default function MovieDetails() {
   return (
     <BgImage>
       <div
-        className="film-sida"
+        className="film-sida page-container"
       >
         <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
         <Container className="pb-5">

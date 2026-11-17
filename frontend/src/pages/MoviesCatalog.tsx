@@ -45,6 +45,7 @@ export default function MovieCatalog() {
     <>
       <BgImage>
         <div
+        className= "page-container"
         >
           <FilterButtons
             tabs={FILTER_TABS}
