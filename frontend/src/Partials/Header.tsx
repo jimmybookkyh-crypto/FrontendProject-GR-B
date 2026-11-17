@@ -22,7 +22,6 @@ export default function Header() {
 
   return (
     <Navbar expand="lg" sticky="top" className="fv-navbar" data-bs-theme="dark">
-      <div className="header-content-container">
       <Navbar.Brand as={Link} to={paths.start} className="fv-brand">
         <img src={logo} alt="FV – startsida" className="fv-logo" />
       </Navbar.Brand>
@@ -130,7 +129,6 @@ export default function Header() {
           </NavDropdown>
         </Nav>
       </Navbar.Collapse>
-      </div>
     </Navbar>
   );
 }
