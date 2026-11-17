@@ -198,31 +198,30 @@
   appearance: textfield;
 }
 
-@media (min-width: 576px) {
-  .seat {
-    width: clamp(23px, 6vw, 35px);
-    height: clamp(23px, 6vw, 35px);
-    margin: 1.5px;
-    font-size: clamp(9px, 2.4vw, 13px);
-  }
-
-  .selected-seats-container {
-    min-height: 110px;
-  }
-
-  .selected-seats-list {
-    max-height: 70px;
-    overflow-y: auto;
-  }
-         
-  .glass-card {
-    margin-left: -2px;
-    margin-right: -2px;
-  }
-  .film-krediter {
-    font-size: 1rem;
-  }
+.seat {
+  width: clamp(23px, 6vw, 35px);
+  height: clamp(23px, 6vw, 35px);
+  margin: 1.5px;
+  font-size: clamp(9px, 2.4vw, 13px);
 }
+
+.selected-seats-container {
+  min-height: 110px;
+}
+
+.selected-seats-list {
+  max-height: 70px;
+  overflow-y: auto;
+}
+        
+.glass-card {
+  margin-left: -2px;
+  margin-right: -2px;
+}
+.film-krediter {
+  font-size: 1rem;
+}
+
 
 @media (min-width: 768px){
   .seat {
