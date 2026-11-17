@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
-// @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-// @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
+import "../styles/MyPage.css";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import AgeBadge from "../components/AgeBadge";
@@ -12,26 +11,11 @@ import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
-import {
-  formatDate,
-  formatTime,
-  calculateTotalPrice,
-  getMaxAllowedTickets,
-} from "../utils/BookingHelpers";
-import type {
-  Showing,
-  Movie,
-  TicketType,
-  Seat,
-  Booking,
-} from "../interface/types";
+import {formatDate,formatTime,calculateTotalPrice,getMaxAllowedTickets,} from "../utils/BookingHelpers";
+import type {Showing,Movie,TicketType,Seat,Booking,} from "../interface/types";
 import useSeatUpdates from "../hooks/useSeatUpdates";
 import useBookingDraft from "../hooks/useBookingDraft";
-import {
-  loadBookingDraft,
-  saveBookingDraft,
-  clearBookingDraft,
-} from "../utils/bookingDraft.ts";
+import {loadBookingDraft,saveBookingDraft,clearBookingDraft,} from "../utils/bookingDraft.ts";
 import { paths, routes } from "../utils/paths.ts";
 import BgImage from "../components/BgImgBd.tsx";
 
@@ -550,7 +534,7 @@ export default function BookingPage() {
       <div
         className="booking-page min-vh-100 text-light">
         {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
-        <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
+        <BackButton />
 
         <h1 className="h4 fw-bold text-center mb-4 heading-gold">
           Boka biljetter
@@ -707,7 +691,7 @@ export default function BookingPage() {
 
                   <button
                     type="button"
-                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
+                    className="booking-btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
                     disabled={
                       selectedSeats.length === 0 ||
                       totaltTickets !== selectedSeats.length
@@ -717,9 +701,9 @@ export default function BookingPage() {
                     Boka
                   </button>
 
-                  <Modal show={showEmailModal} onHide={handleCloseModal} centered>
+                  <Modal show={showEmailModal} onHide={handleCloseModal} centered contentClassName="mypage-modal">
                     <Modal.Header closeButton>
-                      <Modal.Title className="text-dark">
+                      <Modal.Title as="h2">
                         Bekräfta e-post
                       </Modal.Title>
                     </Modal.Header>
@@ -730,7 +714,7 @@ export default function BookingPage() {
                         </div>
                       )}
                       <Form.Group controlId="bookingEmail">
-                        <Form.Label className="text-dark d-flex align-items-center gap-2">
+                        <Form.Label className=" d-flex align-items-center gap-2">
                           E-postadress
                           {user && (
                             <span className="badge bg-success">Inloggad</span>
@@ -753,30 +737,30 @@ export default function BookingPage() {
                           {emailFieldError}
                         </Form.Control.Feedback>
                         {user && (
-                          <Form.Text className="text-muted">
+                          <p className="mypage-greeting mt-4">
                             Bokningsbekräftelsen kopplas till ditt konto (
                             {user.email}).
-                          </Form.Text>
+                          </p>
                         )}
                       </Form.Group>
 
                       {!user && (
-                        <Form.Text className="d-block mt-3">
+                        <p className="mypage-greeting mt-4">
                           Har du redan ett konto?{" "}
                           <button
                             type="button"
-                            className="btn btn-link p-0 align-baseline"
+                            className="btn btn-link p-1 fs-5   align-baseline"
                             onClick={handleLoginClick}
                           >
                             Logga in
                           </button>
-                        </Form.Text>
+                        </p>
                       )}
                     </Modal.Body>
                     <Modal.Footer>
                       <button
                         type="button"
-                        className="cta-btn checkout-btn fw-bold py-2 px-4"
+                        className="cta-btn fw-bold py-2 px-4"
                         onClick={handleCheckout}
                         disabled={isSubmitting}
                       >

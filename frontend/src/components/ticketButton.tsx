@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { Button } from "react-bootstrap";
 import type { TicketButtonProps } from "../interface/types";
 
 export default function TicketButton({
@@ -8,15 +7,10 @@ export default function TicketButton({
   onClick,
 }: TicketButtonProps) {
   return (
-    <Button
-      as={Link as any}
-      to={to}
-      variant="normal"
-      className="boka-knapp"
-      onClick={onClick}
-    >
+    // Plain Link, so Bootstrap's .btn styles do not override .cta-btn
+    <Link to={to} className="cta-btn text-decoration-none" onClick={onClick}>
       {label}
-    </Button>
+    </Link>
   );
 }
 
