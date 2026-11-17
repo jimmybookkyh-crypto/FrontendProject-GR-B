@@ -7,7 +7,7 @@ import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
-import Datumremsa from "../components/Datumremsa";
+import DateStrip from "../components/DateStrip.tsx";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
@@ -135,10 +135,10 @@ export default function MovieDetails() {
               !showingsError &&
               firstSevenShowings.length > 0 && (
                 <>
-                  <Datumremsa
-                    valtDatum={firstAvailableShowing}
+                  <DateStrip
+                    selectedDate={firstAvailableShowing}
                     dateList={firstSevenShowings}
-                    onByt={changeDate}
+                    onSelectDate={changeDate}
                   />
 
                   <ShowingsBox

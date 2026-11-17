@@ -7,7 +7,7 @@ import Biodukbg from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
-import Datumremsa from "../components/Datumremsa";
+import DateStrip from "../components/DateStrip";
 import { formatLongDate, addDays, validDate } from "../utils/date";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons from "../components/FilterButtons";
@@ -90,7 +90,7 @@ export default function Start() {
       >
         <HeroSection />
         <Container className="filter-sektion" ref={filterSectionRef}>
-          <Datumremsa valtDatum={valtDatum} onByt={selectDate} />
+          <DateStrip selectedDate={valtDatum} onSelectDate={selectDate} />
         </Container>
         <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
         <Container className="filmkatalog">
@@ -124,7 +124,11 @@ export default function Start() {
               </div>
             )}
           {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid movies={visibleMovies} datum={valtDatum} navigatedFrom="start" />
+            <MovieGrid
+              movies={visibleMovies}
+              datum={valtDatum}
+              navigatedFrom="start"
+            />
           )}
         </Container>
       </div>
