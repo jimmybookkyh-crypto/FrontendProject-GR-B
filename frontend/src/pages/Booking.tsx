@@ -13,6 +13,18 @@ import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
 import {formatDate,formatTime,calculateTotalPrice,getMaxAllowedTickets,} from "../utils/BookingHelpers";
 import type {Showing,Movie,TicketType,Seat,Booking,} from "../interface/types";
+import { formatDate, formatPrice, formatTime } from "../utils/format";
+import {
+  calculateTotalPrice,
+  getMaxAllowedTickets,
+} from "../utils/BookingHelpers";
+import type {
+  Showing,
+  Movie,
+  TicketType,
+  Seat,
+  Booking,
+} from "../interface/types";
 import useSeatUpdates from "../hooks/useSeatUpdates";
 import useBookingDraft from "../hooks/useBookingDraft";
 import {loadBookingDraft,saveBookingDraft,clearBookingDraft,} from "../utils/bookingDraft.ts";
@@ -145,14 +157,14 @@ export default function BookingPage() {
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const totaltTickets = adultTickets + childTickets + seniorTickets;
+  const totalTickets = adultTickets + childTickets + seniorTickets;
 
   useEffect(() => {
     if (
       user &&
       draft?.resumeCheckout &&
       selectedSeats.length > 0 &&
-      totaltTickets === selectedSeats.length &&
+      totalTickets === selectedSeats.length &&
       !showEmailModal
     ) {
       setShowEmailModal(true);
@@ -162,7 +174,7 @@ export default function BookingPage() {
         resumeCheckout: false,
       });
     }
-  }, [user, draft, selectedSeats.length, totaltTickets, showEmailModal]);
+  }, [user, draft, selectedSeats.length, totalTickets, showEmailModal]);
 
   useEffect(() => {
     if (!seatWarning) return;
@@ -205,7 +217,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       currentVal,
     );
     setter(parsed > maxAllowed ? Math.max(0, maxAllowed) : parsed);
@@ -222,7 +234,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       current,
     );
     setter(Math.min(next, Math.max(0, maxAllowed)));
@@ -531,7 +543,7 @@ export default function BookingPage() {
 
   return (
     <BgImage>
-      <div
+    <div
         className="booking-page min-vh-100 text-light">
         {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
         <BackButton />
@@ -573,115 +585,185 @@ export default function BookingPage() {
                           <strong className="text-white">Salong: </strong>{" "}
                           {currentAuditoriumName}
                         </div>
+      {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
+      <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
+
+      <h1 className="h4 fw-bold text-center mb-4 heading-gold">
+        Boka biljetter
+      </h1>
+
+      <Container className="pb-5">
+        <Row className="justify-content-center mb-4">
+          <Col xs={12} lg={8} xl={8}>
+            <Card className="glass-card wider-card">
+              <Card.Body className="p-3 p-md-4">
+                <Row className="align-items-center g-3 g-md-4">
+                  <Col xs={5} md={4} className="text-center">
+                    {showing && (
+                      <MovieCard
+                        movieId={currentMovieId || 1}
+                        title={currentTitle}
+                        images={currentImages}
+                        ageRating={movie?.ageRating}
+                        showDetails={false}
+                      />
+                    )}
+                  </Col>
+
+                  <Col xs={7} md={8}>
+                    <div className="film-krediter mt-1">
+                      <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
+                      <div className="mb-1">
+                        <strong className="text-white">Datum: </strong>{" "}
+                        {currentDate}
                       </div>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row className="g-4 justify-content-center align-items-stretch">
-            <Col xs={12} md={7} lg={8} className="d-flex">
-              <Card className="glass-card overflow-x-auto w-100">
-                <Card.Body className="p-3 p-md-4">
-                  {seatWarning && (
-                    <div
-                      ref={seatWarningRef}
-                      className="alert alert-warning mb-3"
-                    >
-                      {seatWarning}
+                      <div className="mb-1">
+                        <strong className="text-white">Tid: </strong>{" "}
+                        {currentTime}
+                      </div>
+                      <div className="mb-1">
+                        <strong className="text-white">Salong: </strong>{" "}
+                        {currentAuditoriumName}
+                      </div>
                     </div>
-                  )}
-                  <h3 className="h3 fw-bold text-center mb-3">
-                    Välj dina platser genom att klicka på stolarna
-                  </h3>
-                  <SeatMap
-                    auditoriumName={currentAuditoriumName}
-                    seats={seats}
-                    occupiedSeats={occupiedSeats}
-                    selectedSeats={selectedSeats}
-                    onSeatClick={handleSeatClick}
-                  />
-                </Card.Body>
-              </Card>
-            </Col>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
 
-            <Col xs={12} md={5} lg={4} className="d-flex">
-              <Card className="glass-card w-100">
-                <Card.Body className="p-3 p-md-4">
-                  <h3 className="h5 fw-bold text-center heading-gold mb-4">
-                    Biljetter
-                  </h3>
+        <Row className="g-4 justify-content-center align-items-stretch">
+          <Col xs={12} md={7} lg={8} className="d-flex">
+            <Card className="glass-card overflow-x-auto w-100">
+              <Card.Body className="p-3 p-md-4">
+                {seatWarning && (
+                  <div
+                    ref={seatWarningRef}
+                    className="alert alert-warning mb-3"
+                  >
+                    {seatWarning}
+                  </div>
+                )}
+                <h3 className="h3 fw-bold text-center mb-3">
+                  Välj dina platser genom att klicka på stolarna
+                </h3>
+                <SeatMap
+                  auditoriumName={currentAuditoriumName}
+                  seats={seats}
+                  occupiedSeats={occupiedSeats}
+                  selectedSeats={selectedSeats}
+                  onSeatClick={handleSeatClick}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
 
-                  <TicketCounter
-                    label={adultType?.name || "Vuxen"}
-                    description="Från 12 år"
-                    price={adultPrice}
-                    count={adultTickets}
-                    onDecrease={() =>
-                      adjustTickets(setAdultTickets, adultTickets, -1)
-                    }
-                    onIncrease={() =>
-                      adjustTickets(setAdultTickets, adultTickets, 1)
-                    }
-                    onChange={(value) =>
-                      handleInputChange(value, setAdultTickets, adultTickets)
-                    }
-                  />
-                  <TicketCounter
-                    label={childType?.name || "Barn"}
-                    description="Till 11 år"
-                    price={childPrice}
-                    count={childTickets}
-                    onDecrease={() =>
-                      adjustTickets(setChildTickets, childTickets, -1)
-                    }
-                    onIncrease={() =>
-                      adjustTickets(setChildTickets, childTickets, 1)
-                    }
-                    onChange={(value) =>
-                      handleInputChange(value, setChildTickets, childTickets)
-                    }
-                  />
-                  <TicketCounter
-                    label={seniorType?.name || "Pensionär"}
-                    description="Från 65 år"
-                    price={seniorPrice}
-                    count={seniorTickets}
-                    onDecrease={() =>
-                      adjustTickets(setSeniorTickets, seniorTickets, -1)
-                    }
-                    onIncrease={() =>
-                      adjustTickets(setSeniorTickets, seniorTickets, 1)
-                    }
-                    onChange={(value) =>
-                      handleInputChange(value, setSeniorTickets, seniorTickets)
-                    }
-                  />
+          <Col xs={12} md={5} lg={4} className="d-flex">
+            <Card className="glass-card w-100">
+              <Card.Body className="p-3 p-md-4">
+                <h3 className="h5 fw-bold text-center heading-gold mb-4">
+                  Biljetter
+                </h3>
 
-                  <div className="mb-3 selected-seats-container">
-                    <p className="mb-1 fw-bold">
-                      Valda platser ({selectedSeats.length}):
+                <TicketCounter
+                  label={adultType?.name || "Vuxen"}
+                  description="Från 12 år"
+                  price={adultPrice}
+                  count={adultTickets}
+                  onDecrease={() =>
+                    adjustTickets(setAdultTickets, adultTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setAdultTickets, adultTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setAdultTickets, adultTickets)
+                  }
+                />
+                <TicketCounter
+                  label={childType?.name || "Barn"}
+                  description="Till 11 år"
+                  price={childPrice}
+                  count={childTickets}
+                  onDecrease={() =>
+                    adjustTickets(setChildTickets, childTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setChildTickets, childTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setChildTickets, childTickets)
+                  }
+                />
+                <TicketCounter
+                  label={seniorType?.name || "Pensionär"}
+                  description="Från 65 år"
+                  price={seniorPrice}
+                  count={seniorTickets}
+                  onDecrease={() =>
+                    adjustTickets(setSeniorTickets, seniorTickets, -1)
+                  }
+                  onIncrease={() =>
+                    adjustTickets(setSeniorTickets, seniorTickets, 1)
+                  }
+                  onChange={(value) =>
+                    handleInputChange(value, setSeniorTickets, seniorTickets)
+                  }
+                />
+
+                <div className="mb-3 selected-seats-container">
+                  <p className="mb-1 fw-bold">
+                    Valda platser ({selectedSeats.length}):
+                  </p>
+                  {selectedSeats.length > 0 ? (
+                    <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
+                      {selectedSeats.map((seat) => (
+                        <li key={seat.seatId}>
+                          Rad {seat.seatsRow}, stol {seat.seatsNumber}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p
+                      className="mb-0"
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "rgba(245, 247, 250, 0.7)",
+                      }}
+                    >
+                      Inga platser valda
                     </p>
-                    {selectedSeats.length > 0 ? (
-                      <ul className="selected-seats-list list-unstyled small mb-0 ps-2">
-                        {selectedSeats.map((seat) => (
-                          <li key={seat.seatId}>
-                            Rad {seat.seatsRow}, stol {seat.seatsNumber}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p
-                        className="mb-0"
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "rgba(245, 247, 250, 0.7)",
-                        }}
-                      >
-                        Inga platser valda
-                      </p>
+                  )}
+                </div>
+
+                <p className="mb-3">Antal biljetter: {totalTickets}</p>
+                <hr className="border-secondary" />
+                <h4 className="h5 mb-3">Totalt: {formatPrice(totalPrice)}</h4>
+
+                <button
+                  type="button"
+                  className="btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
+                  disabled={
+                    selectedSeats.length === 0 ||
+                    totalTickets !== selectedSeats.length
+                  }
+                  onClick={() => setShowEmailModal(true)}
+                >
+                  Boka
+                </button>
+
+                <Modal show={showEmailModal} onHide={handleCloseModal} centered>
+                  <Modal.Header closeButton>
+                    <Modal.Title className="text-dark">
+                      Bekräfta e-post
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {bookingError && (
+                      <div className="alert alert-danger mb-3" role="alert">
+                        {bookingError}
+                      </div>
                     )}
                   </div>
 
@@ -774,6 +856,67 @@ export default function BookingPage() {
           </Row>
         </Container>
       </div>
+                    <Form.Group controlId="bookingEmail">
+                      <Form.Label className="text-dark d-flex align-items-center gap-2">
+                        E-postadress
+                        {user && (
+                          <span className="badge bg-success">Inloggad</span>
+                        )}
+                      </Form.Label>
+                      <Form.Control
+                        size="lg"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="namn@exempel.se"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailFieldError(undefined);
+                        }}
+                        isInvalid={!!emailFieldError}
+                        disabled={isSubmitting || !!user} // Inaktiverar ändring om inloggad
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {emailFieldError}
+                      </Form.Control.Feedback>
+                      {user && (
+                        <Form.Text className="text-muted">
+                          Bokningsbekräftelsen kopplas till ditt konto (
+                          {user.email}).
+                        </Form.Text>
+                      )}
+                    </Form.Group>
+
+                    {!user && (
+                      <Form.Text className="d-block mt-3">
+                        Har du redan ett konto?{" "}
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 align-baseline"
+                          onClick={handleLoginClick}
+                        >
+                          Logga in
+                        </button>
+                      </Form.Text>
+                    )}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <button
+                      type="button"
+                      className="cta-btn checkout-btn fw-bold py-2 px-4"
+                      onClick={handleCheckout}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Bokar…" : "Slutför bokning"}
+                    </button>
+                  </Modal.Footer>
+                </Modal>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
     </BgImage>
   );
 }

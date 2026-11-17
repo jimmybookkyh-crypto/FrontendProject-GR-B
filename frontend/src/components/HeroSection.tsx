@@ -13,6 +13,7 @@ import {
   moviePoster,
   moviePosterUrl,
 } from "../utils/images.ts";
+import { formatPeriod, formatWeekdayDate } from "../utils/format.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -89,38 +90,8 @@ function getShowingKey(showing: { date: string; time: string }): string {
 
 function getNowKey(): string {
   const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const pad = (value: number) => String(value).padStart(2, "0");
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-const shortDateFormat = new Intl.DateTimeFormat("sv-SE", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
-function formatShortDate(date: string): string {
-  return shortDateFormat
-    .format(new Date(`${date}T00:00:00`))
-    .replace(/\./g, "");
-}
-
-const dayMonthFormat = new Intl.DateTimeFormat("sv-SE", {
-  day: "numeric",
-  month: "short",
-});
-
-function formatPeriod(start: string, end: string): string {
-  const startDate = new Date(`${start}T00:00:00`);
-  const endDate = new Date(`${end}T00:00:00`);
-  const clean = (value: string) => value.replace(/\./g, "");
-  const endText = clean(dayMonthFormat.format(endDate));
-
-  if (start === end) return endText;
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()}–${endText}`;
-  }
-  return `${clean(dayMonthFormat.format(startDate))}–${endText}`;
 }
 
 function getMovieMedia(movie: HeroMovie | undefined) {
@@ -140,7 +111,7 @@ function buildEventSlides(
   upcoming: HeroEventShowing[],
   movieById: Map<string, HeroMovie>,
 ): HeroSlideData[] {
-  const periodText = formatPeriod(period.startDate, period.endDate);
+  const periodText = formatPeriod(period.startDate, period.endDate, "short");
   const today = getNowKey().slice(0, 10);
   const hasStarted = period.startDate <= today;
 
@@ -181,7 +152,7 @@ function buildEventSlides(
       text: getFirstSentence(movie?.description),
       ...getMovieMedia(movie),
       buttonTo: `${paths.movie(id)}?datum=${nextShowing.date}`,
-      buttonLabel: `Biljetter → ${formatShortDate(nextShowing.date)}`,
+      buttonLabel: `Biljetter → ${formatWeekdayDate(nextShowing.date)}`,
     };
   });
 
