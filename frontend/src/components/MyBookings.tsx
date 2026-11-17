@@ -19,13 +19,13 @@ type MyBookingsProps = {
   onCancelled: (message: string) => void;
 };
 
-function platserText(booking: MyBooking): string {
+function seatsText(booking: MyBooking): string {
   return formatSeats(booking.tickets)
-    .map((rad) => rad.replace(":", " ·"))
+    .map((row) => row.replace(":", " ·"))
     .join(" · ");
 }
 
-function biljetterText(booking: MyBooking): string {
+function ticketsText(booking: MyBooking): string {
   return formatTicketTypes(booking.tickets.map((t) => t.ticketType));
 }
 
@@ -133,7 +133,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                     {booking.auditoriumName}
                   </p>
                   <p className="mb-1">
-                    {platserText(booking)} · {biljetterText(booking)}
+                    {seatsText(booking)} · {ticketsText(booking)}
                   </p>
                   <p className="mypage-total">
                     Totalt {formatPrice(booking.totalPrice)}
@@ -190,7 +190,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 <span>
                   {formatShortDate(booking.date)} · {booking.time}
                 </span>
-                <span>{biljetterText(booking)}</span>
+                <span>{ticketsText(booking)}</span>
                 <span className="mypage-past-price">
                   {formatPrice(booking.totalPrice)}
                 </span>
@@ -227,7 +227,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                 {formatShowing(toCancel.date, toCancel.time)} ·{" "}
                 {toCancel.auditoriumName}
               </p>
-              <p className="mb-3">{platserText(toCancel)}</p>
+              <p className="mb-3">{seatsText(toCancel)}</p>
               <p className="mb-0">
                 Platserna släpps till andra besökare direkt. Det går inte att
                 ångra.

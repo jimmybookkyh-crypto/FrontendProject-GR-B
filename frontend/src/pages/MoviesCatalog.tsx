@@ -5,10 +5,10 @@ import Button from "react-bootstrap/Button";
 import backgroundImage from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ErrorMessage from "../components/ErrorMessage"; 
+import ErrorMessage from "../components/ErrorMessage";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons, { type FilterTab } from "../components/FilterButtons";
-import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit"; 
+import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import { routes } from "../utils/paths.ts";
 
 type Movie = {
@@ -17,29 +17,29 @@ type Movie = {
   ageRating?: number;
 };
 
-type Filter = "allaFilmer" | "kommandeFilmer";
+type Filter = "currentMovies" | "upcomingMovies";
 
 const FILTER_PATH: Record<Filter, string> = {
-  allaFilmer: "/movies/current",
-  kommandeFilmer: "/movies/not-current",
+  currentMovies: "/movies/current",
+  upcomingMovies: "/movies/not-current",
 };
 
 const FILTER_TABS: FilterTab<Filter>[] = [
-  { value: "allaFilmer", label: "Visas nu" },
-  { value: "kommandeFilmer", label: "Kommande filmer" },
+  { value: "currentMovies", label: "Visas nu" },
+  { value: "upcomingMovies", label: "Kommande filmer" },
 ];
 
 export default function MovieCatalog() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("allaFilmer");
+  const [activeFilter, setActiveFilter] = useState<Filter>("currentMovies");
   const [ageLimit, setAgeLimit] = useAgeLimit();
 
   const {
-    data: filmer,
+    data: movies,
     loading,
     error,
   } = useFetch<Movie[]>(FILTER_PATH[activeFilter]);
 
-  const visibleMovies = filmer ? filterByAgeLimit(filmer, ageLimit) : null;
+  const visibleMovies = movies ? filterByAgeLimit(movies, ageLimit) : null;
 
   return (
     <>
@@ -62,13 +62,13 @@ export default function MovieCatalog() {
           {loading && <LoadingSpinner text="Hämtar filmer…" />}
           {error && <ErrorMessage message={error} />}
 
-          {filmer && filmer.length === 0 && (
+          {movies && movies.length === 0 && (
             <p className="text-center text-light">
               Inga filmer att visa just nu.
             </p>
           )}
 
-          {filmer && filmer.length > 0 && visibleMovies?.length === 0 && (
+          {movies && movies.length > 0 && visibleMovies?.length === 0 && (
             <div className="inga-visningar">
               <h3>Inga filmer för vald åldersgräns</h3>
               <Button
@@ -84,7 +84,7 @@ export default function MovieCatalog() {
             <MovieGrid
               movies={visibleMovies}
               navigatedFrom="katalog"
-              showDetails={activeFilter !== "kommandeFilmer"}
+              showDetails={activeFilter !== "upcomingMovies"}
             />
           )}
         </Container>

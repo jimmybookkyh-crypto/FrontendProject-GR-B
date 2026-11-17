@@ -160,14 +160,14 @@ export default function BookingPage() {
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const totaltTickets = adultTickets + childTickets + seniorTickets;
+  const totalTickets = adultTickets + childTickets + seniorTickets;
 
   useEffect(() => {
     if (
       user &&
       draft?.resumeCheckout &&
       selectedSeats.length > 0 &&
-      totaltTickets === selectedSeats.length &&
+      totalTickets === selectedSeats.length &&
       !showEmailModal
     ) {
       setShowEmailModal(true);
@@ -177,7 +177,7 @@ export default function BookingPage() {
         resumeCheckout: false,
       });
     }
-  }, [user, draft, selectedSeats.length, totaltTickets, showEmailModal]);
+  }, [user, draft, selectedSeats.length, totalTickets, showEmailModal]);
 
   useEffect(() => {
     if (!seatWarning) return;
@@ -220,7 +220,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       currentVal,
     );
     setter(parsed > maxAllowed ? Math.max(0, maxAllowed) : parsed);
@@ -237,7 +237,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       current,
     );
     setter(Math.min(next, Math.max(0, maxAllowed)));
@@ -710,7 +710,7 @@ export default function BookingPage() {
                   )}
                 </div>
 
-                <p className="mb-3">Antal biljetter: {totaltTickets}</p>
+                <p className="mb-3">Antal biljetter: {totalTickets}</p>
                 <hr className="border-secondary" />
                 <h4 className="h5 mb-3">Totalt: {formatPrice(totalPrice)}</h4>
 
@@ -719,7 +719,7 @@ export default function BookingPage() {
                   className="btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
                   disabled={
                     selectedSeats.length === 0 ||
-                    totaltTickets !== selectedSeats.length
+                    totalTickets !== selectedSeats.length
                   }
                   onClick={() => setShowEmailModal(true)}
                 >
