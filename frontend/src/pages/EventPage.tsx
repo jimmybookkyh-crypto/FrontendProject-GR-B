@@ -214,7 +214,8 @@ export default function EventPage() {
         isFirstPeriod: index === 0,
       })),
     )
-    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
+    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate))
+    .slice(0, 3);
 
   return (
     <BgImage>
