@@ -14,6 +14,7 @@ import "../styles/Event.css";
 import { routes } from "../utils/paths.ts";
 import { eventImage } from "../utils/images.ts";
 import { formatPeriod } from "../utils/format.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 function groupShowings(showings: EventShowing[]) {
   const processedMovieIds = new Set<string>();
@@ -196,17 +197,12 @@ export default function EventPage() {
         isFirstPeriod: index === 0,
       })),
     )
-    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
+    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate))
+    .slice(0, 3);
 
   return (
-    <div
-      className="event-page min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <BgImage>
+    <div>
       <Container className="event-page-container">
         <header className="event-header">
           <h1>Kommande event</h1>
@@ -238,6 +234,7 @@ export default function EventPage() {
         )}
       </Container>
     </div>
+      </BgImage>
   );
 }
 

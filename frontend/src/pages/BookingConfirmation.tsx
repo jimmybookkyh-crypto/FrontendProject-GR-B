@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Row, Container, Col, Card, Modal, Alert } from "react-bootstrap";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import ErrorMessage from "../components/ErrorMessage";
 import MovieCard from "../components/MovieCard";
@@ -11,6 +10,7 @@ import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
 import { paths, routes } from "../utils/paths.ts";
 import { formatDate, formatPrice, formatTime } from "../utils/format.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 type ConfirmationState = {
   bookingNumber: string;
@@ -156,13 +156,9 @@ export default function BookingConfirmation() {
 
   return (
     <>
+      <BgImage>
       <div
         className="booking-page min-vh-100 text-light"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
       >
         {booking.from === "mypage" && <BackButton to={paths.myPage} />}
         <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
@@ -370,6 +366,7 @@ export default function BookingConfirmation() {
           </Modal.Footer>
         </Modal>
       </div>
+      </BgImage>
     </>
   );
 }

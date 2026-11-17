@@ -50,3 +50,12 @@ form a:focus {
 .seat:focus-visible {
   outline-offset: 3px;
 }
+
+.bg-image {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  padding-bottom: 2.5rem;
+}
+

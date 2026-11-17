@@ -1,6 +1,5 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Container, Col, Row, Card, Badge } from "react-bootstrap";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/Start.css"; // stilen för DateStrip (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
@@ -15,6 +14,7 @@ import { validDate, formatLongDate, addDays } from "../utils/date";
 import type { Movie, Showing } from "../interface/types";
 import { useEffect } from "react";
 import { paths, routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
@@ -99,13 +99,9 @@ export default function MovieDetails() {
   ]);
 
   return (
+    <BgImage>
     <div
-      className="film-sida min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+        className="film-sida"
     >
       <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
       <Container className="pb-5">
@@ -157,6 +153,7 @@ export default function MovieDetails() {
         )}
       </Container>
     </div>
+    </BgImage>
   );
 }
 
@@ -166,7 +163,7 @@ function formatLength(totalMinutes: number): string {
   return hours > 0 ? `${hours} tim ${minutes} min` : `${minutes} min`;
 }
 
-function MovieInfo({ movie }: { movie: Movie }) {
+function MovieInfo({ movie }: { movie: Movie; }) {
   return (
     <Card className="glass-card film-info">
       <Card.Body className="px-3 px-md-4 py-3">

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
 // @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-import backgroundImage from "../assets/img/biodukbg.webp";
 // @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
@@ -33,6 +32,7 @@ import {
   clearBookingDraft,
 } from "../utils/bookingDraft.ts";
 import { paths, routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -346,7 +346,7 @@ export default function BookingPage() {
         body: JSON.stringify(bookingBody),
       });
 
-      const result: { data?: Booking; error?: { message?: string } } =
+      const result: { data?: Booking; error?: { message?: string; }; } =
         await response.json();
 
       if (!response.ok) {
@@ -461,11 +461,6 @@ export default function BookingPage() {
     return (
       <div
         className="booking-page min-vh-100 text-light d-flex align-items-center py-5"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
       >
         <Container>
           <Row className="justify-content-center">
@@ -550,14 +545,9 @@ export default function BookingPage() {
   }
 
   return (
+    <BgImage>
     <div
-      className="booking-page min-vh-100 text-light"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+        className="booking-page min-vh-100 text-light">
       {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
       <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
 
@@ -799,6 +789,7 @@ export default function BookingPage() {
         </Row>
       </Container>
     </div>
+    </BgImage>
   );
 }
 

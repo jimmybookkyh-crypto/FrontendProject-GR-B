@@ -2,7 +2,6 @@ import { useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -10,6 +9,7 @@ import MovieGrid from "../components/MovieGrid";
 import FilterButtons, { type FilterTab } from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import { routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 type Movie = {
   movieId: string;
@@ -43,13 +43,8 @@ export default function MovieCatalog() {
 
   return (
     <>
+      <BgImage>
       <div
-        className="sida-innehall"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
       >
         <FilterButtons
           tabs={FILTER_TABS}
@@ -89,6 +84,7 @@ export default function MovieCatalog() {
           )}
         </Container>
       </div>
+      </BgImage>
     </>
   );
 }

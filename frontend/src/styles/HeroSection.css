@@ -82,7 +82,12 @@
   margin: 0 auto;
   position: relative;
 }
-
+/* Bred skärm: heron dras in och centreras, så att trailern (1920 px) inte förstoras och blir suddig */
+.hero-wrapper,
+.hero-carousel {
+  max-width: 1600px;
+  margin-inline: auto;
+}
 /* ---------- Herobild (P28) ---------- */
 .hero-slide {
   position: relative;

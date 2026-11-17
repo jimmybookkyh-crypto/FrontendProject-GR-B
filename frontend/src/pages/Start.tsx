@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import Biodukbg from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -14,6 +13,7 @@ import FilterButtons from "../components/FilterButtons";
 import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import HeroSection from "../components/HeroSection";
 import type { Showing } from "../interface/types";
+import BgImage from "../components/BgImgBd";
 
 /* #319: TILLFÄLLIG typ tills interface/types.ts är klar.
    Fälten heter som i backend (backend/interface/types.ts).
@@ -58,7 +58,7 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  const { data: movies, loading, error } = useFetch<Movie[]>("/movies/current");
+  const { data: movies, loading, error } = useFetch<Movie[]>("/movies?limit=100");
 
   const {
     data: showings,
@@ -84,10 +84,8 @@ export default function Start() {
 
   return (
     <>
-      <div
-        className="sida-innehall min-vh-100"
-        style={{ backgroundImage: `url(${Biodukbg})` }}
-      >
+      <BgImage>
+        <div>
         <HeroSection />
         <Container className="filter-sektion" ref={filterSectionRef}>
           <DateStrip selectedDate={selectedDate} onSelectDate={selectDate} />
@@ -134,6 +132,7 @@ export default function Start() {
           )}
         </Container>
       </div>
+      </BgImage>
     </>
   );
 }
