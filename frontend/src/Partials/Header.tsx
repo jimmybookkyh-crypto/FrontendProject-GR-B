@@ -17,7 +17,7 @@ export default function Header() {
 
   const { user, loading, logout } = useAuth();
 
-  const setAboutOpen = () =>
+  const hasHover = () =>
     window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
   return (
@@ -106,10 +106,10 @@ export default function Header() {
             className="fv-link fv-dropdown"
             active={pathname.startsWith(paths.about)}
             show={aboutOpen}
-            onMouseEnter={() => setAboutOpen() && setAboutOpen(true)}
-            onMouseLeave={() => setAboutOpen() && setAboutOpen(false)}
+            onMouseEnter={() => hasHover() && setAboutOpen(true)}
+            onMouseLeave={() => hasHover() && setAboutOpen(false)}
             onToggle={(isOpen, meta) => {
-              if (meta.source === "click" && setAboutOpen()) {
+              if (meta.source === "click" && hasHover()) {
                 setAboutOpen(false);
                 navigate(paths.about);
                 return;

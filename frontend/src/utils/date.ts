@@ -24,10 +24,10 @@ function fromDateText(text: string): Date {
   return new Date(year, month - 1, day);
 }
 
-/* Idag + n dagar som text. addDays(0) = idag, addDays(1) = imorgon. */
-export function addDays(n: number): string {
+/* Idag + antal dagar som text. addDays(0) = idag, addDays(1) = imorgon. */
+export function addDays(days: number): string {
   const date = new Date();
-  date.setDate(date.getDate() + n);
+  date.setDate(date.getDate() + days);
   return toDateText(date);
 }
 

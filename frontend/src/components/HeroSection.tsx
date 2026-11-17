@@ -13,7 +13,7 @@ import {
   moviePoster,
   moviePosterUrl,
 } from "../utils/images.ts";
-import { formatPeriod } from "../utils/format.ts";
+import { formatPeriod, formatWeekdayDate } from "../utils/format.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -90,20 +90,8 @@ function getShowingKey(showing: { date: string; time: string }): string {
 
 function getNowKey(): string {
   const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const pad = (value: number) => String(value).padStart(2, "0");
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-const shortDateFormat = new Intl.DateTimeFormat("sv-SE", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
-function formatShortDate(date: string): string {
-  return shortDateFormat
-    .format(new Date(`${date}T00:00:00`))
-    .replace(/\./g, "");
 }
 
 function getMovieMedia(movie: HeroMovie | undefined) {
@@ -164,7 +152,7 @@ function buildEventSlides(
       text: getFirstSentence(movie?.description),
       ...getMovieMedia(movie),
       buttonTo: `${paths.movie(id)}?datum=${nextShowing.date}`,
-      buttonLabel: `Biljetter → ${formatShortDate(nextShowing.date)}`,
+      buttonLabel: `Biljetter → ${formatWeekdayDate(nextShowing.date)}`,
     };
   });
 

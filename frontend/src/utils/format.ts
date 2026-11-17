@@ -103,3 +103,27 @@ export function formatPeriod(
   }
   return `${format(startDate)}–${endText}`;
 }
+
+const weekdayDateFormat = new Intl.DateTimeFormat("sv-SE", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+});
+
+/* "2026-10-24" -> "lör 24 okt" (punkterna tas bort).
+   Obs: skiljer sig från formatShortDate i date.ts för mars, juni och juli
+   ("13 mars" här, "13 mar" där). Används på hero-knappen. */
+export function formatWeekdayDate(date: string): string {
+  return weekdayDateFormat
+    .format(new Date(`${date}T00:00:00`))
+    .replace(/\./g, "");
+}
+
+/* "2026-11-05" -> "5 november 2026" */
+export function formatFullDate(date: string): string {
+  return new Date(date).toLocaleDateString("sv-SE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
