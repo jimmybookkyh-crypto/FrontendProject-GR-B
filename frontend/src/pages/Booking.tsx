@@ -13,7 +13,7 @@ import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
-import { formatDate, formatTime } from "../utils/format";
+import { formatDate, formatPrice, formatTime } from "../utils/format";
 import {
   calculateTotalPrice,
   getMaxAllowedTickets,
@@ -712,7 +712,7 @@ export default function BookingPage() {
 
                 <p className="mb-3">Antal biljetter: {totaltTickets}</p>
                 <hr className="border-secondary" />
-                <h4 className="h5 mb-3">Totalt: {totalPrice} kr</h4>
+                <h4 className="h5 mb-3">Totalt: {formatPrice(totalPrice)}</h4>
 
                 <button
                   type="button"

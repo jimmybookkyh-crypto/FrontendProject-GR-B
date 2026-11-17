@@ -10,6 +10,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
 import { paths, routes } from "../utils/paths.ts";
+import { formatDate, formatPrice, formatTime } from "../utils/format.ts";
 
 type ConfirmationState = {
   bookingNumber: string;
@@ -191,11 +192,11 @@ export default function BookingConfirmation() {
                         </h3>
                         <div className="mb-1">
                           <strong className="text-white">Datum: </strong>{" "}
-                          {booking.date}
+                          {formatDate(booking.date)}
                         </div>
                         <div className="mb-1">
                           <strong className="text-white">Tid: </strong>{" "}
-                          {booking.time}
+                          {formatTime(booking.time)}
                         </div>
                         <div className="mb-1">
                           <strong className="text-white">Salong: </strong>{" "}
@@ -240,7 +241,7 @@ export default function BookingConfirmation() {
                   ))}
                   <hr className="border-secondary" />
                   <h4 className="h5 mb-4">
-                    <strong>Totalpris:</strong> {totalPrice} kr
+                    <strong>Totalpris:</strong> {formatPrice(totalPrice)}
                   </h4>
 
                   {/* Cancellation info: one row for guests and one for members */}
