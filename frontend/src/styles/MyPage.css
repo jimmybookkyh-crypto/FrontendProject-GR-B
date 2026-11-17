@@ -311,16 +311,6 @@
   border-bottom: 1px solid var(--mp-linje);
 }
 
-@media (min-width: 768px) {
-  .mypage-past-row {
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
-  }
-
-  .mypage-badge {
-    justify-self: center;
-  }
-}
-
 .mypage-past-row:last-child {
   border-bottom: 0;
 }
@@ -339,6 +329,16 @@
   border: 1.5px solid var(--mp-text);
   border-radius: 6px;
   font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .mypage-past-row {
+    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
+  }
+
+  .mypage-badge {
+    justify-self: center;
+  }
 }
 
 .mypage-badge-cancelled {
