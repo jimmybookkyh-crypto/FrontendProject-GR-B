@@ -105,7 +105,9 @@ export default function Start() {
           {moviesOnDate && moviesOnDate.length === 0 && (
             <NoShowings
               onShowToday={
-                selectedDate === today ? undefined : () => setSelectedDate(today)
+                selectedDate === today
+                  ? undefined
+                  : () => setSelectedDate(today)
               }
             />
           )}
@@ -126,7 +128,7 @@ export default function Start() {
           {visibleMovies && visibleMovies.length > 0 && (
             <MovieGrid
               movies={visibleMovies}
-              datum={selectedDate}
+              date={selectedDate}
               navigatedFrom="start"
             />
           )}
@@ -141,7 +143,8 @@ function NoShowings({ onShowToday }: { onShowToday?: () => void }) {
     <div className="inga-visningar">
       <h3>Inga visningar detta datum</h3>
       <p>
-        Välj ett annat datum{onShowToday ? ", eller se vad som visas idag" : ""}.
+        Välj ett annat datum{onShowToday ? ", eller se vad som visas idag" : ""}
+        .
       </p>
       {onShowToday && (
         <Button className="filter-knapp" onClick={onShowToday}>

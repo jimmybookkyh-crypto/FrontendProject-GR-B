@@ -181,7 +181,7 @@ export default function BookingConfirmation() {
                         images={booking.images}
                         ageRating={booking.ageRating}
                         showDetails={false}
-                        datum={booking.date}
+                        date={booking.date}
                       />
                     </Col>
                     <Col xs={7} md={8}>
