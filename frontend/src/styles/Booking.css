@@ -30,6 +30,11 @@
   color: var(--fv-offwhite) !important;
 }
 
+.glass-card {
+  margin-left: -2px;
+  margin-right: -2px;
+}
+
 .booking-page .glass-card .card-body {
   background-color: transparent !important;
   color: var(--fv-offwhite) !important;
@@ -87,8 +92,8 @@
 
 .seat {
   flex: 0 0 auto;
-  width: clamp(23px, 6vw, 40px);
-  height: clamp(23px, 6vw, 40px);
+  width: clamp(20px, 5vw, 25px);
+  height: clamp(20px, 5vw, 25px);
   margin: clamp(2px, 0.35vw, 5px);
   padding: 0;
   border: none;
@@ -198,30 +203,12 @@
   appearance: textfield;
 }
 
-.seat {
-  width: clamp(23px, 6vw, 35px);
-  height: clamp(23px, 6vw, 35px);
-  margin: 1.5px;
-  font-size: clamp(9px, 2.4vw, 13px);
+@media (min-width: 320px) {
+  .seat{
+  width: clamp(20px, 6vw, 45px);
+  height: clamp(20px, 6vw, 45px);
+  }
 }
-
-.selected-seats-container {
-  min-height: 110px;
-}
-
-.selected-seats-list {
-  max-height: 70px;
-  overflow-y: auto;
-}
-        
-.glass-card {
-  margin-left: -2px;
-  margin-right: -2px;
-}
-.film-krediter {
-  font-size: 1rem;
-}
-
 
 @media (min-width: 768px){
   .seat {
