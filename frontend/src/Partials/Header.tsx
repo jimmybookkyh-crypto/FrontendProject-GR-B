@@ -96,7 +96,7 @@ export default function Header() {
         ))}
 
       <Navbar.Collapse id="fv-navbar-nav">
-        <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
+        <Nav className={`me-auto fv-nav${aboutOpen ? " om-oss-open" : ""}`}>
           <Nav.Link
             as={NavLink}
             to={paths.start}end
@@ -121,11 +121,11 @@ export default function Header() {
           </Nav.Link>
 
           <NavDropdown
-            title="Om oss"
+            title="About"
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
             active={pathname.startsWith(paths.about)}
-            show={omOssOpen}
+            show={aboutOpen}
             onMouseEnter={() => harHover() && setOmOssOpen(true)}
             onMouseLeave={() => harHover() && setOmOssOpen(false)}
             onToggle={(isOpen, meta) => {
