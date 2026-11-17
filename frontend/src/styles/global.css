@@ -19,7 +19,6 @@
   --fv-panel-bg: #1d1b2e; /* MyPage */
   --fv-kort-bg-ljus: #262438; /* MyPage */
   --fv-fel-rosa: #ff8a9d; /* MyPage (feltext) */
-  --fv-header-gul: #f5b400; /* Header (egen nyans, inte guldgul) */
   --fv-header-bg: #0d0d14; /* Header */
   --fv-header-panel: #222226; /* Header */
   --fv-header-linje: #2c2c3a; /* Header */
@@ -28,7 +27,7 @@
   --fv-dampad-gra: #6c757d; /* PasswordInput (reservfärg på Login/Register) */
 }
 
-  /* Formulär placeholder och länkar,alla formulär */
+  /* ------- Formulär placeholder och länkar,alla formulär -------*/
 .form-control::placeholder {
   color: rgba(245, 247, 250, 0.55);
 }
@@ -41,7 +40,7 @@ form a:focus {
   text-decoration: underline;
 }
 
-/* ------- Fokusmarkering (P14.3) ------- */
+/* ------- Fokusmarkering ------- */
 :focus-visible {
   outline: 3px solid var(--fv-guldgul);
   outline-offset: 2px;
@@ -59,11 +58,62 @@ form a:focus {
   padding-bottom: 2.5rem;
 }
 
-.page-container {
-  width: 100%;
-  max-width: 1600px;
-  margin: 0px auto;
+/* ------- Page View Transitions ------- */
+
+::view-transition-old(root) {
+  animation: fade-out 200ms ease-in both;
 }
 
+::view-transition-new(root) {
+  animation: fade-in 200ms ease-out both;
+}
 
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fv-navbar {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html,
+body,
+#root {
+  background-color: var(--fv-midnatt);
+}
+
+::view-transition {
+  background-color: var(--fv-midnatt);
+}
 

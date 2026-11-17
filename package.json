@@ -12,7 +12,10 @@
     "backend": "npx tsx watch backend/server.ts",
     "frontend": "wait-on tcp:3000 && npm run dev",
     "start": "concurrently \"npm:backend\" \"npm:frontend\"",
-    "scale-images": "node scripts/resize-images.js"
+    "scale-images": "node scripts/resize-images.js",
+    "add-event-periods": "npx tsx backend/scripts/add-event-periods.ts",
+    "add-event-showings": "npx tsx backend/scripts/add-event-showings.ts",
+    "add-screenings": "npx tsx backend/scripts/add-screenings.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

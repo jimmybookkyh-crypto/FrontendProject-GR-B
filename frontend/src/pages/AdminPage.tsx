@@ -9,15 +9,12 @@ import Row from "react-bootstrap/Row";
 import RequireAuth from "../components/RequireAuth.tsx";
 import LoadingSpinner from "../components/LoadingSpinner.tsx";
 import useFetch from "../hooks/useFetch.ts";
+import { adminBookingPath, bookingService } from "../utils/bookingService.ts";
 import {
-  adminBookingPath,
-  bookingService,
-} from "../utils/bookingService.ts";
-import {
-  formatBiljettyper,
-  formatPlatser,
-  formatPris,
-  formatVisning,
+  formatTicketTypes,
+  formatSeats,
+  formatPrice,
+  formatShowing,
 } from "../utils/format.ts";
 import type { AdminBooking } from "../interface/types.ts";
 import "../styles/MyPage.css";
@@ -176,8 +173,8 @@ function AdminBookingCard({
   const poster = moviePoster(booking.images, "80px");
   const isCancelled = booking.status === "cancelled";
   const canCancel = !isCancelled && !booking.hasStarted;
-  const seats = formatPlatser(booking.tickets).join(" · ");
-  const ticketTypes = formatBiljettyper(
+  const seats = formatSeats(booking.tickets).join(" · ");
+  const ticketTypes = formatTicketTypes(
     booking.tickets.map((ticket) => ticket.ticketType),
   );
 
@@ -192,7 +189,9 @@ function AdminBookingCard({
       );
     } catch (error) {
       setCancelError(
-        error instanceof Error ? error.message : "Bokningen kunde inte avbokas.",
+        error instanceof Error
+          ? error.message
+          : "Bokningen kunde inte avbokas.",
       );
     } finally {
       setCancelling(false);
@@ -215,14 +214,14 @@ function AdminBookingCard({
             {booking.movieTitle}
           </h2>
           <p className="mb-1">
-            {formatVisning(booking.date, booking.time)} ·{" "}
+            {formatShowing(booking.date, booking.time)} ·{" "}
             {booking.auditoriumName}
           </p>
           <p className="mb-1">
             {seats} · {ticketTypes}
           </p>
           <p className="mypage-total">
-            Totalt {formatPris(booking.totalPrice)}
+            Totalt {formatPrice(booking.totalPrice)}
           </p>
           <p className="mypage-bookingnr">
             Bokningsnummer: <span>{booking.bookingNumber}</span>
@@ -270,7 +269,7 @@ function AdminBookingCard({
         <Modal.Body>
           <p className="mb-1 fw-bold">{booking.movieTitle}</p>
           <p className="mb-1">
-            {formatVisning(booking.date, booking.time)} ·{" "}
+            {formatShowing(booking.date, booking.time)} ·{" "}
             {booking.auditoriumName}
           </p>
           <p className="mb-3">{seats}</p>

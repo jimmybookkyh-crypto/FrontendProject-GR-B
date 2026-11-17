@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Badge, Form, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router";
-// @ts-ignore Image assets are handled by the bundler; this project lacks image module declarations.
-// @ts-ignore CSS is handled by the bundler; this project lacks CSS module declarations.
 import "../styles/Booking.css";
 import useFetch from "../hooks/useFetch";
+import "../styles/MyPage.css";
 import SeatMap from "../components/SeatMap";
 import MovieCard from "../components/MovieCard";
 import AgeBadge from "../components/AgeBadge";
@@ -12,9 +11,8 @@ import TicketCounter from "../components/TicketCounter";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
+import { formatDate, formatPrice, formatTime } from "../utils/format";
 import {
-  formatDate,
-  formatTime,
   calculateTotalPrice,
   getMaxAllowedTickets,
 } from "../utils/BookingHelpers";
@@ -161,14 +159,14 @@ export default function BookingPage() {
   const [emailFieldError, setEmailFieldError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const totaltTickets = adultTickets + childTickets + seniorTickets;
+  const totalTickets = adultTickets + childTickets + seniorTickets;
 
   useEffect(() => {
     if (
       user &&
       draft?.resumeCheckout &&
       selectedSeats.length > 0 &&
-      totaltTickets === selectedSeats.length &&
+      totalTickets === selectedSeats.length &&
       !showEmailModal
     ) {
       setShowEmailModal(true);
@@ -178,7 +176,7 @@ export default function BookingPage() {
         resumeCheckout: false,
       });
     }
-  }, [user, draft, selectedSeats.length, totaltTickets, showEmailModal]);
+  }, [user, draft, selectedSeats.length, totalTickets, showEmailModal]);
 
   useEffect(() => {
     if (!seatWarning) return;
@@ -221,7 +219,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       currentVal,
     );
     setter(parsed > maxAllowed ? Math.max(0, maxAllowed) : parsed);
@@ -238,7 +236,7 @@ export default function BookingPage() {
     // Använder getMaxAllowedTickets från bookingHelpers
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
-      totaltTickets,
+      totalTickets,
       current,
     );
     setter(Math.min(next, Math.max(0, maxAllowed)));
@@ -347,7 +345,7 @@ export default function BookingPage() {
         body: JSON.stringify(bookingBody),
       });
 
-      const result: { data?: Booking; error?: { message?: string; }; } =
+      const result: { data?: Booking; error?: { message?: string } } =
         await response.json();
 
       if (!response.ok) {
@@ -460,9 +458,7 @@ export default function BookingPage() {
         : null;
 
     return (
-      <div
-        className="booking-page min-vh-100 text-light d-flex align-items-center py-5"
-      >
+      <div className="booking-page min-vh-100 text-light d-flex align-items-center py-5">
         <Container>
           <Row className="justify-content-center">
             <Col xs={12} md={10} lg={8} xl={7}>
@@ -547,10 +543,9 @@ export default function BookingPage() {
 
   return (
     <BgImage>
-      <div
-        className="booking-page min-vh-100 text-light page-container">
+      <div className="booking-page min-vh-100 text-light">
         {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
-        <BackButton className="btn checkout-btn rounded-pill py-2 px-4 fw-bold m-3" />
+        <BackButton />
 
         <h1 className="h4 fw-bold text-center mb-4 heading-gold">
           Boka biljetter
@@ -701,27 +696,30 @@ export default function BookingPage() {
                     )}
                   </div>
 
-                  <p className="mb-3">Antal biljetter: {totaltTickets}</p>
+                  <p className="mb-3">Antal biljetter: {totalTickets}</p>
                   <hr className="border-secondary" />
-                  <h4 className="h5 mb-3">Totalt: {totalPrice} kr</h4>
+                  <h4 className="h5 mb-3">Totalt: {formatPrice(totalPrice)}</h4>
 
                   <button
                     type="button"
-                    className="btn checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
+                    className="checkout-btn rounded-pill py-2 px-4 fw-bold w-100"
                     disabled={
                       selectedSeats.length === 0 ||
-                      totaltTickets !== selectedSeats.length
+                      totalTickets !== selectedSeats.length
                     }
                     onClick={() => setShowEmailModal(true)}
                   >
                     Boka
                   </button>
 
-                  <Modal show={showEmailModal} onHide={handleCloseModal} centered>
+                  <Modal
+                    show={showEmailModal}
+                    onHide={handleCloseModal}
+                    centered
+                    contentClassName="mypage-modal"
+                  >
                     <Modal.Header closeButton>
-                      <Modal.Title className="text-dark">
-                        Bekräfta e-post
-                      </Modal.Title>
+                      <Modal.Title as="h2">Bekräfta e-post</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                       {bookingError && (
@@ -730,7 +728,7 @@ export default function BookingPage() {
                         </div>
                       )}
                       <Form.Group controlId="bookingEmail">
-                        <Form.Label className="text-dark d-flex align-items-center gap-2">
+                        <Form.Label className="d-flex align-items-center gap-2">
                           E-postadress
                           {user && (
                             <span className="badge bg-success">Inloggad</span>
@@ -753,30 +751,30 @@ export default function BookingPage() {
                           {emailFieldError}
                         </Form.Control.Feedback>
                         {user && (
-                          <Form.Text className="text-muted">
+                          <p className="mypage-greeting mt-4">
                             Bokningsbekräftelsen kopplas till ditt konto (
                             {user.email}).
-                          </Form.Text>
+                          </p>
                         )}
                       </Form.Group>
 
                       {!user && (
-                        <Form.Text className="d-block mt-3">
+                        <p className="mypage-greeting mt-4">
                           Har du redan ett konto?{" "}
                           <button
                             type="button"
-                            className="btn btn-link p-0 align-baseline"
+                            className="btn btn-link p-1 fs-5 align-baseline"
                             onClick={handleLoginClick}
                           >
                             Logga in
                           </button>
-                        </Form.Text>
+                        </p>
                       )}
                     </Modal.Body>
                     <Modal.Footer>
                       <button
                         type="button"
-                        className="cta-btn checkout-btn fw-bold py-2 px-4"
+                        className="cta-btn fw-bold py-2 px-4"
                         onClick={handleCheckout}
                         disabled={isSubmitting}
                       >
