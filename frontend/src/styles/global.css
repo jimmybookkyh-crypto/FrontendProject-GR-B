@@ -28,7 +28,7 @@
   --fv-dampad-gra: #6c757d; /* PasswordInput (reservfärg på Login/Register) */
 }
 
-  /* Formulär placeholder och länkar,alla formulär */
+  /* ------- Formulär placeholder och länkar,alla formulär -------*/
 .form-control::placeholder {
   color: rgba(245, 247, 250, 0.55);
 }
@@ -41,7 +41,7 @@ form a:focus {
   text-decoration: underline;
 }
 
-/* ------- Fokusmarkering (P14.3) ------- */
+/* ------- Fokusmarkering ------- */
 :focus-visible {
   outline: 3px solid var(--fv-guldgul);
   outline-offset: 2px;
@@ -57,5 +57,64 @@ form a:focus {
   background-size: cover;
   background-attachment: fixed;
   padding-bottom: 2.5rem;
+}
+
+/* ------- Page View Transitions ------- */
+
+::view-transition-old(root) {
+  animation: fade-out 200ms ease-in both;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 200ms ease-out both;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fv-navbar {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html,
+body,
+#root {
+  background-color: var(--fv-midnatt);
+}
+
+::view-transition {
+  background-color: var(--fv-midnatt);
 }
 
