@@ -58,7 +58,7 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
+const { data: filmer, loading, error } = useFetch<Movie[]>("/movies?limit=100");
 
   const {
     data: visningar,
