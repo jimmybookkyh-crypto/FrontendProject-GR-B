@@ -14,6 +14,7 @@ import ticketsRouter from "./routes/tickets.js";
 import usersRouter from "./routes/users.js";
 import { WebSocketServer, WebSocket } from "ws";
 import { subscriptions } from "./websocket.js";
+import { startScheduler } from "./scheduler.js";
 dotenv.config();
 
 //Fångar ohanterade asynkrona fel
@@ -59,6 +60,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log("server ok");
+  startScheduler();
 });
 
 const wss = new WebSocketServer({
