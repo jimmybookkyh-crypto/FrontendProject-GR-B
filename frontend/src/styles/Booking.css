@@ -130,6 +130,10 @@
   box-shadow: 0 4px 10px rgba(76, 175, 80, 0.6);
 }
 
+.seat-map-container {
+  max-width: 100%;
+}
+
 .selected-seats-list {
   max-height: 180px;
   overflow-y: auto;
@@ -201,10 +205,7 @@
     margin: 1.5px;
     font-size: clamp(9px, 2.4vw, 13px);
   }
-  .seat-map-container {
-    max-width: 100%;
-    overflow-x: auto;
-  }
+
   .selected-seats-container {
     min-height: 110px;
   }
