@@ -1,6 +1,5 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Container, Col, Row, Card, Badge } from "react-bootstrap";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
@@ -15,6 +14,7 @@ import { validDate, langtDatum, plusDagar } from "../utils/date";
 import type { Movie, Showing } from "../interface/types";
 import { useEffect } from "react";
 import { paths, routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 export default function MovieDetails() {
   const navigate = useNavigate();
@@ -62,12 +62,12 @@ export default function MovieDetails() {
   // Alla framtida datum då filmen har visningar
   const allUpcomingShowings = movieShowings
     ? [
-        ...new Set(
-          movieShowings
-            .filter((showing) => showing.date >= today)
-            .map((showing) => showing.date),
-        ),
-      ].sort()
+      ...new Set(
+        movieShowings
+          .filter((showing) => showing.date >= today)
+          .map((showing) => showing.date),
+      ),
+    ].sort()
     : [];
 
   // De sju första datumen visas som knappar
@@ -99,64 +99,61 @@ export default function MovieDetails() {
   ]);
 
   return (
-    <div
-      className="film-sida min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
-      <Container className="pb-5">
-        {loading && <LoadingSpinner text="Hämtar film…" />}
-        {error && <ErrorMessage message={error} />}
+    <BgImage>
+      <div
+        className="film-sida"
+      >
+        <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
+        <Container className="pb-5">
+          {loading && <LoadingSpinner text="Hämtar film…" />}
+          {error && <ErrorMessage message={error} />}
 
-        {movie && (
-          <div className="film-stack d-flex flex-column gap-3">
-            {/* Laddning av filmens visningar */}
-            {showingsLoading && <LoadingSpinner text="Hämtar visningar…" />}
+          {movie && (
+            <div className="film-stack d-flex flex-column gap-3">
+              {/* Laddning av filmens visningar */}
+              {showingsLoading && <LoadingSpinner text="Hämtar visningar…" />}
 
-            {/* Fel vid hämtning av visningar */}
-            {showingsError && <ErrorMessage message={showingsError} />}
+              {/* Fel vid hämtning av visningar */}
+              {showingsError && <ErrorMessage message={showingsError} />}
 
-            {/* Filmen saknar kommande visningar */}
-            {!showingsLoading &&
-              !showingsError &&
-              movieShowings &&
-              firstSevenShowings.length === 0 && (
-                <p className="text-center text-white">
-                  Filmen har inga kommande visningar just nu.
-                </p>
-              )}
+              {/* Filmen saknar kommande visningar */}
+              {!showingsLoading &&
+                !showingsError &&
+                movieShowings &&
+                firstSevenShowings.length === 0 && (
+                  <p className="text-center text-white">
+                    Filmen har inga kommande visningar just nu.
+                  </p>
+                )}
 
-            {/* Visa datumremsa och visningstider när visningarna har hämtats */}
-            {!showingsLoading &&
-              !showingsError &&
-              firstSevenShowings.length > 0 && (
-                <>
-                  <Datumremsa
-                    valtDatum={firstAvailableShowing}
-                    dateList={firstSevenShowings}
-                    onByt={changeDate}
-                  />
+              {/* Visa datumremsa och visningstider när visningarna har hämtats */}
+              {!showingsLoading &&
+                !showingsError &&
+                firstSevenShowings.length > 0 && (
+                  <>
+                    <Datumremsa
+                      valtDatum={firstAvailableShowing}
+                      dateList={firstSevenShowings}
+                      onByt={changeDate}
+                    />
 
-                  <ShowingsBox
-                    movieId={movie.movieId}
-                    date={firstAvailableShowing}
-                  />
-                </>
-              )}
+                    <ShowingsBox
+                      movieId={movie.movieId}
+                      date={firstAvailableShowing}
+                    />
+                  </>
+                )}
 
-            <Trailer
-              youtubeId={movie.youtubetrailers?.[0]}
-              title={movie.title}
-            />
-            <MovieInfo movie={movie} />
-          </div>
-        )}
-      </Container>
-    </div>
+              <Trailer
+                youtubeId={movie.youtubetrailers?.[0]}
+                title={movie.title}
+              />
+              <MovieInfo movie={movie} />
+            </div>
+          )}
+        </Container>
+      </div>
+    </BgImage>
   );
 }
 
@@ -166,7 +163,7 @@ function formatLength(totalMinutes: number): string {
   return hours > 0 ? `${hours} tim ${minutes} min` : `${minutes} min`;
 }
 
-function MovieInfo({ movie }: { movie: Movie }) {
+function MovieInfo({ movie }: { movie: Movie; }) {
   return (
     <Card className="glass-card film-info">
       <Card.Body className="px-3 px-md-4 py-3">

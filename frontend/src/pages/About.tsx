@@ -4,10 +4,10 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import entre from "../assets/filmvisarna-entre.webp";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import "../styles/buttons.css";
 import "../styles/About.css";
 import { routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
   
 
 
@@ -212,7 +212,7 @@ function Huvudkort() {
           ))}
         </Row>
       </section>
-    </div>
+      </div>
   );
 }
 
@@ -322,13 +322,9 @@ export default function About() {
   }, [hash, key]);
 
   return (
+    <BgImage>
     <div
-      className="om-sida min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      className="om-sida"
     >
       <Hero />
       <Container className="om-innehall">
@@ -345,7 +341,8 @@ export default function About() {
         </Row>
         <SnacksMeny />
       </Container>
-    </div>
+      </div>
+      </BgImage>
   );
 }
 
