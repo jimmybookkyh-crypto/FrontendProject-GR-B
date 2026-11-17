@@ -257,6 +257,12 @@
   word-break: break-all;
 }
 
+@media (min-width: 768px) {
+  .mypage-bookingnr span {
+    font-size: 1.3rem;
+  }
+}
+
 .mypage-booking-actions {
   grid-column: 1 / -1;
   display: grid;
@@ -286,18 +292,6 @@
     grid-column: auto;
     grid-template-columns: 1fr;
   }
-
-    .mypage-past-row {
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
-  }
-
-  .mypage-badge {
-    justify-self: center;
-  }
-
-  .mypage-bookingnr span {
-    font-size: 1.3rem;
-  }
 }
 
 /* ---------- Tidigare bokningar ---------- */
@@ -315,6 +309,16 @@
   align-items: center;
   padding: 0.7rem 1rem;
   border-bottom: 1px solid var(--mp-linje);
+}
+
+@media (min-width: 768px) {
+  .mypage-past-row {
+    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
+  }
+
+  .mypage-badge {
+    justify-self: center;
+  }
 }
 
 .mypage-past-row:last-child {
