@@ -17,7 +17,6 @@ import { subscriptions } from "./websocket.js";
 import { startScheduler } from "./scheduler.js";
 dotenv.config();
 
-//Fångar ohanterade asynkrona fel
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled error:", err);
 });
