@@ -28,15 +28,15 @@ type Movie = {
 type StartShowing = Pick<Showing, "movieId" | "hasStarted">;
 
 export default function Start() {
-  const idag = addDays(0);
+  const today = addDays(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const valtDatum = validDate(searchParams.get("datum"));
+  const selectedDate = validDate(searchParams.get("datum"));
 
-  const setValtDatum = (date: string) => {
+  const setSelectedDate = (date: string) => {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        if (date === idag) {
+        if (date === today) {
           next.delete("datum");
         } else {
           next.set("datum", date);
@@ -50,7 +50,7 @@ export default function Start() {
   const filterSectionRef = useRef<HTMLDivElement>(null);
 
   const selectDate = (date: string) => {
-    setValtDatum(date);
+    setSelectedDate(date);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
       .matches
       ? "auto"
@@ -58,29 +58,29 @@ export default function Start() {
     filterSectionRef.current?.scrollIntoView({ behavior, block: "start" });
   };
 
-  const { data: filmer, loading, error } = useFetch<Movie[]>("/movies/current");
+  const { data: movies, loading, error } = useFetch<Movie[]>("/movies/current");
 
   const {
-    data: visningar,
-    loading: laddarVisningar,
-    error: visningsFel,
-  } = useFetch<StartShowing[]>(`/showings?date=${valtDatum}&limit=100`);
+    data: showings,
+    loading: loadingShowings,
+    error: showingsError,
+  } = useFetch<StartShowing[]>(`/showings?date=${selectedDate}&limit=100`);
 
-  const filmerDenDagen =
-    filmer && visningar
-      ? filmer.filter((film) =>
-          visningar.some(
+  const moviesOnDate =
+    movies && showings
+      ? movies.filter((movie) =>
+          showings.some(
             (showing) =>
               !showing.hasStarted &&
-              String(showing.movieId) === String(film.movieId),
+              String(showing.movieId) === String(movie.movieId),
           ),
         )
       : null;
-  const visibleMovies = filmerDenDagen
-    ? filterByAgeLimit(filmerDenDagen, ageLimit)
+  const visibleMovies = moviesOnDate
+    ? filterByAgeLimit(moviesOnDate, ageLimit)
     : null;
-  const laddar = loading || laddarVisningar;
-  const fel = error ?? visningsFel;
+  const isLoading = loading || loadingShowings;
+  const fetchError = error ?? showingsError;
 
   return (
     <>
@@ -90,27 +90,27 @@ export default function Start() {
       >
         <HeroSection />
         <Container className="filter-sektion" ref={filterSectionRef}>
-          <DateStrip selectedDate={valtDatum} onSelectDate={selectDate} />
+          <DateStrip selectedDate={selectedDate} onSelectDate={selectDate} />
         </Container>
         <FilterButtons ageLimit={ageLimit} onSelectAgeLimit={setAgeLimit} />
         <Container className="filmkatalog">
           <h2 className="datum-rubrik">
-            {valtDatum === idag ? "Idag · " : ""}
-            {formatLongDate(valtDatum)}
+            {selectedDate === today ? "Idag · " : ""}
+            {formatLongDate(selectedDate)}
           </h2>
 
-          {laddar && <LoadingSpinner text="Hämtar filmer…" />}
-          {fel && <ErrorMessage message={fel} />}
+          {isLoading && <LoadingSpinner text="Hämtar filmer…" />}
+          {fetchError && <ErrorMessage message={fetchError} />}
 
-          {filmerDenDagen && filmerDenDagen.length === 0 && (
-            <IngaVisningar
-              onVisaIdag={
-                valtDatum === idag ? undefined : () => setValtDatum(idag)
+          {moviesOnDate && moviesOnDate.length === 0 && (
+            <NoShowings
+              onShowToday={
+                selectedDate === today ? undefined : () => setSelectedDate(today)
               }
             />
           )}
-          {filmerDenDagen &&
-            filmerDenDagen.length > 0 &&
+          {moviesOnDate &&
+            moviesOnDate.length > 0 &&
             visibleMovies?.length === 0 && (
               <div className="inga-visningar">
                 <h3>Inga filmer för vald åldersgräns</h3>
@@ -126,7 +126,7 @@ export default function Start() {
           {visibleMovies && visibleMovies.length > 0 && (
             <MovieGrid
               movies={visibleMovies}
-              datum={valtDatum}
+              datum={selectedDate}
               navigatedFrom="start"
             />
           )}
@@ -136,15 +136,15 @@ export default function Start() {
   );
 }
 
-function IngaVisningar({ onVisaIdag }: { onVisaIdag?: () => void }) {
+function NoShowings({ onShowToday }: { onShowToday?: () => void }) {
   return (
     <div className="inga-visningar">
       <h3>Inga visningar detta datum</h3>
       <p>
-        Välj ett annat datum{onVisaIdag ? ", eller se vad som visas idag" : ""}.
+        Välj ett annat datum{onShowToday ? ", eller se vad som visas idag" : ""}.
       </p>
-      {onVisaIdag && (
-        <Button className="filter-knapp" onClick={onVisaIdag}>
+      {onShowToday && (
+        <Button className="filter-knapp" onClick={onShowToday}>
           Visa idag
         </Button>
       )}

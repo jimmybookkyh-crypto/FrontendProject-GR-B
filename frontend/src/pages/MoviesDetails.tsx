@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Container, Col, Row, Card, Badge } from "react-bootstrap";
 import backgroundImage from "../assets/img/biodukbg.webp";
-import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
+import "../styles/Start.css"; // stilen för DateStrip (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -130,7 +130,7 @@ export default function MovieDetails() {
                 </p>
               )}
 
-            {/* Visa datumremsa och visningstider när visningarna har hämtats */}
+            {/* Visa DateStrip och visningstider när visningarna har hämtats */}
             {!showingsLoading &&
               !showingsError &&
               firstSevenShowings.length > 0 && (

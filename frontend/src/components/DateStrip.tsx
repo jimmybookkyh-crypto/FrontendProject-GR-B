@@ -6,7 +6,7 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { formatShortDate, addDays } from "../utils/date";
 
-/* Datumremsan: Idag, Imorgon, fem dagar till och en Kalender-knapp.
+/*DateStrip: Idag, Imorgon, fem dagar till och en Kalender-knapp.
    Sidan som använder den äger valt datum (selectedDate) och får veta
    när det ändras via onSelectDate.
    Stilen (.datumremsa, .filter-knapp) ligger i styles/Start.css, som laddas av Start.tsx. */
