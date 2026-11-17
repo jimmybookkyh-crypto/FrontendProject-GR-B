@@ -104,6 +104,18 @@
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
 }
 
+/* Trailer */
+.trailer-container {
+  margin: 0 auto;
+  border: 5px solid #000;
+  border-radius: 4px;
+  background-color: #000;
+}
+
+.trailer-container iframe {
+  border: 0;
+}
+
 @media (min-width: 768px) {
   .film-sida .visningar-datum {
     flex: 0 0 auto;
