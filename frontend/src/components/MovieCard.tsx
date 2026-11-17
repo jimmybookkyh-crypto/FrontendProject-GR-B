@@ -12,7 +12,7 @@ export interface MovieCardProps {
   images: string[] | string;
   ageRating?: number | null;
   showDetails?: boolean;
-  datum?: string;
+  date?: string;
   navigatedFrom?: string;
 }
 
@@ -22,7 +22,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   images,
   ageRating,
   showDetails = true,
-  datum,
+  date,
   navigatedFrom,
 }) => {
   const poster = moviePoster(
@@ -32,9 +32,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
   // Bygg sökvägen, med valt datum och från beskrvining om det finns
   const targetPath = `${paths.movie(movieId)}${
-    datum || navigatedFrom
-      ? `?${datum ? `datum=${datum}` : ""}${
-          datum && navigatedFrom ? "&" : ""
+    date || navigatedFrom
+      ? `?${date ? `datum=${date}` : ""}${
+          date && navigatedFrom ? "&" : ""
         }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
       : ""
   }`;

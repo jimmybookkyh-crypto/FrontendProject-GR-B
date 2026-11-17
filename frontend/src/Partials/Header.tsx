@@ -13,11 +13,11 @@ import { useAuth } from "../utils/authContext.tsx";
 export default function Header() {
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const [omOssOpen, setOmOssOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const { user, loading, logout } = useAuth();
 
-  const harHover = () =>
+  const hasHover = () =>
     window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
   return (
@@ -126,15 +126,15 @@ export default function Header() {
             className="fv-link fv-dropdown"
             active={pathname.startsWith(paths.about)}
             show={aboutOpen}
-            onMouseEnter={() => harHover() && setOmOssOpen(true)}
-            onMouseLeave={() => harHover() && setOmOssOpen(false)}
+            onMouseEnter={() => hasHover() && setAboutOpen(true)}
+            onMouseLeave={() => hasHover() && setAboutOpen(false)}
             onToggle={(isOpen, meta) => {
-              if (meta.source === "click" && harHover()) {
-                setOmOssOpen(false);
-                navigate(paths.about, { viewTransition: true });
+              if (meta.source === "click" && hasHover()) {
+                setAboutOpen(false);
+                navigate(paths.about);
                 return;
               }
-              setOmOssOpen(isOpen);
+              setAboutOpen(isOpen);
             }}
           >
             <NavDropdown.Item

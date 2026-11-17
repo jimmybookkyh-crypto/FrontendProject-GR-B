@@ -122,6 +122,7 @@
 /* ---------- Visningsknappen: salong och tid på en rad ---------- */
 .film-sida .tid-knapp {
   white-space: nowrap;
+  font-size: 1.25rem; /* same size as the old size="lg" */
 }
 
 /* Bara på mobil: lite mindre text så att längre salongsnamn ryms.
