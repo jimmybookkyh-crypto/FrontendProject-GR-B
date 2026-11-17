@@ -49,6 +49,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
     >
       <Link
         to={targetPath}
+        viewTransition
         className="position-relative d-block text-decoration-none"
       >
         <Card.Img
@@ -71,6 +72,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
           <Card.Title className="text-white fw-bold mb-3">{title}</Card.Title>
           <Link
             to={targetPath}
+            viewTransition
             className="cta-btn mt-2 d-flex align-items-center justify-content-center text-center text-decoration-none"
           >
             Biljetter →
