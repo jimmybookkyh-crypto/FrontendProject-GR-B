@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");
 dotenv.config({ path: path.join(root, ".env") });
 
-console.log("host", process.env.POSTGRES_HOST);
 
 //BIGINT (in8)
 // Anger egen parser för PostgreSQL-dataypen BIGINT (in8) som annars returneras som sträng

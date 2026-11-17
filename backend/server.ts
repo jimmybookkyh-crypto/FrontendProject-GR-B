@@ -59,7 +59,6 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
-  console.log("server ok");
   startScheduler();
 });
 
@@ -68,7 +67,6 @@ const wss = new WebSocketServer({
   path: "/ws",
 });
 wss.on("connection", (ws) => {
-  console.log("WebSocket connected");
 
   ws.on("message", (message) => {
     let data: { type?: unknown; showingId?: unknown };
@@ -87,7 +85,6 @@ wss.on("connection", (ws) => {
 
       subscriptions.get(showingId)?.add(ws);
 
-      console.log("Subscribe:", showingId);
     }
   });
   ws.on("close", () => {
@@ -99,6 +96,5 @@ wss.on("connection", (ws) => {
       }
     });
 
-    console.log("WebSocket disconnected");
   });
 });
