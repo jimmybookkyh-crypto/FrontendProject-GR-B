@@ -9,13 +9,6 @@
   --om-dampad: rgba(245, 247, 250, 0.78);
   --om-linje: rgba(245, 247, 250, 0.12);
   color: var(--om-text);
-
-  background-color: var(--fv-midnatt);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100vw auto;
-  background-attachment: fixed;
-  padding-bottom: 2.5rem;
 }
 
 .om-hero {

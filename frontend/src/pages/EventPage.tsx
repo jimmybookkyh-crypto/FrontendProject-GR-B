@@ -13,6 +13,7 @@ import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 import { routes } from "../utils/paths.ts";
 import { eventImage } from "../utils/images.ts";
+import BgImage from "../components/BgImgBd.tsx";
   
 
 
@@ -216,14 +217,8 @@ export default function EventPage() {
     .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
 
   return (
-    <div
-      className="event-page min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <BgImage>
+    <div>
       <Container className="event-page-container">
         <header className="event-header">
           <h1>Kommande event</h1>
@@ -254,7 +249,8 @@ export default function EventPage() {
           </ul>
         )}
       </Container>
-    </div>
+      </div>
+      </BgImage>
   );
 }
 

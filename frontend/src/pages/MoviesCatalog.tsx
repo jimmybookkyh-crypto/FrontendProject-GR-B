@@ -2,14 +2,14 @@ import { useState } from "react";
 import "../styles/Start.css";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import backgroundImage from "../assets/img/biodukbg.webp";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ErrorMessage from "../components/ErrorMessage"; 
+import ErrorMessage from "../components/ErrorMessage";
 import MovieGrid from "../components/MovieGrid";
 import FilterButtons, { type FilterTab } from "../components/FilterButtons";
-import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit"; 
+import { filterByAgeLimit, useAgeLimit } from "../utils/ageLimit";
 import { routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 type Movie = {
   movieId: string;
@@ -43,52 +43,48 @@ export default function MovieCatalog() {
 
   return (
     <>
-      <div
-        className="sida-innehall"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <FilterButtons
-          tabs={FILTER_TABS}
-          activeFilter={activeFilter}
-          onSelectFilter={setActiveFilter}
-          ageLimit={ageLimit}
-          onSelectAgeLimit={setAgeLimit}
-        />
-        <Container className="filmkatalog">
-          {loading && <LoadingSpinner text="Hämtar filmer…" />}
-          {error && <ErrorMessage message={error} />}
+      <BgImage>
+        <div
+        >
+          <FilterButtons
+            tabs={FILTER_TABS}
+            activeFilter={activeFilter}
+            onSelectFilter={setActiveFilter}
+            ageLimit={ageLimit}
+            onSelectAgeLimit={setAgeLimit}
+          />
+          <Container className="filmkatalog">
+            {loading && <LoadingSpinner text="Hämtar filmer…" />}
+            {error && <ErrorMessage message={error} />}
 
-          {filmer && filmer.length === 0 && (
-            <p className="text-center text-light">
-              Inga filmer att visa just nu.
-            </p>
-          )}
+            {filmer && filmer.length === 0 && (
+              <p className="text-center text-light">
+                Inga filmer att visa just nu.
+              </p>
+            )}
 
-          {filmer && filmer.length > 0 && visibleMovies?.length === 0 && (
-            <div className="inga-visningar">
-              <h3>Inga filmer för vald åldersgräns</h3>
-              <Button
-                className="filter-knapp"
-                onClick={() => setAgeLimit(null)}
-              >
-                Visa alla åldrar
-              </Button>
-            </div>
-          )}
+            {filmer && filmer.length > 0 && visibleMovies?.length === 0 && (
+              <div className="inga-visningar">
+                <h3>Inga filmer för vald åldersgräns</h3>
+                <Button
+                  className="filter-knapp"
+                  onClick={() => setAgeLimit(null)}
+                >
+                  Visa alla åldrar
+                </Button>
+              </div>
+            )}
 
-          {visibleMovies && visibleMovies.length > 0 && (
-            <MovieGrid
-              movies={visibleMovies}
-              navigatedFrom="katalog"
-              showDetails={activeFilter !== "kommandeFilmer"}
-            />
-          )}
-        </Container>
-      </div>
+            {visibleMovies && visibleMovies.length > 0 && (
+              <MovieGrid
+                movies={visibleMovies}
+                navigatedFrom="katalog"
+                showDetails={activeFilter !== "kommandeFilmer"}
+              />
+            )}
+          </Container>
+        </div>
+      </BgImage>
     </>
   );
 }
