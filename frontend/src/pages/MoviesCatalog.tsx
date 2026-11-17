@@ -17,73 +17,73 @@ type Movie = {
   ageRating?: number;
 };
 
-type Filter = "allaFilmer" | "kommandeFilmer";
+type Filter = "currentMovies" | "upcomingMovies";
 
 const FILTER_PATH: Record<Filter, string> = {
-  allaFilmer: "/movies/current",
-  kommandeFilmer: "/movies/not-current",
+  currentMovies: "/movies/current",
+  upcomingMovies: "/movies/not-current",
 };
 
 const FILTER_TABS: FilterTab<Filter>[] = [
-  { value: "allaFilmer", label: "Visas nu" },
-  { value: "kommandeFilmer", label: "Kommande filmer" },
+  { value: "currentMovies", label: "Visas nu" },
+  { value: "upcomingMovies", label: "Kommande filmer" },
 ];
 
 export default function MovieCatalog() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("allaFilmer");
+  const [activeFilter, setActiveFilter] = useState<Filter>("currentMovies");
   const [ageLimit, setAgeLimit] = useAgeLimit();
 
   const {
-    data: filmer,
+    data: movies,
     loading,
     error,
   } = useFetch<Movie[]>(FILTER_PATH[activeFilter]);
 
-  const visibleMovies = filmer ? filterByAgeLimit(filmer, ageLimit) : null;
+  const visibleMovies = movies ? filterByAgeLimit(movies, ageLimit) : null;
 
   return (
     <>
       <BgImage>
-        <div
-        >
-          <FilterButtons
-            tabs={FILTER_TABS}
-            activeFilter={activeFilter}
-            onSelectFilter={setActiveFilter}
-            ageLimit={ageLimit}
-            onSelectAgeLimit={setAgeLimit}
-          />
-          <Container className="filmkatalog">
-            {loading && <LoadingSpinner text="Hämtar filmer…" />}
-            {error && <ErrorMessage message={error} />}
+      <div
+      >
+        <FilterButtons
+          tabs={FILTER_TABS}
+          activeFilter={activeFilter}
+          onSelectFilter={setActiveFilter}
+          ageLimit={ageLimit}
+          onSelectAgeLimit={setAgeLimit}
+        />
+        <Container className="filmkatalog">
+          {loading && <LoadingSpinner text="Hämtar filmer…" />}
+          {error && <ErrorMessage message={error} />}
 
-            {filmer && filmer.length === 0 && (
-              <p className="text-center text-light">
-                Inga filmer att visa just nu.
-              </p>
-            )}
+          {movies && movies.length === 0 && (
+            <p className="text-center text-light">
+              Inga filmer att visa just nu.
+            </p>
+          )}
 
-            {filmer && filmer.length > 0 && visibleMovies?.length === 0 && (
-              <div className="inga-visningar">
-                <h3>Inga filmer för vald åldersgräns</h3>
-                <Button
-                  className="filter-knapp"
-                  onClick={() => setAgeLimit(null)}
-                >
-                  Visa alla åldrar
-                </Button>
-              </div>
-            )}
+          {movies && movies.length > 0 && visibleMovies?.length === 0 && (
+            <div className="inga-visningar">
+              <h3>Inga filmer för vald åldersgräns</h3>
+              <Button
+                className="filter-knapp"
+                onClick={() => setAgeLimit(null)}
+              >
+                Visa alla åldrar
+              </Button>
+            </div>
+          )}
 
-            {visibleMovies && visibleMovies.length > 0 && (
-              <MovieGrid
-                movies={visibleMovies}
-                navigatedFrom="katalog"
-                showDetails={activeFilter !== "kommandeFilmer"}
-              />
-            )}
-          </Container>
-        </div>
+          {visibleMovies && visibleMovies.length > 0 && (
+            <MovieGrid
+              movies={visibleMovies}
+              navigatedFrom="katalog"
+              showDetails={activeFilter !== "upcomingMovies"}
+            />
+          )}
+        </Container>
+      </div>
       </BgImage>
     </>
   );

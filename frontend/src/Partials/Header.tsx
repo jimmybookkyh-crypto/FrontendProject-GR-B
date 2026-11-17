@@ -13,11 +13,11 @@ import { useAuth } from "../utils/authContext.tsx";
 export default function Header() {
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const [omOssOpen, setOmOssOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const { user, loading, logout } = useAuth();
 
-  const harHover = () =>
+  const hasHover = () =>
     window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
   return (
@@ -89,7 +89,7 @@ export default function Header() {
         ))}
 
       <Navbar.Collapse id="fv-navbar-nav">
-        <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
+        <Nav className={`me-auto fv-nav${aboutOpen ? " om-oss-open" : ""}`}>
           <Nav.Link as={NavLink} to={paths.start} end className="fv-link">
             Hem
           </Nav.Link>
@@ -105,16 +105,16 @@ export default function Header() {
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
             active={pathname.startsWith(paths.about)}
-            show={omOssOpen}
-            onMouseEnter={() => harHover() && setOmOssOpen(true)}
-            onMouseLeave={() => harHover() && setOmOssOpen(false)}
+            show={aboutOpen}
+            onMouseEnter={() => hasHover() && setAboutOpen(true)}
+            onMouseLeave={() => hasHover() && setAboutOpen(false)}
             onToggle={(isOpen, meta) => {
-              if (meta.source === "click" && harHover()) {
-                setOmOssOpen(false);
+              if (meta.source === "click" && hasHover()) {
+                setAboutOpen(false);
                 navigate(paths.about);
                 return;
               }
-              setOmOssOpen(isOpen);
+              setAboutOpen(isOpen);
             }}
           >
             <NavDropdown.Item as={Link} to={`${paths.about}#hitta-till-oss`}>

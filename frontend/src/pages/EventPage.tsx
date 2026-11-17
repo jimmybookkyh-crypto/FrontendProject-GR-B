@@ -13,25 +13,8 @@ import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
 import { routes } from "../utils/paths.ts";
 import { eventImage } from "../utils/images.ts";
+import { formatPeriod } from "../utils/format.ts";
 import BgImage from "../components/BgImgBd.tsx";
-  
-
-
-const dateMonth = new Intl.DateTimeFormat("sv-SE", {
-  day: "numeric",
-  month: "long",
-});
-
-function formatDatePeriod(start: string, end: string) {
-  const startDate = new Date(`${start}T00:00:00`);
-  const endDate = new Date(`${end}T00:00:00`);
-  if (start === end) return dateMonth.format(startDate);
-  const endText = dateMonth.format(endDate);
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()}–${endText}`;
-  }
-  return `${dateMonth.format(startDate)}–${endText}`;
-}
 
 function groupShowings(showings: EventShowing[]) {
   const processedMovieIds = new Set<string>();
@@ -84,7 +67,7 @@ function EventCard({
   const paragraphs = parseEventInfo(event.info);
   const { movies } = groupShowings(data ?? []);
 
-  const dateRange = formatDatePeriod(period.startDate, period.endDate);
+  const dateRange = formatPeriod(period.startDate, period.endDate);
   const image = eventImage(event.image, "(min-width: 992px) 520px, 100vw");
 
   return (
@@ -250,7 +233,7 @@ export default function EventPage() {
           </ul>
         )}
       </Container>
-      </div>
+    </div>
       </BgImage>
   );
 }

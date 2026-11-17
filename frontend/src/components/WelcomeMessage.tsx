@@ -10,7 +10,7 @@ export default function WelcomeMessage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [visa, setVisa] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const welcome = location.state?.welcome === true;
 
@@ -18,7 +18,7 @@ export default function WelcomeMessage() {
   useEffect(() => {
     if (!welcome) return;
 
-    setVisa(true);
+    setIsVisible(true);
 
     // Tar bort state, annars visas meddelandet igen när sidan laddas om
     navigate(location.pathname + location.search + location.hash, {
@@ -29,13 +29,13 @@ export default function WelcomeMessage() {
 
   // Försvinner av sig självt efter 6 sekunder
   useEffect(() => {
-    if (!visa) return;
+    if (!isVisible) return;
 
-    const timer = setTimeout(() => setVisa(false), 6000);
+    const timer = setTimeout(() => setIsVisible(false), 6000);
     return () => clearTimeout(timer);
-  }, [visa]);
+  }, [isVisible]);
 
-  if (!visa || !user) return null;
+  if (!isVisible || !user) return null;
 
   // Ligger över sidan (fixed) så att innehållet inte hoppar när rutan försvinner
   return (
@@ -46,7 +46,7 @@ export default function WelcomeMessage() {
       <Alert
         variant="success"
         dismissible
-        onClose={() => setVisa(false)}
+        onClose={() => setIsVisible(false)}
         closeLabel="Stäng"
         role="status"
         className="mb-0 shadow"
