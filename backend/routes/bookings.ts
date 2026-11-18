@@ -27,14 +27,10 @@ import { broadcastSeats } from "../websocket.js";
 
 const bookingsRouter = Router();
 
-/* Inloggad användare från token, satt av requireAuth/optionalAuth.
-   Läses alltid härifrån, aldrig från ett id i URL:en eller i body. */
 function currentUser(locals: Record<string, unknown>): AuthUser | undefined {
   return locals.user as AuthUser | undefined;
 }
 
-// GET /bookings
-// ADMIN: se alla bokningar
 bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   const pagination = parsePagination(req.query);
 
@@ -67,8 +63,6 @@ bookingsRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// GET /bookings/number/:bookingNumber  (bokningen + dess biljetter)
-// ADMIN: personalen slår upp en bokning via bokningsnumret, t.ex. /bookings/number/3F9A0C1B
 bookingsRouter.get(
   "/number/:bookingNumber",
   requireAuth,
@@ -108,7 +102,7 @@ bookingsRouter.get(
   },
 );
 
-//----------------------------------------------------
+
 bookingsRouter.get("/me", requireAuth, async (req, res) => {
   const user = currentUser(res.locals)!;
   const userId = parseId(user.userId);
@@ -132,86 +126,18 @@ bookingsRouter.get("/me", requireAuth, async (req, res) => {
   }
 });
 
-// GET /bookings/confirmation/:bookingNumber  (T077)
-// Bekräftelsesidan: öppen för gäster. Bokningsnumret är slumpat och fungerar som nyckel.
-// Returnerar bokningen med film, visning, salong och biljetter.
-bookingsRouter.get("/confirmation/:bookingNumber", async (req, res) => {
-  const bookingNumber = parseBookingNumber(req.params.bookingNumber);
 
-  if (bookingNumber === null) {
-    return res.status(400).json({
-      error: { message: "Ogiltigt bokningsnummer" },
-    });
-  }
-
-  try {
-    const bookingResult = await pool.query(
-      `select b."bookingId", b."bookingNumber", b.email, b."showingId", b."userId", b.created_at,
-              s.date::text as date,
-              left(s."time"::text, 5) as "time",
-              m."movieId", m.title as "movieTitle", m.images, m."ageRating",
-              a.name as "auditoriumName"
-       from bookings b
-       left join showings s on s."showingId" = b."showingId"
-       left join movies m on m."movieId" = s."movieId"
-       left join auditoriums a on a."auditoriumId" = s."auditoriumId"
-       where b."bookingNumber" = $1`,
-      [bookingNumber],
-    );
-
-    if (bookingResult.rows.length === 0) {
-      return res.status(404).json({
-        error: { message: "Bokningen finns inte" },
-      });
-    }
-
-    const booking = bookingResult.rows[0];
-
-    const ticketsResult = await pool.query(
-      `select tt.name as "ticketType", tt.price::float as price,
-              se."seatsRow", se."seatsNumber"
-       from tickets t
-       join seats se on se."seatId" = t."seatId"
-       join "ticketTypes" tt on tt."ticketTypeId" = t."ticketTypeId"
-       where t."bookingId" = $1
-       order by se."seatsRow", se."seatsNumber"`,
-      [booking.bookingId],
-    );
-
-    return res.status(200).json({
-      data: { ...booking, tickets: ticketsResult.rows },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Okänt fel";
-    console.error("GET /bookings/confirmation/:bookingNumber failed", {
-      bookingNumber,
-      message,
-    });
-
-    return res.status(500).json({
-      error: { message: "Fel vid hämtning av bokning" },
-    });
-  }
-});
-
-// Cancel tokens are created in createBooking.ts: 64 characters, 0-9 and a-f
 const CANCEL_TOKEN_PATTERN = /^[0-9a-f]{64}$/;
 
-// Returns the token if it has the right format, otherwise null
 function parseCancelToken(value: unknown): string | null {
   return typeof value === "string" && CANCEL_TOKEN_PATTERN.test(value)
     ? value
     : null;
 }
 
-// GET /bookings/token/:token  (P17.2)
-// Open route, no login: the token from the confirmation email proves that the visitor has the email.
-// Returns the booking with movie, showing, auditorium and tickets, so the page can show what is cancelled.
-// The token itself and the email address are never part of the response.
 bookingsRouter.get("/token/:token", async (req, res) => {
   const cancelToken = parseCancelToken(req.params.token);
 
-  // A wrong or made-up token gives the same answer as an unknown one
   if (cancelToken === null) {
     return res.status(404).json({
       error: { message: "Bokningen finns inte" },
@@ -258,7 +184,6 @@ bookingsRouter.get("/token/:token", async (req, res) => {
       data: { ...booking, tickets: ticketsResult.rows },
     });
   } catch (error) {
-    // The token is a secret, so it is not logged
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("GET /bookings/token/:token failed", { message });
 
@@ -268,9 +193,6 @@ bookingsRouter.get("/token/:token", async (req, res) => {
   }
 });
 
-// PATCH /bookings/token/:token/cancel  (P17.2)
-// Open route, no login: cancels a guest booking with the token from the confirmation email.
-// Same rules as on My pages: until 2 hours before the showing, and an already cancelled booking gives 409.
 bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
   const cancelToken = parseCancelToken(req.params.token);
 
@@ -285,7 +207,6 @@ bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    // Locks the booking and checks its status and whether it is too late to cancel
     const found = await client.query<{
       bookingId: number;
       showingId: number;
@@ -334,8 +255,6 @@ bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
 
     await client.query("COMMIT");
 
-    // Tells open seat maps that the seats are free again.
-    // The booking is already cancelled, so a failure here must not turn the answer into an error.
     try {
       const showingId = Number(found.rows[0].showingId);
       const bookedSeats = await pool.query(
@@ -368,8 +287,7 @@ bookingsRouter.patch("/token/:token/cancel", async (req, res) => {
   }
 });
 
-// GET /bookings/:id  (bokningen + dess biljetter)
-// Ägaren eller admin (T126d)
+
 bookingsRouter.get("/:id", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -379,8 +297,7 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
     });
   }
 
-  // Ägarkontroll: admin ser alla, övriga bara sina egna.
-  // Någon annans bokning ger 404 (inte 403), så att man inte kan lista ut vilka som finns.
+
   const user = currentUser(res.locals)!;
   const isAdmin = user.role === "admin";
 
@@ -415,16 +332,13 @@ bookingsRouter.get("/:id", requireAuth, async (req, res) => {
 });
 
 
-// POST /bookings
-// Gäst eller inloggad (T126b). userId i body ignoreras, det läses från token.
+
 bookingsRouter.post("/", optionalAuth, async (req, res) => {
   const body = (req.body ?? {}) as Partial<CreateBookingInput>;
   const { showingId, tickets } = body;
   const email = normalizeEmail(body.email);
 
-  //Varför parseId(user.userId)? I token är id:t text ("3"),
-  // men kolumnen userId i databasen är ett heltal. parseId gör om det
-  // och kontrollerar samtidigt att det är ett giltigt id.
+
   const user = currentUser(res.locals);
   const userId = user ? parseId(user.userId) : null;
 
@@ -440,7 +354,7 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  // showingId kan komma som tal eller siffertext ("36"), precis som seatId nedan
+
   const cleanShowingId = toPositiveInt(showingId);
 
   if (cleanShowingId === null) {
@@ -455,8 +369,7 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
     });
   }
 
-  // Kollar varje biljett och gör om seatId och ticketTypeId till tal ("12" blir 12).
-  // Felmeddelandet säger vilken biljett (1, 2, 3 ...) och vilket fält som är fel.
+
   const cleanTickets: TicketInput[] = [];
 
   for (let i = 0; i < tickets.length; i++) {
@@ -509,7 +422,6 @@ bookingsRouter.post("/", optionalAuth, async (req, res) => {
   }
 });
 
-// ADMIN: PATCH /bookings/:id   body: { "email": "ny@adress.se" }
 bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -553,8 +465,7 @@ bookingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// PATCH /bookings/:id/cancel (avboka: sätter status = "cancelled" bokningen och biljetterna sparas)
-// Ägaren fram till 2 timmar före visningen, admin när som helst
+
 bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -564,7 +475,7 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
     });
   }
 
-  // Ägarkontroll: admin får avboka alla, övriga bara sina egna.
+
   const user = currentUser(res.locals)!;
   const isAdmin = user.role === "admin";
 
@@ -573,7 +484,7 @@ bookingsRouter.patch("/:id/cancel", requireAuth, async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    // Låser bokningen och kollar ägare och om visningen redan har börjat
+
     const found = await client.query<{ status: string; tooLate: boolean }>(
       `select b.status, ((sh.date + sh."time") - interval '2 hours' <= now()) as "tooLate"
         from bookings b

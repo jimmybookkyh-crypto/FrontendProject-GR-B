@@ -194,7 +194,7 @@ Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 =
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/movies`     | `GET /`, `GET /current`, `GET /not-current`, `GET /age-rating/:ageRating`, `GET /age-rating/:ageRating/current`, `GET /:id`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`       |
 | `/showings`   | `GET /`, `GET /:id`, `GET /:id/seats`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`                                                                                             |
-| `/bookings`   | `POST /`, 🔒 `GET /me`, `GET /confirmation/:bookingNumber`, `GET /token/:token`, `PATCH /token/:token/cancel`, 🔒 `GET /:id`, 🔒 `PATCH /:id/cancel`, 👑 `GET /`, 👑 `PATCH /:id` |
+| `/bookings`   | `POST /`, 🔒 `GET /me`, `GET /token/:token`, `PATCH /token/:token/cancel`, 👑 `GET /number/:bookingNumber`, 🔒 `GET /:id`, 🔒 `PATCH /:id/cancel`, 👑 `GET /`, 👑 `PATCH /:id` |
 | `/users`      | `POST /auth/register`, `POST /auth/login`, 🔒 `GET /:id`, 🔒 `PATCH /:id`, 🔒 `DELETE /:id`, 👑 `GET /`                                                                           |
 | `/events`     | `GET /`, `GET /:id`, `GET /:id/showings`, 👑 `POST /`, 👑 `PATCH /:id`, 👑 `DELETE /:id`                                                                                          |
 | `/auditorium` | `GET /`, `GET /:id`                                                                                                                                                               |
