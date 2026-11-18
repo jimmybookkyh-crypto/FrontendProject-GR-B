@@ -9,6 +9,7 @@ const OUTPUT_ROOT = path.join(PROJECT_ROOT, "frontend", "public", "images");
 const GROUPS = {
   movies: { widths: [200, 400, 800], aspectRatio: 3 / 2 },
   events: { widths: [600, 1200] },
+  about: { widths: [640, 1280] },
 };
 
 const IMAGE_EXTENSIONS = [".webp", ".jpg", ".jpeg", ".png"];
