@@ -1,5 +1,3 @@
-/* Gemensam formatering med svenska inställningar.
-   Använd samma funktioner på Mina sidor och bekräftelsesidan, så ser det likadant ut. */
 import { formatShortDate } from "./date.ts";
 
 const priceFormat = new Intl.NumberFormat("sv-SE", {
@@ -8,17 +6,14 @@ const priceFormat = new Intl.NumberFormat("sv-SE", {
   maximumFractionDigits: 0,
 });
 
-/* 360 -> "360 kr", 1240 -> "1 240 kr" */
 export function formatPrice(amount: number): string {
   return priceFormat.format(amount);
 }
 
-/* "2026-10-26" + "18:30" -> "mån 26 okt kl. 18:30" */
 export function formatShowing(date: string, time: string): string {
-  return `${formatShortDate(date)} kl. ${time.slice(0, 5)}`;
+  return `${formatShortDate(date)}, kl. ${time.slice(0, 5)}`;
 }
 
-/* Grupperar stolar per rad: [{rad 5, stol 7}, {rad 5, stol 8}] -> "Rad 5: stol 7, 8" */
 export function formatSeats(
   seats: { seatsRow: number; seatsNumber: number }[],
 ): string[] {
@@ -38,7 +33,6 @@ export function formatSeats(
     );
 }
 
-/* Antal biljetter per typ: ["Vuxen", "Vuxen", "Barn"] -> "2 vuxen, 1 barn" */
 export function formatTicketTypes(types: string[]): string {
   const counts = new Map<string, number>();
   for (const ticketType of types)
@@ -49,9 +43,6 @@ export function formatTicketTypes(types: string[]): string {
     .join(", ");
 }
 
-// Omvandlar "2026-10-23T22:00:00.000Z" eller "2026-10-24" till "2026-10-24".
-// Ett datum med tid (ISO) räknas om till svensk tid. Backend skickar midnatt
-// svensk tid som 22:00 dagen innan i UTC, så att bara klippa vid "T" ger en dag fel.
 export const formatDate = (dateString?: string): string => {
   if (!dateString) return "";
 
@@ -65,7 +56,6 @@ export const formatDate = (dateString?: string): string => {
   return dateString;
 };
 
-// Omvandlar "15:00:00+01" eller "15:00:00" till "15:00"
 export const formatTime = (timeString?: string): string => {
   if (!timeString) return "";
 
@@ -79,7 +69,6 @@ export const formatTime = (timeString?: string): string => {
   return timeString;
 };
 
-// Datumintervall med långt eller kort månadsnamn
 const periodFormats = {
   long: new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "long" }),
   short: new Intl.DateTimeFormat("sv-SE", { day: "numeric", month: "short" }),
@@ -92,7 +81,7 @@ export function formatPeriod(
 ): string {
   const startDate = new Date(`${start}T00:00:00`);
   const endDate = new Date(`${end}T00:00:00`);
-  // Kort format ger "okt." - ta bort punkten
+
   const format = (date: Date) =>
     periodFormats[month].format(date).replace(/\./g, "");
   const endText = format(endDate);
@@ -110,16 +99,12 @@ const weekdayDateFormat = new Intl.DateTimeFormat("sv-SE", {
   month: "short",
 });
 
-/* "2026-10-24" -> "lör 24 okt" (punkterna tas bort).
-   Obs: skiljer sig från formatShortDate i date.ts för mars, juni och juli
-   ("13 mars" här, "13 mar" där). Används på hero-knappen. */
 export function formatWeekdayDate(date: string): string {
   return weekdayDateFormat
     .format(new Date(`${date}T00:00:00`))
     .replace(/\./g, "");
 }
 
-/* "2026-11-05" -> "5 november 2026" */
 export function formatFullDate(date: string): string {
   return new Date(date).toLocaleDateString("sv-SE", {
     day: "numeric",
