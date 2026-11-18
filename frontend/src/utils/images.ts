@@ -9,6 +9,7 @@ export type ResponsiveImage = {
 const IMAGE_WIDTHS = {
   movies: [200, 400, 800],
   events: [600, 1200],
+  about: [640, 1280],
 } as const;
 
 type ImageGroup = keyof typeof IMAGE_WIDTHS;
@@ -56,6 +57,10 @@ export function moviePoster(value: ImageValue, sizes: string): ResponsiveImage {
 
 export function eventImage(value: ImageValue, sizes: string): ResponsiveImage {
   return responsiveImage("events", value, sizes);
+}
+
+export function aboutImage(value: ImageValue, sizes: string): ResponsiveImage {
+  return responsiveImage("about", value, sizes);
 }
 
 export function moviePosterUrl(
