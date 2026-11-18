@@ -18,18 +18,20 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
         <Card.Title as="h3" className="mb-3 fs-4 d-flex justify-content-center">
           Trailer
         </Card.Title>
-        <Ratio aspectRatio="16x9">
-          <iframe
-            // youtube-nocookie.com sätter inga spårningscookies förrän man trycker play
-            src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-            title={`Trailer: ${title}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-            loading="lazy"
-            className="rounded"
-          />
-        </Ratio>
+        <div className="trailer-container rounded">
+          <Ratio aspectRatio="16x9">
+            <iframe
+              // youtube-nocookie.com sätter inga spårningscookies förrän man trycker play
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+              title={`Trailer: ${title}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              loading="lazy"
+              className="rounded"
+            />
+          </Ratio>
+        </div>
       </Card.Body>
     </Card>
   );

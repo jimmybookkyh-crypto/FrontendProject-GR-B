@@ -148,9 +148,3 @@
     font-size: 1.5rem;
   }
 }
-
-@media (max-width: 1200px) {
-  .btn.filter-knapp {
-    font-size: 1.2rem;  
-  }
-}

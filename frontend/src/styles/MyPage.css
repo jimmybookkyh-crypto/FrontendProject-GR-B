@@ -331,6 +331,16 @@
   font-size: 0.9rem;
 }
 
+@media (min-width: 768px) {
+  .mypage-past-row {
+    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
+  }
+
+  .mypage-badge {
+    justify-self: center;
+  }
+}
+
 .mypage-badge-cancelled {
   background: var(--mp-vinrod);
   border: 1.5px solid var(--mp-vinrod);
@@ -355,16 +365,6 @@
     grid-column: 2;
     grid-row: 2 / span 2;
     justify-self: end;
-  }
-}
-
-@media (min-width: 768px) {
-  .mypage-past-row {
-    grid-template-columns: 2fr 1.4fr 1.2fr 0.7fr 6rem;
-  }
-
-  .mypage-badge {
-    justify-self: center;
   }
 }
 
