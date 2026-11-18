@@ -283,6 +283,7 @@
 @media(min-width: 1200px) {
   .ticket-info {
     flex-direction: row;
+    gap: 4px;
   }
 }
 

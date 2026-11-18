@@ -3,13 +3,12 @@ import { useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import entranceImage from "../assets/filmvisarna-entre.webp";
 import "../styles/buttons.css";
 import "../styles/About.css";
 import { routes } from "../utils/paths.ts";
 import BgImage from "../components/BgImgBd.tsx";
-  
 
+const ENTRANCE = "/images/about/filmvisarna-entre";
 
 const CONTACT = {
   gata: "Exempelgatan 1",
@@ -127,7 +126,14 @@ function Hero() {
   return (
     <div className="om-hero">
       <div className="om-hero-fond" aria-hidden="true">
-        <img className="om-hero-bild" src={entranceImage} alt="" />
+        <img
+          className="om-hero-bild"
+          src={`${ENTRANCE}/1280.webp`}
+          srcSet={`${ENTRANCE}/640.webp 640w, ${ENTRANCE}/1280.webp 1280w`}
+          sizes="(min-width: 1200px) 65vw, 100vw"
+          alt=""
+          fetchPriority="high"
+        />
       </div>
       <Container className="om-hero-text">
         <h1>Filmvisarna i Småstad</h1>
@@ -245,8 +251,10 @@ function FindUs() {
     >
       <img
         className="om-hitta-bild"
-        src={entranceImage}
+        src={`${ENTRANCE}/640.webp`}
         alt="Biografens entré en vinterkväll, med upplyst FV-skylt"
+        width={640}
+        height={400}
         loading="lazy"
       />
       <div className="om-hitta-info">
