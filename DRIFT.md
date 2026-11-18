@@ -25,7 +25,7 @@ npm install
 
 npm run build
 
-pm2 restart filmvisarna
+pm2 restart backend
 ```
 
 ---
