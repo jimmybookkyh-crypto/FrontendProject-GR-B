@@ -12,6 +12,7 @@
     "backend": "npx tsx watch backend/server.ts",
     "frontend": "wait-on tcp:3000 && npm run dev",
     "start": "concurrently \"npm:backend\" \"npm:frontend\"",
+    "serve": "tsx backend/server.ts",
     "scale-images": "node scripts/resize-images.js",
     "add-event-periods": "npx tsx backend/scripts/add-event-periods.ts",
     "add-event-showings": "npx tsx backend/scripts/add-event-showings.ts",
@@ -32,6 +33,7 @@
     "react-dom": "^19.2.8",
     "react-router": "^8.4.0",
     "sharp": "^0.35.5",
+    "tsx": "^4.23.15",
     "ws": "^8.22.2"
   },
   "devDependencies": {
@@ -46,7 +48,6 @@
     "@vitejs/plugin-react": "^6.1.1",
     "concurrently": "^10.0.6",
     "oxlint": "^1.81.0",
-    "tsx": "^4.23.15",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "wait-on": "^9.5.1"
