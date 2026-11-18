@@ -149,9 +149,9 @@ export default function BookingConfirmation() {
       <BgImage>
         <div className="booking-page min-vh-100 text-light">
           {booking.from === "mypage" && <BackButton to={paths.myPage} />}
-          <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
+          <h2 className="fw-bold text-uppercase text-center p-3 mb-4 heading-gold">
             Bokningsbekräftelse
-          </h1>
+          </h2>
 
           <Container className="pb-5">
             <Row className="justify-content-center mb-4">
