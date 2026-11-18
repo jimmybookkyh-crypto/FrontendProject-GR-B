@@ -20,9 +20,7 @@ const SLIDE_INTERVAL_MS = 7000;
 const HERO_TRAILER_CLIPS: Record<
   number,
   { id?: string; start?: number; end?: number }
-> = {
-  // Exempel: 31: { id: "KLISTRA-IN-ID", start: 30, end: 48 },
-};
+> = {};
 
 const HERO_SKIP_MOVIE_IDS = new Set<string>(["40"]);
 
@@ -111,7 +109,7 @@ function buildEventSlides(
   upcoming: HeroEventShowing[],
   movieById: Map<string, HeroMovie>,
 ): HeroSlideData[] {
-  const periodText = formatPeriod(period.startDate, period.endDate, "short");
+  const periodText = formatPeriod(period.startDate, period.endDate);
   const today = getNowKey().slice(0, 10);
   const hasStarted = period.startDate <= today;
 
