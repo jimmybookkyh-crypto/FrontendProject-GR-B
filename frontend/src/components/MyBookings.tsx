@@ -9,7 +9,6 @@ import {
   formatPrice,
   formatShowing,
 } from "../utils/format.ts";
-import { formatShortDate } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
 import { paths } from "../utils/paths.ts";
 import { moviePoster } from "../utils/images.ts";
@@ -192,9 +191,7 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
             {past.map((booking) => (
               <li key={booking.bookingId} className="mypage-past-row">
                 <span className="mypage-past-title">{booking.movieTitle}</span>
-                <span>
-                  {formatShortDate(booking.date)} · {booking.time}
-                </span>
+                <span>{formatShowing(booking.date, booking.time)}</span>
                 <span>{ticketsText(booking)}</span>
                 <span className="mypage-past-price">
                   {formatPrice(booking.totalPrice)}

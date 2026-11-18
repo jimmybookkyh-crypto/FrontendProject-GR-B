@@ -10,6 +10,7 @@ import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
 import { paths, routes } from "../utils/paths.ts";
 import { formatDate, formatPrice, formatTime } from "../utils/format.ts";
+import { formatLongDate } from "../utils/date.ts";
 import BgImage from "../components/BgImgBd.tsx";
 
 type ConfirmationState = {
@@ -29,7 +30,6 @@ type ConfirmationState = {
   }[];
   from?: "mypage";
 };
-
 
 type TokenBooking = {
   bookingNumber: string;
@@ -176,7 +176,7 @@ export default function BookingConfirmation() {
                           </h3>
                           <div className="mb-1">
                             <strong className="text-white">Datum: </strong>{" "}
-                            {formatDate(booking.date)}
+                            {formatLongDate(formatDate(booking.date))}
                           </div>
                           <div className="mb-1">
                             <strong className="text-white">Tid: </strong>{" "}

@@ -12,6 +12,7 @@ import BackButton from "../components/BackButton";
 import { useAuth } from "../utils/authContext";
 import { emailError } from "../utils/validateUtil.ts";
 import { formatDate, formatPrice, formatTime } from "../utils/format";
+import { formatLongDate } from "../utils/date";
 import {
   calculateTotalPrice,
   getMaxAllowedTickets,
@@ -577,7 +578,7 @@ export default function BookingPage() {
                         <h3 className="h1 fw-bold mb-3">{currentTitle}</h3>
                         <div className="mb-1">
                           <strong className="text-white">Datum: </strong>{" "}
-                          {currentDate}
+                          {currentDate && formatLongDate(currentDate)}
                         </div>
                         <div className="mb-1">
                           <strong className="text-white">Tid: </strong>{" "}
