@@ -21,7 +21,7 @@ const usersRouter = Router();
 
 const DUMMY_HASH = "$2b$13$6Gg4dNtWkIZNQfKVvlFdD.ZkGKUgBSC3GUGcR8T0Brco0vpdhZlBW";
 
-/* GET /users ONLY ADMIN */
+
 usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
   const pagination = parsePagination(req.query);
 
@@ -48,7 +48,7 @@ usersRouter.get("/", requireAuth, requireAdmin, async (req, res) => {
     });
   }
 });
-/* GET /users/:Id  (SELF OR ADMIN) */
+
 usersRouter.get("/:Id", requireAuth, async (req, res) => {
   const userId = parseId(req.params.Id as string);
   if (!userId) {
@@ -89,7 +89,7 @@ usersRouter.get("/:Id", requireAuth, async (req, res) => {
     });
   }
 });
-/* PATCH /users/:Id  (SELF OR ADMIN) */
+
 usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   const userId = parseId(req.params.Id as string);
   if (!userId) {
@@ -110,10 +110,8 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   const { username, role } = req.body;
   const hashedPassword = req.body.passwordHash;
 
-  // Använder normalizeEmail för att säkerställa att email är i korrekt format
   const email = normalizeEmail(req.body.email);
 
-  // Validera endast fält som skickats med
   if (
     (username !== undefined &&
       (typeof username !== "string" || username.trim() === "")) ||
@@ -132,7 +130,6 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
-  // P32: högst 20 tecken
   if (username !== undefined && isUsernameTooLong(username)) {
     return res.status(400).json({
       error: { message: USERNAME_TOO_LONG_MESSAGE },
@@ -145,7 +142,6 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
     });
   }
 
-  // En ogiltig roll skulle låsa kontot (#287), så bara 'user' och 'admin' tillåts
   if (role !== undefined && !isValidRole(role)) {
     return res.status(400).json({
       error: { message: "Ogiltig roll, tillåtna värden är 'user' och 'admin'" },
@@ -153,6 +149,32 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   }
 
   try {
+    if (Number(res.locals.user.userId) === userId) {
+      const { currentPassword } = req.body;
+
+      if (typeof currentPassword !== "string" || currentPassword === "") {
+        return res.status(400).json({
+          error: { message: "Ange ditt nuvarande lösenord" },
+        });
+      }
+
+      const current = await pool.query(
+        'select password from users where "userId" = $1',
+        [userId],
+      );
+
+      const match = await bcrypt.compare(
+        currentPassword,
+        current.rows[0]?.password ?? DUMMY_HASH,
+      );
+
+      if (!match) {
+        return res.status(401).json({
+          error: { message: "Nuvarande lösenord stämmer inte." },
+        });
+      }
+    }
+
     const { rows } = await pool.query(
       `update users
         set username = coalesce($2, username),
@@ -185,14 +207,6 @@ usersRouter.patch("/:Id", requireAuth, hashPassword, async (req, res) => {
   }
 });
 
-/* DELETE /users/:Id  (SELF OR ADMIN)
-   Radera konto (T126 / T156 / #297), allt i en transaktion:
-   1. Kommande bokningar (visningen har inte börjat) avbokas: biljetter och bokning tas bort,
-      så platserna blir lediga för andra.
-   2. Tidigare bokningar anonymiseras: kopplas loss från kontot (userId = NULL)
-      och e-posten ersätts, så att biografens historik finns kvar utan personuppgifter.
-   3. Kontot raderas.
-   Utan steg 1–2 stoppar databasen raderingen (booking_userId_fkey) och svaret blir 500. */
 const ANONYMIZED_EMAIL = "raderad-anvandare@filmvisarna.se";
 
 usersRouter.delete("/:Id", requireAuth, async (req, res) => {
@@ -218,7 +232,6 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    // 1. Avboka kommande bokningar och frigör platserna
     const upcoming = await client.query<{ bookingId: string }>(
       `select b."bookingId"
         from bookings b
@@ -244,16 +257,15 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
       });
     }
 
-   if (upcomingIds.length > 0) {
-     await client.query(
-       `update bookings
+    if (upcomingIds.length > 0) {
+      await client.query(
+        `update bookings
           set status = 'cancelled', "cancelledAt" = now()
           where "bookingId" = any($1::bigint[])`,
-       [upcomingIds],
-     );
-   }
+        [upcomingIds],
+      );
+    }
 
-    // 2. Anonymisera tidigare bokningar
     await client.query(
       `update bookings
         set "userId" = null, email = $2
@@ -261,7 +273,6 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
       [userId, ANONYMIZED_EMAIL],
     );
 
-    // 3. Radera kontot
     const { rows } = await client.query(
       `delete from users
         where "userId" = $1
@@ -279,12 +290,6 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
     await client.query("COMMIT");
 
     return res.status(204).send();
-    
-    /* Gammal return
-     res.status(200).json({
-      data: { ...rows[0], cancelledBookings: upcomingIds.length },
-    });
-    */
   } catch (error) {
     await client.query("ROLLBACK").catch(() => {});
     console.error("DELETE /users/:Id failed", error);
@@ -296,16 +301,14 @@ usersRouter.delete("/:Id", requireAuth, async (req, res) => {
     client.release();
   }
 });
-/* AUTH register*/ /*istället för post*/
+
 usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   const username = req.body.username;
 
-  // Normalisera email
   const email = normalizeEmail(req.body.email);
 
   const hashedPassword = req.body.passwordHash;
 
-  //ser om fälten är strängar
   if (
     typeof username !== "string" ||
     typeof hashedPassword !== "string" ||
@@ -316,7 +319,6 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
     });
   }
 
-  //ser om fälten är tomma eller är bara mellanslag
   if (
     username.trim() === "" ||
     hashedPassword.trim() === "" ||
@@ -327,7 +329,6 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
     });
   }
 
-  // P32: högst 20 tecken
   if (isUsernameTooLong(username)) {
     return res.status(400).json({
       error: { message: USERNAME_TOO_LONG_MESSAGE },
@@ -342,7 +343,6 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   }
 
   try {
-    // kontrollerar email
     const emailCheck = await pool.query(
       'select "userId" from users where email = $1',
       [email],
@@ -354,7 +354,6 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
       });
     }
 
-    // skapa användare
     const { rows } = await pool.query(
       `insert into users (username, password, email, role)
         values ($1, $2, $3, $4)
@@ -377,12 +376,10 @@ usersRouter.post("/auth/register", hashPassword, async (req, res) => {
   }
 });
 
-/* AUTH login */
 usersRouter.post("/auth/login", async (req, res) => {
   const password = req.body.password;
   const username = req.body.username;
 
-  //ser om fälten finns och är strängar
   if (typeof password !== "string" || typeof username !== "string") {
     return res.status(400).json({
       error: {
@@ -391,24 +388,13 @@ usersRouter.post("/auth/login", async (req, res) => {
     });
   }
 
-  //ser om fälten är tomma eller är bara mellanslag
   if (password.trim() === "" || username.trim() === "") {
     return res.status(400).json({
       error: { message: "Alla fält måste fyllas i" },
     });
   }
 
-  /*
-  //validera email
-  if (!validateEmail(email)) {
-    return res.status(400).json({
-      error: { message: "Ogiltig email" },
-    });
-  }
-  */
-
   try {
-    // hämta användare baserat på användarnamn
     const { rows } = await pool.query(
       'select "userId", username, password, email, role from users where username = $1',
       [username],
@@ -416,13 +402,10 @@ usersRouter.post("/auth/login", async (req, res) => {
 
     const user = rows[0];
 
-    //om det inte finns ett lösenord tas DUMMY_HASH istället
     const passwordHash = user?.password ?? DUMMY_HASH;
 
-    // jämför lösenord, även om användare saknas,
-    //  detta gör så att svarstiden inte avslöjar om det finns en användre med det inskrivna användarnamnet
     const match = await bcrypt.compare(password, passwordHash);
-    
+
     if (!user || !match) {
       return res.status(401).json({
         error: { message: "Fel användarnamn eller lösenord" },
