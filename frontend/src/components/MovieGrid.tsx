@@ -1,7 +1,7 @@
-import React from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import MovieCard from './MovieCard';
+import React from "react";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import MovieCard from "./MovieCard";
 
 export interface Movie {
   movieId: number | string;
@@ -13,12 +13,17 @@ export interface Movie {
 
 interface MovieGridProps {
   movies: Movie[];
-  datum?: string;
-  navigatedFrom?: string; 
+  date?: string;
+  navigatedFrom?: string;
   showDetails?: boolean; // <-- Lägg till denna i interface
 }
 
-const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum, navigatedFrom, showDetails = true }) => {
+const MovieGrid: React.FC<MovieGridProps> = ({
+  movies,
+  date,
+  navigatedFrom,
+  showDetails = true,
+}) => {
   return (
     <Row xs={2} md={3} lg={4} className="g-4">
       {movies.map((movie) => (
@@ -26,9 +31,9 @@ const MovieGrid: React.FC<MovieGridProps> = ({ movies, datum, navigatedFrom, sho
           <MovieCard
             movieId={movie.movieId}
             title={movie.title}
-            images={movie.images ?? ''}
+            images={movie.images ?? ""}
             ageRating={movie.ageRating}
-            datum={datum}
+            date={date}
             navigatedFrom={navigatedFrom}
             showDetails={showDetails} // <-- Skicka vidare till MovieCard
           />

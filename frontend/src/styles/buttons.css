@@ -1,4 +1,6 @@
 .cta-btn {
+  /* Same font everywhere, also inside modals that set their own font */
+  font-family: var(--bs-body-font-family);
   background: var(--fv-vinrod);
   color: var(--fv-vit);
   border: none;
@@ -8,13 +10,16 @@
   transition: 0.25s ease;
 }
 
-
-.cta-btn:hover,
-.tid-knapp:hover {
+.cta-btn:not(:disabled):hover {
   color: var(--fv-vit) !important;
   transform: translateY(-5px);
   box-shadow: 0 0 10px rgba(142, 23, 51, 0.6);
   transition: 0.25s ease;
+}
+
+.cta-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .button-cancel {
@@ -34,7 +39,7 @@
   transform: translateY(-2px);
 }
 .dropdown-menu.menu {
-  --fv-yellow: #f5b400;
+  --fv-yellow: var(--fv-guldgul);
   --fv-bg: #0d0d14;
   --fv-panel: #222226;
   --fv-line: #2c2c3a;

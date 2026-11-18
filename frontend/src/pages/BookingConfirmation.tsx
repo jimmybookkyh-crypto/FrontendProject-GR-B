@@ -9,6 +9,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import useFetch from "../hooks/useFetch";
 import { bookingByTokenPath, bookingService } from "../utils/bookingService.ts";
 import { paths, routes } from "../utils/paths.ts";
+import { formatDate, formatPrice, formatTime } from "../utils/format.ts";
 import BgImage from "../components/BgImgBd.tsx";
 
 type ConfirmationState = {
@@ -156,6 +157,7 @@ export default function BookingConfirmation() {
   return (
     <>
       <BgImage>
+<<<<<<< HEAD
         <div
           className="booking-page min-vh-100 text-light page-container"
         >
@@ -163,208 +165,217 @@ export default function BookingConfirmation() {
           <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
             Bokningsbekräftelse
           </h1>
+=======
+      <div
+        className="booking-page min-vh-100 text-light"
+      >
+        {booking.from === "mypage" && <BackButton to={paths.myPage} />}
+        <h1 className="h4 fw-bold text-center p-3 mb-4 heading-gold">
+          Bokningsbekräftelse
+        </h1>
+>>>>>>> 99a16c0d8b4f6af1598a750949de3cbfff756a08
 
-          <Container className="pb-5">
-            <Row className="justify-content-center mb-4">
-              <Col xs={12} lg={8} xl={7}>
-                <Card className="glass-card">
-                  <Card.Body className="p-3 p-md-4">
-                    <Row className="align-items-center g-3 g-md-4">
-                      <Col xs={5} md={4} className="text-center">
-                        <MovieCard
-                          movieId={booking.movieId}
-                          title={booking.movieTitle}
-                          images={booking.images}
-                          ageRating={booking.ageRating}
-                          showDetails={false}
-                          datum={booking.date}
-                        />
-                      </Col>
-                      <Col xs={7} md={8}>
-                        <div className="film-krediter mt-1">
-                          <h3 className="h1 fw-bold mb-3">
-                            {booking.movieTitle}
-                          </h3>
-                          <div className="mb-1">
-                            <strong className="text-white">Datum: </strong>{" "}
-                            {booking.date}
-                          </div>
-                          <div className="mb-1">
-                            <strong className="text-white">Tid: </strong>{" "}
-                            {booking.time}
-                          </div>
-                          <div className="mb-1">
-                            <strong className="text-white">Salong: </strong>{" "}
-                            {booking.auditoriumName}
-                          </div>
+        <Container className="pb-5">
+          <Row className="justify-content-center mb-4">
+            <Col xs={12} lg={8} xl={7}>
+              <Card className="glass-card">
+                <Card.Body className="p-3 p-md-4">
+                  <Row className="align-items-center g-3 g-md-4">
+                    <Col xs={5} md={4} className="text-center">
+                      <MovieCard
+                        movieId={booking.movieId}
+                        title={booking.movieTitle}
+                        images={booking.images}
+                        ageRating={booking.ageRating}
+                        showDetails={false}
+                        date={booking.date}
+                      />
+                    </Col>
+                    <Col xs={7} md={8}>
+                      <div className="film-krediter mt-1">
+                        <h3 className="h1 fw-bold mb-3">
+                          {booking.movieTitle}
+                        </h3>
+                        <div className="mb-1">
+                          <strong className="text-white">Datum: </strong>{" "}
+                          {formatDate(booking.date)}
                         </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Tid: </strong>{" "}
+                          {formatTime(booking.time)}
+                        </div>
+                        <div className="mb-1">
+                          <strong className="text-white">Salong: </strong>{" "}
+                          {booking.auditoriumName}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row className="justify-content-center">
+            <Col xs={12} lg={8} xl={7}>
+              <Card className="glass-card">
+                <Card.Body className="p-3 p-md-4">
+                  <h3 className="h4 fw-bold heading-gold mb-2 text-center">
+                    Bokningsnummer: {booking.bookingNumber}
+                  </h3>
+                  <p className="mb-4 text-center">
+                    <em>
+                      Ange ditt bokningsnummer i kassan vid betalning av dina
+                      biobiljetter.
+                    </em>
+                  </p>
+                  <div className="mb-3">
+                    <p className="mb-1 fw-bold">
+                      Platser ({booking.tickets.length}):
+                    </p>
+                    <ul className="list-unstyled small mb-0">
+                      {booking.tickets.map((t) => (
+                        <li key={`${t.seatsRow}-${t.seatsNumber}`}>
+                          Rad {t.seatsRow}, stol {t.seatsNumber}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  {Object.entries(countByType).map(([name, count]) => (
+                    <p key={name} className="mb-2">
+                      <strong>{name}:</strong> {count} st
+                    </p>
+                  ))}
+                  <hr className="border-secondary" />
+                  <h4 className="h5 mb-4">
+                    <strong>Totalpris:</strong> {formatPrice(totalPrice)}
+                  </h4>
+
+                  {/* Cancellation info: one row for guests and one for members */}
+                  <div
+                    className="bg-white bg-opacity-10 border-start border-3 rounded p-3"
+                    style={{ borderColor: "var(--fv-guldgul)" }}
+                  >
+                    <h4 className="h6 heading-gold text-uppercase fw-bold mb-1">
+                      Avbokning
+                    </h4>
+                    <p className="mb-3">
+                      Du kan avboka fram till 2 timmar före visningen.
+                    </p>
+                    <Row className="g-2">
+                      <Col xs={4} sm={3} className="heading-gold">
+                        Utan konto
+                      </Col>
+                      <Col xs={8} sm={9} className="fw-normal">
+                        Klicka på länken ”Avboka din bokning” i ditt
+                        bekräftelsemejl.
+                      </Col>
+                      <Col xs={4} sm={3} className="heading-gold">
+                        Med konto
+                      </Col>
+                      <Col xs={8} sm={9} className="fw-normal">
+                        Avboka under Mina sidor.
                       </Col>
                     </Row>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-            <Row className="justify-content-center">
-              <Col xs={12} lg={8} xl={7}>
-                <Card className="glass-card">
-                  <Card.Body className="p-3 p-md-4">
-                    <h3 className="h4 fw-bold heading-gold mb-2 text-center">
-                      Bokningsnummer: {booking.bookingNumber}
-                    </h3>
-                    <p className="mb-4 text-center">
+                  </div>
+                  {!token && (
+                    <p className="fw-normal opacity-75 mt-3 mb-4">
                       <em>
-                        Ange ditt bokningsnummer i kassan vid betalning av dina
-                        biobiljetter.
+                        Bekräftelsen har skickats till din e-post. Hittar du den
+                        inte? Titta i skräpposten.
                       </em>
                     </p>
-                    <div className="mb-3">
-                      <p className="mb-1 fw-bold">
-                        Platser ({booking.tickets.length}):
-                      </p>
-                      <ul className="list-unstyled small mb-0">
-                        {booking.tickets.map((t) => (
-                          <li key={`${t.seatsRow}-${t.seatsNumber}`}>
-                            Rad {t.seatsRow}, stol {t.seatsNumber}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    {Object.entries(countByType).map(([name, count]) => (
-                      <p key={name} className="mb-2">
-                        <strong>{name}:</strong> {count} st
-                      </p>
-                    ))}
-                    <hr className="border-secondary" />
-                    <h4 className="h5 mb-4">
-                      <strong>Totalpris:</strong> {totalPrice} kr
-                    </h4>
+                  )}
 
-                    {/* Cancellation info: one row for guests and one for members */}
-                    <div
-                      className="bg-white bg-opacity-10 border-start border-3 rounded p-3"
-                      style={{ borderColor: "var(--fv-guldgul)" }}
-                    >
-                      <h4 className="h6 heading-gold text-uppercase fw-bold mb-1">
-                        Avbokning
-                      </h4>
-                      <p className="mb-3">
-                        Du kan avboka fram till 2 timmar före visningen.
-                      </p>
-                      <Row className="g-2">
-                        <Col xs={4} sm={3} className="heading-gold">
-                          Utan konto
-                        </Col>
-                        <Col xs={8} sm={9} className="fw-normal">
-                          Klicka på länken ”Avboka din bokning” i ditt
-                          bekräftelsemejl.
-                        </Col>
-                        <Col xs={4} sm={3} className="heading-gold">
-                          Med konto
-                        </Col>
-                        <Col xs={8} sm={9} className="fw-normal">
-                          Avboka under Mina sidor.
-                        </Col>
-                      </Row>
-                    </div>
-                    {!token && (
-                      <p className="fw-normal opacity-75 mt-3 mb-4">
-                        <em>
-                          Bekräftelsen har skickats till din e-post. Hittar du den
-                          inte? Titta i skräpposten.
-                        </em>
-                      </p>
-                    )}
-
-                    {/* Messages shown only when the page was opened from the email link */}
-                    {token && isCancelled && (
-                      <Alert variant="success" className="mt-3 mb-0">
-                        Din bokning är avbokad. Platserna är nu lediga för andra.
+                  {/* Messages shown only when the page was opened from the email link */}
+                  {token && isCancelled && (
+                    <Alert variant="success" className="mt-3 mb-0">
+                      Din bokning är avbokad. Platserna är nu lediga för andra.
+                    </Alert>
+                  )}
+                  {token && !isCancelled && wasAlreadyCancelled && (
+                    <Alert variant="info" className="mt-3 mb-0">
+                      Den här bokningen är redan avbokad.
+                    </Alert>
+                  )}
+                  {token &&
+                    !isCancelled &&
+                    !wasAlreadyCancelled &&
+                    !canCancel && (
+                      <Alert variant="warning" className="mt-3 mb-0">
+                        Det är för sent att avboka. Avbokning går bara fram till
+                        2 timmar före visningen.
                       </Alert>
                     )}
-                    {token && !isCancelled && wasAlreadyCancelled && (
-                      <Alert variant="info" className="mt-3 mb-0">
-                        Den här bokningen är redan avbokad.
-                      </Alert>
+                  <div className="d-flex justify-content-between mt-4">
+                    {booking.from === "mypage" && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
+                        onClick={() => navigate(paths.myPage)}
+                      >
+                        Tillbaka till Mina sidor
+                      </button>
                     )}
-                    {token &&
-                      !isCancelled &&
-                      !wasAlreadyCancelled &&
-                      !canCancel && (
-                        <Alert variant="warning" className="mt-3 mb-0">
-                          Det är för sent att avboka. Avbokning går bara fram till
-                          2 timmar före visningen.
-                        </Alert>
-                      )}
-                    <div className="d-flex justify-content-between mt-4">
-                      {booking.from === "mypage" && (
-                        <button
-                          type="button"
-                          className="btn btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
-                          onClick={() => navigate(paths.myPage)}
-                        >
-                          Tillbaka till Mina sidor
-                        </button>
-                      )}
 
-                      {canCancel && (
-                        <button
-                          type="button"
-                          className="button-cancel btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
-                          onClick={() => {
-                            setCancelError(null);
-                            setShowCancelDialog(true);
-                          }}
-                        >
-                          Avboka bokning
-                        </button>
-                      )}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
+                    {canCancel && (
+                      <button
+                        type="button"
+                        className="button-cancel btn-outline-light rounded-pill py-2 px-4 fw-bold m-2"
+                        onClick={() => {
+                          setCancelError(null);
+                          setShowCancelDialog(true);
+                        }}
+                      >
+                        Avboka bokning
+                      </button>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
 
-          {/* Asks before cancelling, so nothing is cancelled by mistake */}
-          <Modal
-            show={showCancelDialog}
-            onHide={() => !isCancelling && setShowCancelDialog(false)}
-            centered
-          >
-            <Modal.Header closeButton={!isCancelling}>
-              <Modal.Title className="text-dark">Är du säker?</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="text-dark">
-              <p className="mb-0">
-                Din bokning till {booking.movieTitle} avbokas och platserna släpps
-                till andra besökare. Det går inte att ångra.
-              </p>
-              {cancelError && (
-                <Alert variant="danger" className="py-2 mt-3 mb-0">
-                  {cancelError}
-                </Alert>
-              )}
-            </Modal.Body>
-            <Modal.Footer>
-              <button
-                type="button"
-                className="btn btn-outline-secondary rounded-pill px-4"
-                onClick={() => setShowCancelDialog(false)}
-                disabled={isCancelling}
-              >
-                Nej, behåll
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger rounded-pill px-4"
-                onClick={confirmCancel}
-                disabled={isCancelling}
-              >
-                {isCancelling ? "Avbokar…" : "Ja, avboka"}
-              </button>
-            </Modal.Footer>
-          </Modal>
-        </div>
+        {/* Asks before cancelling, so nothing is cancelled by mistake */}
+        <Modal
+          show={showCancelDialog}
+          onHide={() => !isCancelling && setShowCancelDialog(false)}
+          centered
+        >
+          <Modal.Header closeButton={!isCancelling}>
+            <Modal.Title className="text-dark">Är du säker?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-dark">
+            <p className="mb-0">
+              Din bokning till {booking.movieTitle} avbokas och platserna släpps
+              till andra besökare. Det går inte att ångra.
+            </p>
+            {cancelError && (
+              <Alert variant="danger" className="py-2 mt-3 mb-0">
+                {cancelError}
+              </Alert>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              type="button"
+              className="btn btn-outline-secondary rounded-pill px-4"
+              onClick={() => setShowCancelDialog(false)}
+              disabled={isCancelling}
+            >
+              Nej, behåll
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger rounded-pill px-4"
+              onClick={confirmCancel}
+              disabled={isCancelling}
+            >
+              {isCancelling ? "Avbokar…" : "Ja, avboka"}
+            </button>
+          </Modal.Footer>
+        </Modal>
+      </div>
       </BgImage>
     </>
   );

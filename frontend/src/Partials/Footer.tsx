@@ -20,16 +20,18 @@ export default function footer() {
             <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
               <li>
                 <Link
-                  to={paths.cookies}
-                  className="text-decoration-none"
-                  style={linkStyle}
-                >
+                    to={paths.cookies}
+                    viewTransition
+                    className="text-decoration-none"
+                    style={linkStyle}
+                  >
                   Cookies
                 </Link>
               </li>
               <li>
                 <Link
                   to={paths.about}
+                  viewTransition
                   className="text-decoration-none"
                   style={linkStyle}
                 >
@@ -42,6 +44,7 @@ export default function footer() {
           <Col className="d-flex justify-content-center align-items-center">
             <Link
               to={paths.start}
+              viewTransition
               className="d-flex align-items-center text-decoration-none"
               style={linkStyle}
             >
@@ -66,6 +69,7 @@ export default function footer() {
               <li>
                 <Link
                   to={paths.terms}
+                  viewTransition
                   className="text-decoration-none"
                   style={linkStyle}
                 >
@@ -75,6 +79,7 @@ export default function footer() {
               <li>
                 <Link
                   to={`${paths.about}#hitta-till-oss`}
+                  viewTransition
                   className="text-decoration-none"
                   style={linkStyle}
                 >

@@ -1,16 +1,16 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Container, Col, Row, Card, Badge } from "react-bootstrap";
-import "../styles/Start.css"; // stilen för Datumremsan (.datumremsa, .filter-knapp)
+import "../styles/Start.css"; // stilen för DateStrip (.datumremsa, .filter-knapp)
 import "../styles/MoviesDetails.css";
 import useFetch from "../hooks/useFetch";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import Trailer from "../components/Trailer";
-import Datumremsa from "../components/Datumremsa";
+import DateStrip from "../components/DateStrip.tsx";
 import SlotButton from "../components/slotButton";
 import BackButton from "../components/BackButton";
 import AgeBadge from "../components/AgeBadge";
-import { validDate, langtDatum, plusDagar } from "../utils/date";
+import { validDate, formatLongDate, addDays } from "../utils/date";
 import type { Movie, Showing } from "../interface/types";
 import { useEffect } from "react";
 import { paths, routes } from "../utils/paths.ts";
@@ -57,17 +57,17 @@ export default function MovieDetails() {
     error: showingsError,
   } = useFetch<Showing[]>(id ? `/showings?movieId=${id}` : null);
 
-  const today = plusDagar(0);
+  const today = addDays(0);
 
   // Alla framtida datum då filmen har visningar
   const allUpcomingShowings = movieShowings
     ? [
-      ...new Set(
-        movieShowings
-          .filter((showing) => showing.date >= today)
-          .map((showing) => showing.date),
-      ),
-    ].sort()
+        ...new Set(
+          movieShowings
+            .filter((showing) => showing.date >= today)
+            .map((showing) => showing.date),
+        ),
+      ].sort()
     : [];
 
   // De sju första datumen visas som knappar
@@ -100,6 +100,7 @@ export default function MovieDetails() {
 
   return (
     <BgImage>
+<<<<<<< HEAD
       <div
         className="film-sida page-container"
       >
@@ -107,52 +108,61 @@ export default function MovieDetails() {
         <Container className="pb-5">
           {loading && <LoadingSpinner text="Hämtar film…" />}
           {error && <ErrorMessage message={error} />}
+=======
+    <div
+        className="film-sida"
+    >
+      <BackButton onClick={goBack} /> {/* components/BackButton.tsx */}
+      <Container className="pb-5">
+        {loading && <LoadingSpinner text="Hämtar film…" />}
+        {error && <ErrorMessage message={error} />}
+>>>>>>> 99a16c0d8b4f6af1598a750949de3cbfff756a08
 
-          {movie && (
-            <div className="film-stack d-flex flex-column gap-3">
-              {/* Laddning av filmens visningar */}
-              {showingsLoading && <LoadingSpinner text="Hämtar visningar…" />}
+        {movie && (
+          <div className="film-stack d-flex flex-column gap-3">
+            {/* Laddning av filmens visningar */}
+            {showingsLoading && <LoadingSpinner text="Hämtar visningar…" />}
 
-              {/* Fel vid hämtning av visningar */}
-              {showingsError && <ErrorMessage message={showingsError} />}
+            {/* Fel vid hämtning av visningar */}
+            {showingsError && <ErrorMessage message={showingsError} />}
 
-              {/* Filmen saknar kommande visningar */}
-              {!showingsLoading &&
-                !showingsError &&
-                movieShowings &&
-                firstSevenShowings.length === 0 && (
-                  <p className="text-center text-white">
-                    Filmen har inga kommande visningar just nu.
-                  </p>
-                )}
+            {/* Filmen saknar kommande visningar */}
+            {!showingsLoading &&
+              !showingsError &&
+              movieShowings &&
+              firstSevenShowings.length === 0 && (
+                <p className="text-center text-white">
+                  Filmen har inga kommande visningar just nu.
+                </p>
+              )}
 
-              {/* Visa datumremsa och visningstider när visningarna har hämtats */}
-              {!showingsLoading &&
-                !showingsError &&
-                firstSevenShowings.length > 0 && (
-                  <>
-                    <Datumremsa
-                      valtDatum={firstAvailableShowing}
-                      dateList={firstSevenShowings}
-                      onByt={changeDate}
-                    />
+            {/* Visa DateStrip och visningstider när visningarna har hämtats */}
+            {!showingsLoading &&
+              !showingsError &&
+              firstSevenShowings.length > 0 && (
+                <>
+                  <DateStrip
+                    selectedDate={firstAvailableShowing}
+                    dateList={firstSevenShowings}
+                    onSelectDate={changeDate}
+                  />
 
-                    <ShowingsBox
-                      movieId={movie.movieId}
-                      date={firstAvailableShowing}
-                    />
-                  </>
-                )}
+                  <ShowingsBox
+                    movieId={movie.movieId}
+                    date={firstAvailableShowing}
+                  />
+                </>
+              )}
 
-              <Trailer
-                youtubeId={movie.youtubetrailers?.[0]}
-                title={movie.title}
-              />
-              <MovieInfo movie={movie} />
-            </div>
-          )}
-        </Container>
-      </div>
+            <Trailer
+              youtubeId={movie.youtubetrailers?.[0]}
+              title={movie.title}
+            />
+            <MovieInfo movie={movie} />
+          </div>
+        )}
+      </Container>
+    </div>
     </BgImage>
   );
 }
@@ -283,7 +293,7 @@ function ShowingsBox({
         <div className="visningar-rad d-flex flex-column flex-md-row align-items-center gap-3 gap-md-4">
           <div className="visningar-datum text-center text-md-start">
             <div className="valt-datum small text-uppercase">Valt datum</div>
-            <div className="datum-vit fw-bold fs-4">{langtDatum(date)}</div>
+            <div className="datum-vit fw-bold fs-4">{formatLongDate(date)}</div>
           </div>
 
           <div className="visningar-tider flex-grow-1 w-100">
