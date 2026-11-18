@@ -6,16 +6,9 @@ import Col from "react-bootstrap/Col";
 import "../styles/buttons.css";
 import "../styles/About.css";
 import { routes } from "../utils/paths.ts";
-import { aboutImage } from "../utils/images.ts";
 import BgImage from "../components/BgImgBd.tsx";
 
-const heroImage = aboutImage("filmvisarna-entre", "100vw");
-const findUsImage = aboutImage(
-  "filmvisarna-entre",
-  "(min-width: 992px) 33vw, 100vw",
-);
-  
-
+const ENTRANCE = "/images/about/filmvisarna-entre";
 
 const CONTACT = {
   gata: "Exempelgatan 1",
@@ -135,10 +128,11 @@ function Hero() {
       <div className="om-hero-fond" aria-hidden="true">
         <img
           className="om-hero-bild"
-          src={heroImage.src}
-          srcSet={heroImage.srcSet}
-          sizes={heroImage.sizes}
+          src={`${ENTRANCE}/1280.webp`}
+          srcSet={`${ENTRANCE}/640.webp 640w, ${ENTRANCE}/1280.webp 1280w`}
+          sizes="(min-width: 1200px) 65vw, 100vw"
           alt=""
+          fetchPriority="high"
         />
       </div>
       <Container className="om-hero-text">
@@ -257,10 +251,10 @@ function FindUs() {
     >
       <img
         className="om-hitta-bild"
-        src={findUsImage.src}
-        srcSet={findUsImage.srcSet}
-        sizes={findUsImage.sizes}
+        src={`${ENTRANCE}/640.webp`}
         alt="Biografens entré en vinterkväll, med upplyst FV-skylt"
+        width={640}
+        height={400}
         loading="lazy"
       />
       <div className="om-hitta-info">
