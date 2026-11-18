@@ -117,7 +117,7 @@ Detta förhindrar att frontend gör API-anrop innan backend har startat och mins
 | `npm run scale-images` | Skapar WebP-bilder i olika storlekar från `source-images/` (hoppar över befintliga, `--force` skapar om alla) |
 | `npm run preview`      | Visar den byggda versionen lokalt (kör `npm run build` först)                                                 |
 | `npm run lint`         | Kör Oxlint                                                                                                    |
-
+| `npm run serve`        | Startar endast backend-servern som serverar den byggda applikationen. Används i produktionsmiljön.            |
 ## Projektstruktur
 
 ```
