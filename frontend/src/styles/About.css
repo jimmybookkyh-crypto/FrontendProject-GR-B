@@ -327,7 +327,7 @@
 }
 
 @media (min-width: 768px) {
-   .om-kort {
+  .om-kort {
     padding: 2rem;
   }
 
@@ -338,10 +338,11 @@
   .om-hitta-info {
     padding: 1.5rem 2rem 2rem;
   }
-}
-   .om-hero-fond {
+
+  .om-hero-fond {
     height: 280px;
   }
+}
 
 @media (min-width: 992px) {
   .om-hitta-info {
