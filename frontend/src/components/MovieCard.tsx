@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
 import noPoster from "../assets/img/no-poster.webp";
+import { paths } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 export interface MovieCardProps {
   movieId: number | string;
@@ -10,8 +12,8 @@ export interface MovieCardProps {
   images: string[] | string;
   ageRating?: number | null;
   showDetails?: boolean;
-  datum?: string;
-  navigatedFrom?: string; 
+  date?: string;
+  navigatedFrom?: string;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -20,25 +22,22 @@ const MovieCard: React.FC<MovieCardProps> = ({
   images,
   ageRating,
   showDetails = true,
-  datum,
-  navigatedFrom
+  date,
+  navigatedFrom,
 }) => {
-  let imageUrl = "";
-  try {
-    const parsedImages =
-      typeof images === "string" ? JSON.parse(images) : images;
-    imageUrl = Array.isArray(parsedImages) ? parsedImages[0] : parsedImages;
-  } catch {
-    imageUrl = typeof images === "string" ? images : "";
-  }
+  const [posterLoaded, setPosterLoaded] = useState(false);
 
-  // Bygg sökvägen, med valt datum och från beskrvining om det finns
-  const targetPath = `/movies/${movieId}${
-    datum || navigatedFrom
-    ? `?${datum ? `datum=${datum}` : ""}${
-      datum && navigatedFrom ? "&" : ""
-    }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
-    : ""
+  const poster = moviePoster(
+    images,
+    "(min-width: 992px) 25vw, (min-width: 768px) 33vw, 50vw",
+  );
+
+  const targetPath = `${paths.movie(movieId)}${
+    date || navigatedFrom
+      ? `?${date ? `datum=${date}` : ""}${
+          date && navigatedFrom ? "&" : ""
+        }${navigatedFrom ? `fran=${navigatedFrom}` : ""}`
+      : ""
   }`;
 
   return (
@@ -51,13 +50,19 @@ const MovieCard: React.FC<MovieCardProps> = ({
     >
       <Link
         to={targetPath}
+        viewTransition
         className="position-relative d-block text-decoration-none"
       >
         <Card.Img
           variant="top"
-          src={imageUrl || noPoster}
+          src={poster.src || noPoster}
+          srcSet={poster.srcSet}
+          sizes={poster.sizes}
           alt={title}
           loading="lazy"
+          className={`movie-card-poster${posterLoaded ? " is-loaded" : ""}`}
+          onLoad={() => setPosterLoaded(true)}
+          onError={() => setPosterLoaded(true)}
         />
 
         <AgeBadge
@@ -71,6 +76,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
           <Card.Title className="text-white fw-bold mb-3">{title}</Card.Title>
           <Link
             to={targetPath}
+            viewTransition
             className="cta-btn mt-2 d-flex align-items-center justify-content-center text-center text-decoration-none"
           >
             Biljetter →

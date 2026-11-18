@@ -6,22 +6,28 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
+import { paths } from "../utils/paths.ts";
 
 import { useAuth } from "../utils/authContext.tsx";
 
 export default function Header() {
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
-  const [omOssOpen, setOmOssOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const { user, loading, logout } = useAuth();
 
-  const harHover = () =>
+  const hasHover = () =>
     window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
   return (
     <Navbar expand="lg" sticky="top" className="fv-navbar" data-bs-theme="dark">
-      <Navbar.Brand as={Link} to="/" className="fv-brand">
+      <Navbar.Brand
+        as={Link}
+        to={paths.start}
+        viewTransition
+        className="fv-brand"
+      >
         <img src={logo} alt="FV – startsida" className="fv-logo" />
       </Navbar.Brand>
 
@@ -34,7 +40,8 @@ export default function Header() {
               <AdminAccountMenu username={user.username} />
             ) : (
               <NavLink
-                to="/mypage"
+                to={paths.myPage}
+                viewTransition
                 className="fv-account-link"
                 title="Mina sidor"
               >
@@ -65,7 +72,8 @@ export default function Header() {
           </div>
         ) : (
           <Link
-            to="/login"
+            to={paths.login}
+            viewTransition
             state={{ from: pathname + search + hash }}
             className="fv-login"
             aria-label="Logga in"
@@ -88,14 +96,30 @@ export default function Header() {
         ))}
 
       <Navbar.Collapse id="fv-navbar-nav">
-        <Nav className={`me-auto fv-nav${omOssOpen ? " om-oss-open" : ""}`}>
-          <Nav.Link as={NavLink} to="/" end className="fv-link">
+        <Nav className={`me-auto fv-nav${aboutOpen ? " om-oss-open" : ""}`}>
+          <Nav.Link
+            as={NavLink}
+            to={paths.start}
+            end
+            viewTransition
+            className="fv-link"
+          >
             Hem
           </Nav.Link>
-          <Nav.Link as={NavLink} to="/moviecatalog" className="fv-link">
+          <Nav.Link
+            as={NavLink}
+            to={paths.movies}
+            viewTransition
+            className="fv-link"
+          >
             Filmer
           </Nav.Link>
-          <Nav.Link as={NavLink} to="/event" className="fv-link">
+          <Nav.Link
+            as={NavLink}
+            to={paths.events}
+            viewTransition
+            className="fv-link"
+          >
             Event
           </Nav.Link>
 
@@ -103,26 +127,38 @@ export default function Header() {
             title="Om oss"
             id="om-oss-dropdown"
             className="fv-link fv-dropdown"
-            active={pathname.startsWith("/about")}
-            show={omOssOpen}
-            onMouseEnter={() => harHover() && setOmOssOpen(true)}
-            onMouseLeave={() => harHover() && setOmOssOpen(false)}
+            active={pathname.startsWith(paths.about)}
+            show={aboutOpen}
+            onMouseEnter={() => hasHover() && setAboutOpen(true)}
+            onMouseLeave={() => hasHover() && setAboutOpen(false)}
             onToggle={(isOpen, meta) => {
-              if (meta.source === "click" && harHover()) {
-                setOmOssOpen(false);
-                navigate("/about");
+              if (meta.source === "click" && hasHover()) {
+                setAboutOpen(false);
+                navigate(paths.about);
                 return;
               }
-              setOmOssOpen(isOpen);
+              setAboutOpen(isOpen);
             }}
           >
-            <NavDropdown.Item as={Link} to="/about#hitta-till-oss">
+            <NavDropdown.Item
+              as={Link}
+              to={`${paths.about}#hitta-till-oss`}
+              viewTransition
+            >
               Hitta till oss
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about#salonger">
+            <NavDropdown.Item
+              as={Link}
+              to={`${paths.about}#salonger`}
+              viewTransition
+            >
               Salonger
             </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about#snacks-meny">
+            <NavDropdown.Item
+              as={Link}
+              to={`${paths.about}#snacks-meny`}
+              viewTransition
+            >
               Snacksmeny
             </NavDropdown.Item>
           </NavDropdown>
@@ -132,7 +168,6 @@ export default function Header() {
   );
 }
 
-/* Bara förnamnet i headern: "Polly Fun" -> "Polly" (samma som hälsningen på Mina sidor) */
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] ?? "";
 }
@@ -164,8 +199,8 @@ function AdminAccountMenu({ username }: { username: string }) {
   const [openedForKey, setOpenedForKey] = useState<string | null>(null);
 
   const { pathname, search, hash } = location;
-  const inAdmin = pathname.startsWith("/admin");
-  const onAccountPage = inAdmin || pathname.startsWith("/mypage");
+  const inAdmin = pathname.startsWith(paths.admin);
+  const onAccountPage = inAdmin || pathname.startsWith(paths.myPage);
   const justLoggedIn =
     (location.state as { justLoggedIn?: boolean } | null)?.justLoggedIn ===
     true;
@@ -196,16 +231,19 @@ function AdminAccountMenu({ username }: { username: string }) {
         <span className={`fv-mypage-link${onAccountPage ? " active" : ""}`}>
           <AccountIcon />
         </span>
-        <span className="fv-account-name" title={inAdmin ? undefined : username}>
+        <span
+          className="fv-account-name"
+          title={inAdmin ? undefined : username}
+        >
           {inAdmin ? "ADMIN" : firstName(username)}
         </span>
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
-        <Dropdown.Item as={Link} to="/mypage">
+        <Dropdown.Item as={Link} to={paths.myPage} viewTransition>
           Mina sidor
         </Dropdown.Item>
-        <Dropdown.Item as={Link} to="/admin">
+        <Dropdown.Item as={Link} to={paths.admin} viewTransition>
           Adminportal
         </Dropdown.Item>
       </Dropdown.Menu>

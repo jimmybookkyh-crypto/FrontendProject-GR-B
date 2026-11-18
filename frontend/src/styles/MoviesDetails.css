@@ -104,6 +104,18 @@
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
 }
 
+/* Trailer */
+.trailer-container {
+  margin: 0 auto;
+  border: 5px solid #000;
+  border-radius: 4px;
+  background-color: #000;
+}
+
+.trailer-container iframe {
+  border: 0;
+}
+
 @media (min-width: 768px) {
   .film-sida .visningar-datum {
     flex: 0 0 auto;
@@ -111,10 +123,7 @@
     padding-right: 1.5rem;
     border-right: 1px solid rgba(253, 252, 250, 0.28);
   }
-}
-
-@media (min-width: 768px) {
-  .film-sida .ratio-16x9 {
+    .film-sida .ratio-16x9 {
     --bs-aspect-ratio: 40%;
   }
 }
@@ -122,12 +131,14 @@
 /* ---------- Visningsknappen: salong och tid på en rad ---------- */
 .film-sida .tid-knapp {
   white-space: nowrap;
+  font-size: 1.25rem; /* same size as the old size="lg" */
 }
 
 /* Bara på mobil: lite mindre text så att längre salongsnamn ryms.
    På iPad och desktop behåller knappen sin vanliga storlek. */
-@media (max-width: 767.98px) {
+
+@media (min-width: 576px) {
   .film-sida .tid-knapp {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 }

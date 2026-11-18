@@ -7,6 +7,13 @@ import {
   hasStatisticsConsent,
 } from "../utils/cookieConsent";
 import "../styles/HeroSection.css";
+import { paths } from "../utils/paths.ts";
+import {
+  getFirstValue,
+  moviePoster,
+  moviePosterUrl,
+} from "../utils/images.ts";
+import { formatPeriod, formatWeekdayDate } from "../utils/format.ts";
 
 const MAX_MOVIE_SLIDES = 3;
 const SLIDE_INTERVAL_MS = 7000;
@@ -66,16 +73,6 @@ type HeroSlideData = {
   buttonLabel: string;
 };
 
-function getFirstValue(value?: string[] | string): string {
-  if (!value) return "";
-  try {
-    const parsed = typeof value === "string" ? JSON.parse(value) : value;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof value === "string" ? value : "";
-  }
-}
-
 function getFirstSentence(text?: string | null): string {
   if (!text) return "";
   const firstParagraph = text.split(/\n+/)[0].trim();
@@ -93,38 +90,8 @@ function getShowingKey(showing: { date: string; time: string }): string {
 
 function getNowKey(): string {
   const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const pad = (value: number) => String(value).padStart(2, "0");
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-const shortDateFormat = new Intl.DateTimeFormat("sv-SE", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-});
-
-function formatShortDate(date: string): string {
-  return shortDateFormat
-    .format(new Date(`${date}T00:00:00`))
-    .replace(/\./g, "");
-}
-
-const dayMonthFormat = new Intl.DateTimeFormat("sv-SE", {
-  day: "numeric",
-  month: "short",
-});
-
-function formatPeriod(start: string, end: string): string {
-  const startDate = new Date(`${start}T00:00:00`);
-  const endDate = new Date(`${end}T00:00:00`);
-  const clean = (value: string) => value.replace(/\./g, "");
-  const endText = clean(dayMonthFormat.format(endDate));
-
-  if (start === end) return endText;
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()}–${endText}`;
-  }
-  return `${clean(dayMonthFormat.format(startDate))}–${endText}`;
 }
 
 function getMovieMedia(movie: HeroMovie | undefined) {
@@ -144,7 +111,7 @@ function buildEventSlides(
   upcoming: HeroEventShowing[],
   movieById: Map<string, HeroMovie>,
 ): HeroSlideData[] {
-  const periodText = formatPeriod(period.startDate, period.endDate);
+  const periodText = formatPeriod(period.startDate, period.endDate, "short");
   const today = getNowKey().slice(0, 10);
   const hasStarted = period.startDate <= today;
 
@@ -165,7 +132,7 @@ function buildEventSlides(
     title: event.name,
     text: event.tagline ?? getFirstParagraph(event.info),
     ...getMovieMedia(movieById.get(eventMovieId)),
-    buttonTo: `/event#event-${event.eventId}`,
+    buttonTo: `${paths.events}#event-${event.eventId}`,
     buttonLabel: "Läs om eventet →",
   };
 
@@ -184,8 +151,8 @@ function buildEventSlides(
       ageRating: movie?.ageRating,
       text: getFirstSentence(movie?.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${id}?datum=${nextShowing.date}`,
-      buttonLabel: `Biljetter → ${formatShortDate(nextShowing.date)}`,
+      buttonTo: `${paths.movie(id)}?datum=${nextShowing.date}`,
+      buttonLabel: `Biljetter → ${formatWeekdayDate(nextShowing.date)}`,
     };
   });
 
@@ -207,7 +174,7 @@ function buildFallbackSlides(movies: HeroMovie[]): HeroSlideData[] {
       ageRating: movie.ageRating,
       text: getFirstSentence(movie.description),
       ...getMovieMedia(movie),
-      buttonTo: `/movies/${movie.movieId}`,
+      buttonTo: paths.movie(movie.movieId),
       buttonLabel: "Se filmen →",
     }));
 }
@@ -694,7 +661,9 @@ function HeroMedia({
       {poster && (
         <div
           className={`hero-slide-bg${hiddenClass}`}
-          style={{ backgroundImage: `url(${poster})` }}
+          style={{
+            backgroundImage: `url(${moviePosterUrl(poster, 800)})`,
+          }}
           aria-hidden="true"
         />
       )}
@@ -718,7 +687,7 @@ function HeroMedia({
       {poster && (
         <img
           className={`hero-slide-poster${hiddenClass}`}
-          src={poster}
+          {...moviePoster(poster, "190px")}
           alt={title}
           fetchPriority={isFirst ? "high" : "auto"}
           loading={isFirst ? "eager" : "lazy"}

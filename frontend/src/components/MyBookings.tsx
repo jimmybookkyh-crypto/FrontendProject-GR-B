@@ -4,48 +4,45 @@ import Alert from "react-bootstrap/Alert";
 import Modal from "react-bootstrap/Modal";
 import { bookingService } from "../utils/bookingService.ts";
 import {
-  formatBiljettyper,
-  formatPlatser,
-  formatPris,
-  formatVisning,
+  formatTicketTypes,
+  formatSeats,
+  formatPrice,
+  formatShowing,
 } from "../utils/format.ts";
-import { kortDatum } from "../utils/date.ts";
+import { formatShortDate } from "../utils/date.ts";
 import type { MyBooking, MyBookingsResponse } from "../interface/types.ts";
+import { paths } from "../utils/paths.ts";
+import { moviePoster } from "../utils/images.ts";
 
 type MyBookingsProps = {
   bookings: MyBookingsResponse;
   onCancelled: (message: string) => void;
 };
 
-function posterUrl(images: MyBooking["images"]): string {
-  if (!images) return "";
-  try {
-    const parsed = typeof images === "string" ? JSON.parse(images) : images;
-    return Array.isArray(parsed) ? (parsed[0] ?? "") : String(parsed);
-  } catch {
-    return typeof images === "string" ? images : "";
-  }
-}
-
-function platserText(booking: MyBooking): string {
-  return formatPlatser(booking.tickets)
-    .map((rad) => rad.replace(":", " ·"))
+function seatsText(booking: MyBooking): string {
+  return formatSeats(booking.tickets)
+    .map((row) => row.replace(":", " ·"))
     .join(" · ");
 }
 
-function biljetterText(booking: MyBooking): string {
-  return formatBiljettyper(booking.tickets.map((t) => t.ticketType));
+function ticketsText(booking: MyBooking): string {
+  return formatTicketTypes(booking.tickets.map((t) => t.ticketType));
 }
 
 function Poster({ booking }: { booking: MyBooking }) {
-  const url = posterUrl(booking.images);
+  const poster = moviePoster(booking.images, "80px");
   return (
     <Link
-      to={`/movies/${booking.movieId}`}
+      to={paths.movie(booking.movieId)}
+      viewTransition
       className="mypage-poster"
       aria-label={`Mer om ${booking.movieTitle}`}
     >
-      {url ? <img src={url} alt="" loading="lazy" /> : <span>Affisch</span>}
+      {poster.src ? (
+        <img {...poster} alt="" loading="lazy" />
+      ) : (
+        <span>Affisch</span>
+      )}
     </Link>
   );
 }
@@ -58,27 +55,27 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
 
   const { upcoming, past } = bookings;
 
-    function showBooking(booking: MyBooking) {
-      navigate("/bookingconfirmation", {
-        state: {
-          bookingNumber: booking.bookingNumber,
-          movieId: Number(booking.movieId),
-          movieTitle: booking.movieTitle,
-          images: booking.images ?? [],
-          ageRating: booking.ageRating ?? null,
-          date: booking.date,
-          time: booking.time,
-          auditoriumName: booking.auditoriumName,
-          tickets: booking.tickets.map((t) => ({
-            ticketTypeName: t.ticketType,
-            price: t.price,
-            seatsRow: t.seatsRow,
-            seatsNumber: t.seatsNumber,
-          })),
-          from: "mypage",
-        },
-      });
-    }
+  function showBooking(booking: MyBooking) {
+    navigate(paths.bookingConfirmation, {
+      state: {
+        bookingNumber: booking.bookingNumber,
+        movieId: Number(booking.movieId),
+        movieTitle: booking.movieTitle,
+        images: booking.images ?? [],
+        ageRating: booking.ageRating ?? null,
+        date: booking.date,
+        time: booking.time,
+        auditoriumName: booking.auditoriumName,
+        tickets: booking.tickets.map((t) => ({
+          ticketTypeName: t.ticketType,
+          price: t.price,
+          seatsRow: t.seatsRow,
+          seatsNumber: t.seatsNumber,
+        })),
+        from: "mypage",
+      },
+    });
+  }
 
   async function confirmCancel() {
     if (!toCancel) return;
@@ -116,7 +113,11 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
         {upcoming.length === 0 ? (
           <div className="mypage-empty">
             <p>Du har inga kommande bokningar.</p>
-            <Link to="/moviecatalog" className="mypage-btn mypage-btn-red">
+            <Link
+              to={paths.movies}
+              viewTransition
+              className="mypage-btn mypage-btn-red"
+            >
               Se våra filmer
             </Link>
           </div>
@@ -133,14 +134,14 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
                   </p>
                   <h3 className="mypage-movie-title">{booking.movieTitle}</h3>
                   <p className="mb-1">
-                    {formatVisning(booking.date, booking.time)} ·{" "}
+                    {formatShowing(booking.date, booking.time)} ·{" "}
                     {booking.auditoriumName}
                   </p>
                   <p className="mb-1">
-                    {platserText(booking)} · {biljetterText(booking)}
+                    {seatsText(booking)} · {ticketsText(booking)}
                   </p>
                   <p className="mypage-total">
-                    Totalt {formatPris(booking.totalPrice)}
+                    Totalt {formatPrice(booking.totalPrice)}
                     <small className="mypage-pay-note">
                       , betalas i kassan.
                     </small>
@@ -192,11 +193,11 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
               <li key={booking.bookingId} className="mypage-past-row">
                 <span className="mypage-past-title">{booking.movieTitle}</span>
                 <span>
-                  {kortDatum(booking.date)} · {booking.time}
+                  {formatShortDate(booking.date)} · {booking.time}
                 </span>
-                <span>{biljetterText(booking)}</span>
+                <span>{ticketsText(booking)}</span>
                 <span className="mypage-past-price">
-                  {formatPris(booking.totalPrice)}
+                  {formatPrice(booking.totalPrice)}
                 </span>
                 <span
                   className={
@@ -228,10 +229,10 @@ export default function MyBookings({ bookings, onCancelled }: MyBookingsProps) {
             <>
               <p className="mb-1 fw-bold">{toCancel.movieTitle}</p>
               <p className="mb-1">
-                {formatVisning(toCancel.date, toCancel.time)} ·{" "}
+                {formatShowing(toCancel.date, toCancel.time)} ·{" "}
                 {toCancel.auditoriumName}
               </p>
-              <p className="mb-3">{platserText(toCancel)}</p>
+              <p className="mb-3">{seatsText(toCancel)}</p>
               <p className="mb-0">
                 Platserna släpps till andra besökare direkt. Det går inte att
                 ångra.

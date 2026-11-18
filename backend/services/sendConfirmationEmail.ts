@@ -1,12 +1,13 @@
 import nodemailer from "nodemailer";
 import type { BookedTicket } from "../interface/types.js";
 // Samma formatfunktioner som på sidorna (T140), så att datum och priser ser likadana ut
-import { langtDatum } from "../../frontend/src/utils/date.ts";
+import { formatLongDate } from "../../frontend/src/utils/date.ts";
 import {
-  formatBiljettyper,
-  formatPlatser,
-  formatPris,
+  formatTicketTypes,
+  formatSeats,
+  formatPrice,
 } from "../../frontend/src/utils/format.ts";
+import { paths } from "../../frontend/src/utils/paths.ts";
 
 /* Det mejlet behöver veta om en bokning */
 export interface ConfirmationEmailData {
@@ -33,13 +34,13 @@ function appUrl(): string {
 // Link to My pages, used in the member email.
 // My pages sends logged-out visitors to the login page and back again afterwards.
 function myPagesUrl(): string {
-  return `${appUrl()}/mypage`;
+  return `${appUrl()}${paths.myPage}`;
 }
 
 // Link that lets a guest cancel the booking without logging in (P17.2).
 // It opens the confirmation page with the cancel token in the address.
 export function buildCancelUrl(cancelToken: string): string {
-  return `${appUrl()}/bookingconfirmation?token=${encodeURIComponent(cancelToken)}`;
+  return `${appUrl()}${paths.bookingConfirmation}?token=${encodeURIComponent(cancelToken)}`;
 }
 
 // Filmtitlar kan innehålla tecken som & och <, så allt som skrivs in i HTML görs ofarligt
@@ -54,10 +55,10 @@ function escapeHtml(value: string): string {
 
 /* Bygger ämne, textversion och HTML-version. Skickar inget, så den går att testa själv. */
 export function buildConfirmationEmail(data: ConfirmationEmailData) {
-  const platser = formatPlatser(data.tickets);
-  const biljetter = formatBiljettyper(data.tickets.map((t) => t.ticketType));
-  const datum = langtDatum(data.date);
-  const totalpris = formatPris(data.totalPrice);
+  const platser = formatSeats(data.tickets);
+  const biljetter = formatTicketTypes(data.tickets.map((t) => t.ticketType));
+  const datum = formatLongDate(data.date);
+  const totalpris = formatPrice(data.totalPrice);
 
   const subject = `Din bokning hos Filmvisarna – bokningsnummer ${data.bookingNumber}`;
 

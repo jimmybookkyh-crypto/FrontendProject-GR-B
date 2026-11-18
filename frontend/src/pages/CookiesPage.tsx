@@ -11,14 +11,8 @@ import {
 } from "../utils/cookieConsent";
 import "../styles/MyPage.css";
 import "../styles/CookiesPage.css";
-
-// Datum som "5 november 2026"
-const formatSwedishDate = (date: string) =>
-  new Date(date).toLocaleDateString("sv-SE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+import { routes } from "../utils/paths.ts";
+import { formatFullDate } from "../utils/format.ts";
 
 /* Cookiesidan (P12 #416): förklarar vad som sparas och låter besökaren ändra sitt val.
    Samma stil som Mina sidor (klasserna i MyPage.css). */
@@ -35,8 +29,8 @@ export default function CookiesPage() {
   const currentChoice = !consent
     ? "Du har inte gjort något val än. Statistik är avstängd tills du slår på den."
     : consent.statistics
-      ? `Statistik är påslagen. Ditt val sparades ${formatSwedishDate(consent.date)}.`
-      : `Statistik är avstängd. Ditt val sparades ${formatSwedishDate(consent.date)}.`;
+      ? `Statistik är påslagen. Ditt val sparades ${formatFullDate(consent.date)}.`
+      : `Statistik är avstängd. Ditt val sparades ${formatFullDate(consent.date)}.`;
 
   return (
     <div className="mypage">
@@ -146,7 +140,7 @@ export default function CookiesPage() {
 
             <p className="cookies-updated text-center mb-0">
               Cookie-informationen uppdaterades senast{" "}
-              {formatSwedishDate(COOKIE_POLICY_UPDATED)} av Filmvisarna AB.
+              {formatFullDate(COOKIE_POLICY_UPDATED)} av Filmvisarna AB.
             </p>
           </Col>
         </Row>
@@ -156,7 +150,7 @@ export default function CookiesPage() {
 }
 
 CookiesPage.route = {
-  path: "/cookies",
+  path: routes.cookies,
   order: 16,
   label: "Cookies",
 };

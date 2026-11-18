@@ -6,15 +6,16 @@ import Modal from "react-bootstrap/Modal";
 import { useAuth } from "../utils/authContext.tsx";
 import { userService } from "../utils/userService.ts";
 import PasswordInput from "./PasswordInput.tsx";
-import { emailError, hasErrors, passwordError, requiredError, usernameError } from "../utils/validateUtil.ts";
+import {
+  emailError,
+  hasErrors,
+  passwordError,
+  requiredError,
+  usernameError,
+} from "../utils/validateUtil.ts";
 import type { AuthUser } from "../interface/types.ts";
 import type { FieldErrors } from "../interface/types.ts";
-
-/* Mina uppgifter, Byt lösenord och Radera konto (T126 / #330).
-   Fälten är låsta tills man klickar "Ändra mina uppgifter".
-   Nuvarande lösenord krävs för att spara – det kontrolleras genom en ny inloggning,
-   eftersom backend inte kontrollerar det själv än (T168, sprint 4). */
-
+import { paths } from "../utils/paths.ts";
 
 export default function MyProfile({ user }: { user: AuthUser }) {
   const { updateUser, logout } = useAuth();
@@ -34,8 +35,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  /* Återställer formuläret till det som är sparat */
+  
   function resetForm() {
     setUsername(user.username ?? "");
     setEmail(user.email ?? "");
@@ -58,7 +58,7 @@ export default function MyProfile({ user }: { user: AuthUser }) {
       email.trim().toLowerCase() !== (user.email ?? "").toLowerCase() ||
       newPassword !== "";
 
-    found.username = usernameError(username); // P32: 3–20 tecken, samma som Bli medlem
+    found.username = usernameError(username);
     found.email = emailError(email);
     if (newPassword !== "") found.newPassword = passwordError(newPassword);
     found.currentPassword = requiredError(
@@ -82,14 +82,11 @@ export default function MyProfile({ user }: { user: AuthUser }) {
 
     setSaving(true);
     try {
-      // 1. Rätt nuvarande lösenord? (mot det användarnamn som är sparat nu – inloggning sker med användarnamn, #371)
-      await userService.verifyPassword(user.username, currentPassword);
-
-      // 2. Spara. Byter man inte lösenord skickas det nuvarande, så det blir oförändrat.
       const updated = await userService.updateProfile(user.userId, {
         username: username.trim(),
         email: email.trim().toLowerCase(),
         password: newPassword !== "" ? newPassword : currentPassword,
+        currentPassword,
       });
 
       updateUser({ ...user, ...updated });
@@ -110,7 +107,6 @@ export default function MyProfile({ user }: { user: AuthUser }) {
       } else if (
         email.trim().toLowerCase() !== (user.email ?? "").toLowerCase()
       ) {
-        // Backend svarar 500 om e-posten redan finns (#298), därför en tydligare text här
         setSaveError(
           "Kunde inte spara. E-postadressen kan redan vara kopplad till ett annat konto.",
         );
@@ -127,8 +123,8 @@ export default function MyProfile({ user }: { user: AuthUser }) {
     setDeleteError(null);
     try {
       await userService.deleteAccount(user.userId);
-      // Navigera först: annars hinner MyPage skicka en utloggad användare till /login
-      navigate("/", { replace: true });
+
+      navigate(paths.start, { replace: true });
       logout();
     } catch (error) {
       setDeleteError(

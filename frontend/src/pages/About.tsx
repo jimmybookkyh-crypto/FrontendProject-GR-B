@@ -3,26 +3,28 @@ import { useLocation } from "react-router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import entre from "../assets/filmvisarna-entre.webp";
-import backgroundImage from "../assets/img/biodukbg.webp";
+import entranceImage from "../assets/filmvisarna-entre.webp";
 import "../styles/buttons.css";
 import "../styles/About.css";
+import { routes } from "../utils/paths.ts";
+import BgImage from "../components/BgImgBd.tsx";
+  
 
 
-const KONTAKT = {
+const CONTACT = {
   gata: "Exempelgatan 1",
   postadress: "123 45 Småstad",
   epost: "info@filmvisarna.bio",
 };
 
-const OPPETTIDER = [
+const OPENING_HOURS = [
   { dagar: "Måndag–torsdag", tid: "10–21" },
   { dagar: "Fredag–lördag", tid: "10–23" },
   { dagar: "Söndag", tid: "14–21" },
 ];
 
 /* TODO: kolla punkterna, särskilt Salong 2 */
-const SALONGER = [
+const AUDITORIUMS = [
   {
     id: "salong-1",
     namn: "Salong 1 – Stora salongen",
@@ -64,7 +66,7 @@ const SNACKS = [
   },
 ];
 
-const ikonProps = {
+const iconProps = {
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
@@ -74,36 +76,36 @@ const ikonProps = {
   "aria-hidden": true,
 };
 
-function IkonPlats() {
+function LocationIcon() {
   return (
-    <svg {...ikonProps}>
+    <svg {...iconProps}>
       <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" />
       <circle cx="12" cy="10" r="3" />
     </svg>
   );
 }
 
-function IkonBrev() {
+function MailIcon() {
   return (
-    <svg {...ikonProps}>
+    <svg {...iconProps}>
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="m3 7 9 6 9-6" />
     </svg>
   );
 }
 
-function IkonParkering() {
+function ParkingIcon() {
   return (
-    <svg {...ikonProps}>
+    <svg {...iconProps}>
       <rect x="3" y="3" width="18" height="18" rx="3" />
       <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
     </svg>
   );
 }
 
-function IkonCafe() {
+function CafeIcon() {
   return (
-    <svg {...ikonProps}>
+    <svg {...iconProps}>
       <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" />
       <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17" />
       <path d="M8 3v2M12 3v2" />
@@ -111,9 +113,9 @@ function IkonCafe() {
   );
 }
 
-function IkonRullstol() {
+function WheelchairIcon() {
   return (
-    <svg {...ikonProps}>
+    <svg {...iconProps}>
       <circle cx="12" cy="4.5" r="1.8" />
       <path d="M12 8v6h4l2 5" />
       <path d="M8 11a5 5 0 1 0 6 7" />
@@ -125,7 +127,7 @@ function Hero() {
   return (
     <div className="om-hero">
       <div className="om-hero-fond" aria-hidden="true">
-        <img className="om-hero-bild" src={entre} alt="" />
+        <img className="om-hero-bild" src={entranceImage} alt="" />
       </div>
       <Container className="om-hero-text">
         <h1>Filmvisarna i Småstad</h1>
@@ -135,7 +137,7 @@ function Hero() {
   );
 }
 
-function Huvudkort() {
+function MainCard() {
   return (
     <div className="om-kort">
       <section aria-labelledby="om-rubrik">
@@ -173,13 +175,13 @@ function Huvudkort() {
         </h2>
         <ul className="om-faciliteter">
           <li>
-            <IkonParkering /> Parkering nära
+            <ParkingIcon /> Parkering nära
           </li>
           <li>
-            <IkonCafe /> Café &amp; bar
+            <CafeIcon /> Café &amp; bar
           </li>
           <li>
-            <IkonRullstol /> Rullstolsanpassat
+            <WheelchairIcon /> Rullstolsanpassat
           </li>
         </ul>
       </section>
@@ -193,16 +195,16 @@ function Huvudkort() {
           Salonger
         </h2>
         <Row className="g-3">
-          {SALONGER.map((salong) => (
-            <Col sm={6} key={salong.id}>
+          {AUDITORIUMS.map((auditorium) => (
+            <Col sm={6} key={auditorium.id}>
               <article className="om-salong">
                 <div className="om-salong-topp">
-                  <h3>{salong.namn}</h3>
-                  <span className="om-platser">{salong.platser} platser</span>
+                  <h3>{auditorium.namn}</h3>
+                  <span className="om-platser">{auditorium.platser} platser</span>
                 </div>
                 <ul className="om-punkter">
-                  {salong.punkter.map((punkt) => (
-                    <li key={punkt}>{punkt}</li>
+                  {auditorium.punkter.map((feature) => (
+                    <li key={feature}>{feature}</li>
                   ))}
                 </ul>
               </article>
@@ -214,15 +216,15 @@ function Huvudkort() {
   );
 }
 
-function Oppettider() {
+function OpeningHours() {
   return (
     <section className="om-kort" aria-labelledby="tider-rubrik">
       <h2 id="tider-rubrik" className="om-rubrik">Öppettider</h2>
       <ul className="om-tider">
-        {OPPETTIDER.map((rad) => (
-          <li key={rad.dagar}>
-            <span>{rad.dagar}</span>
-            <span>{rad.tid}</span>
+        {OPENING_HOURS.map((entry) => (
+          <li key={entry.dagar}>
+            <span>{entry.dagar}</span>
+            <span>{entry.tid}</span>
           </li>
         ))}
       </ul>
@@ -231,9 +233,9 @@ function Oppettider() {
   );
 }
 
-function HittaTillOss() {
-  const adress = `${KONTAKT.gata}, ${KONTAKT.postadress}`;
-  const karta = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(adress)}`;
+function FindUs() {
+  const address = `${CONTACT.gata}, ${CONTACT.postadress}`;
+  const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 
   return (
     <section
@@ -243,7 +245,7 @@ function HittaTillOss() {
     >
       <img
         className="om-hitta-bild"
-        src={entre}
+        src={entranceImage}
         alt="Biografens entré en vinterkväll, med upplyst FV-skylt"
         loading="lazy"
       />
@@ -251,17 +253,17 @@ function HittaTillOss() {
         <h2 id="hitta-rubrik">Hitta hit</h2>
         <ul className="om-kontakt">
           <li>
-            <IkonPlats />
-            <span>{adress}</span>
+            <LocationIcon />
+            <span>{address}</span>
           </li>
           <li>
-            <IkonBrev />
-            <a href={`mailto:${KONTAKT.epost}`}>{KONTAKT.epost}</a>
+            <MailIcon />
+            <a href={`mailto:${CONTACT.epost}`}>{CONTACT.epost}</a>
           </li>
         </ul>
         <a
           className="cta-btn om-knapp rounded-pill py-2 px-4 fw-bold d-inline-block text-decoration-none align-self-start"
-          href={karta}
+          href={mapUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -272,21 +274,21 @@ function HittaTillOss() {
   );
 }
 
-function SnacksMeny() {
+function SnacksMenu() {
   return (
     <section id="snacks-meny" className="om-sektion" aria-labelledby="snacks-rubrik">
       <div className="om-kort">
         <h2 id="snacks-rubrik" className="om-rubrik">Snacksmeny</h2>
         <Row className="g-4">
-          {SNACKS.map((grupp) => (
-            <Col md={4} key={grupp.kategori}>
+          {SNACKS.map((group) => (
+            <Col md={4} key={group.kategori}>
               <div className="om-meny-grupp">
-                <h3>{grupp.kategori}</h3>
+                <h3>{group.kategori}</h3>
                 <dl>
-                  {grupp.rader.map(([namn, pris]) => (
-                    <div className="om-meny-rad" key={namn}>
-                      <dt>{namn}</dt>
-                      <dd>{pris}</dd>
+                  {group.rader.map(([name, price]) => (
+                    <div className="om-meny-rad" key={name}>
+                      <dt>{name}</dt>
+                      <dd>{price}</dd>
                     </div>
                   ))}
                 </dl>
@@ -299,7 +301,7 @@ function SnacksMeny() {
   );
 }
 
-const SCROLL_LAGE: Record<string, ScrollLogicalPosition> = {
+const SCROLL_POSITION: Record<string, ScrollLogicalPosition> = {
   salonger: "end",
   "hitta-till-oss": "center",
   "snacks-meny": "start",
@@ -309,46 +311,43 @@ export default function About() {
   const { hash, key } = useLocation();
 
   useEffect(() => {
-    const mjukt = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     const id = hash.slice(1);
-    const mal = id ? document.getElementById(id) : null;
-    if (mal) {
-      mal.scrollIntoView({ behavior: mjukt, block: SCROLL_LAGE[id] ?? "start" });
+    const target = id ? document.getElementById(id) : null;
+    if (target) {
+      target.scrollIntoView({ behavior, block: SCROLL_POSITION[id] ?? "start" });
     } else {
-      window.scrollTo({ top: 0, behavior: mjukt });
+      window.scrollTo({ top: 0, behavior });
     }
   }, [hash, key]);
 
   return (
+    <BgImage>
     <div
-      className="om-sida min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      className="om-sida page-container"
     >
       <Hero />
       <Container className="om-innehall">
         <Row className="g-3 g-lg-4">
           <Col lg={8}>
-            <Huvudkort />
+            <MainCard />
           </Col>
           <Col lg={4}>
             <div className="om-sidokolumn">
-              <Oppettider />
-              <HittaTillOss />
+              <OpeningHours />
+              <FindUs />
             </div>
           </Col>
         </Row>
-        <SnacksMeny />
+        <SnacksMenu />
       </Container>
     </div>
+      </BgImage>
   );
 }
 
 About.route = {
-  path: "/about",
+  path: routes.about,
   order: 2,
   label: "Om oss",
 };

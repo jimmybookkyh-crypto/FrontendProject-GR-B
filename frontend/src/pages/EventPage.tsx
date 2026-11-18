@@ -11,23 +11,10 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import useFetch from "../hooks/useFetch";
 import "../styles/Event.css";
-
-
-const dateMonth = new Intl.DateTimeFormat("sv-SE", {
-  day: "numeric",
-  month: "long",
-});
-
-function formatDatePeriod(start: string, end: string) {
-  const startDate = new Date(`${start}T00:00:00`);
-  const endDate = new Date(`${end}T00:00:00`);
-  if (start === end) return dateMonth.format(startDate);
-  const endText = dateMonth.format(endDate);
-  if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startDate.getDate()}–${endText}`;
-  }
-  return `${dateMonth.format(startDate)}–${endText}`;
-}
+import { routes } from "../utils/paths.ts";
+import { eventImage } from "../utils/images.ts";
+import { formatPeriod } from "../utils/format.ts";
+import BgImage from "../components/BgImgBd.tsx";
 
 function groupShowings(showings: EventShowing[]) {
   const processedMovieIds = new Set<string>();
@@ -80,12 +67,13 @@ function EventCard({
   const paragraphs = parseEventInfo(event.info);
   const { movies } = groupShowings(data ?? []);
 
-  const dateRange = formatDatePeriod(period.startDate, period.endDate);
+  const dateRange = formatPeriod(period.startDate, period.endDate);
+  const image = eventImage(event.image, "(min-width: 992px) 520px, 100vw");
 
   return (
     <article
       id={isFirstPeriod ? `event-${event.eventId}` : undefined}
-      className="event-card"
+      className="event-card page-container"
       aria-labelledby={headingId}
     >
       <Row className="g-0">
@@ -93,7 +81,9 @@ function EventCard({
           <div className="event-image-border">
             <img
               className="event-image"
-              src={event.image ?? backgroundImage}
+              src={image.src || backgroundImage}
+              srcSet={image.srcSet}
+              sizes={image.sizes}
               alt={event.altText ?? ""}
               loading="lazy"
             />
@@ -207,17 +197,12 @@ export default function EventPage() {
         isFirstPeriod: index === 0,
       })),
     )
-    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate));
+    .sort((a, b) => a.period.startDate.localeCompare(b.period.startDate))
+    .slice(0, 3);
 
   return (
-    <div
-      className="event-page min-vh-100 w-100"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <BgImage>
+    <div>
       <Container className="event-page-container">
         <header className="event-header">
           <h1>Kommande event</h1>
@@ -249,11 +234,12 @@ export default function EventPage() {
         )}
       </Container>
     </div>
+      </BgImage>
   );
 }
 
 EventPage.route = {
-  path: "/event",
+  path: routes.events,
   order: 1,
   label: "Event",
 };

@@ -4,6 +4,7 @@ import express, {
   type Response,
 } from "express";
 import dotenv from "dotenv";
+import path from "node:path";
 import moviesRouter from "./routes/movies.js";
 import bookingRouter from "./routes/bookings.js";
 import auditoriumRouter from "./routes/auditorium.js";
@@ -14,28 +15,42 @@ import ticketsRouter from "./routes/tickets.js";
 import usersRouter from "./routes/users.js";
 import { WebSocketServer, WebSocket } from "ws";
 import { subscriptions } from "./websocket.js";
+import { startScheduler } from "./scheduler.js";
 dotenv.config();
 
-//Fångar ohanterade asynkrona fel
+
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled error:", err);
 });
 
 const app = express();
+app.disable("x-powered-by");
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.json({ data: "data received" });
-});
+const distFolder = path.join(import.meta.dirname, "..", "frontend", "dist");
 
-app.use("/movies", moviesRouter);
-app.use("/bookings", bookingRouter);
-app.use("/auditorium", auditoriumRouter);
-app.use("/events", eventsRouter);
-app.use("/seats", seatsRouter);
-app.use("/showings", showingsRouter);
-app.use("/tickets", ticketsRouter);
-app.use("/users", usersRouter);
+const api = express.Router();
+
+api.use("/movies", moviesRouter);
+api.use("/bookings", bookingRouter);
+api.use("/auditorium", auditoriumRouter);
+api.use("/events", eventsRouter);
+api.use("/seats", seatsRouter);
+api.use("/showings", showingsRouter);
+api.use("/tickets", ticketsRouter);
+api.use("/users", usersRouter);
+
+app.use("/api", api);
+
+app.use(express.static(distFolder));
+
+app.get("/{*splat}", (req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith("/api") || !req.accepts("html")) {
+    next();
+    return;
+  }
+  res.sendFile(path.join(distFolder, "index.html"));
+});
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: { message: "Det du söker finns inte." } });
@@ -58,7 +73,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
-  console.log("server ok");
+  startScheduler();
 });
 
 const wss = new WebSocketServer({
@@ -66,7 +81,6 @@ const wss = new WebSocketServer({
   path: "/ws",
 });
 wss.on("connection", (ws) => {
-  console.log("WebSocket connected");
 
   ws.on("message", (message) => {
     let data: { type?: unknown; showingId?: unknown };
@@ -85,7 +99,6 @@ wss.on("connection", (ws) => {
 
       subscriptions.get(showingId)?.add(ws);
 
-      console.log("Subscribe:", showingId);
     }
   });
   ws.on("close", () => {
@@ -97,6 +110,5 @@ wss.on("connection", (ws) => {
       }
     });
 
-    console.log("WebSocket disconnected");
   });
 });

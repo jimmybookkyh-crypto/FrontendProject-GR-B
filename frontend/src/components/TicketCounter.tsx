@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { InputGroup, Form } from "react-bootstrap";
 import type { TicketCounterProps } from "../interface/types";
+import { formatPrice } from "../utils/format";
 
 export default function TicketCounter({
   label,
@@ -20,7 +21,7 @@ export default function TicketCounter({
       <div className="ticket-text">
         <span className="ticket-info">
           <span> {label}:</span>
-          <span className="ticket-price"> {price} kr </span>
+          <span className="ticket-price"> {formatPrice(price)} </span>
         </span>
         {description && (
           <small id={descriptionId} className="ticket-description">

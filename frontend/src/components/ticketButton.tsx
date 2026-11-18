@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { Button } from "react-bootstrap";
 import type { TicketButtonProps } from "../interface/types";
 
 export default function TicketButton({
@@ -8,15 +7,14 @@ export default function TicketButton({
   onClick,
 }: TicketButtonProps) {
   return (
-    <Button
-      as={Link as any}
+    <Link
       to={to}
-      variant="normal"
-      className="boka-knapp"
+      viewTransition
+      className="cta-btn text-decoration-none"
       onClick={onClick}
     >
       {label}
-    </Button>
+    </Link>
   );
 }
 
