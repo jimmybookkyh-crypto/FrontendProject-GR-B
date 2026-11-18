@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
 import Card from "react-bootstrap/Card";
 import AgeBadge from "./AgeBadge";
@@ -25,12 +25,13 @@ const MovieCard: React.FC<MovieCardProps> = ({
   date,
   navigatedFrom,
 }) => {
+  const [posterLoaded, setPosterLoaded] = useState(false);
+
   const poster = moviePoster(
     images,
     "(min-width: 992px) 25vw, (min-width: 768px) 33vw, 50vw",
   );
 
-  // Bygg sökvägen, med valt datum och från beskrvining om det finns
   const targetPath = `${paths.movie(movieId)}${
     date || navigatedFrom
       ? `?${date ? `datum=${date}` : ""}${
@@ -59,6 +60,9 @@ const MovieCard: React.FC<MovieCardProps> = ({
           sizes={poster.sizes}
           alt={title}
           loading="lazy"
+          className={`movie-card-poster${posterLoaded ? " is-loaded" : ""}`}
+          onLoad={() => setPosterLoaded(true)}
+          onError={() => setPosterLoaded(true)}
         />
 
         <AgeBadge

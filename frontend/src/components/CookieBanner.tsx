@@ -60,7 +60,7 @@ export default function CookieBanner() {
           Vi sparar det som behövs i din webbläsare för att du ska kunna logga
           in och för att vi ska komma ihåg ditt val. Längre fram vill vi också
           använda cookies för statistik, men bara om du godkänner det.{" "}
-          <Link to={paths.cookies} style={{ color: "#DFA213" }}>
+          <Link to={paths.cookies} viewTransition style={{ color: "#DFA213" }}>
             Läs mer om cookies
           </Link>
         </p>
