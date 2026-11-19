@@ -143,7 +143,7 @@ Hur sajten driftsätts och uppdateras på servern beskrivs i [DRIFT.md](DRIFT.md
 │   ├── scheduler.ts     # Kör skripten i scripts/ vid start och var tionde minut
 │   ├── server.ts        # Startar Express, WebSocket-servern och schemaläggaren
 │   └── websocket.ts     # Platsuppdateringar i realtid
-├── docs/                # ER-diagram och inlämning Del 1 (PDF)
+├── docs/                # ER-diagram
 ├── frontend/
 │   ├── dist/            # Byggd frontend, skapas av npm run build, finns inte i git
 │   ├── public/
@@ -243,9 +243,10 @@ Alla endpoints nås via `/api` från frontend. 🔒 = kräver inloggning, 👑 =
 
 ## Gränssnittsdesign (Del 1)
 
-Wireframes, klickbar prototyp, målgruppsbeskrivning, stilguide och tidsplan finns samlade i docs/Filmvisarna_Inlamning_Del1.pdf som lämnas in separat.
+Wireframes, klickbar prototyp, målgruppsbeskrivning, stilguide och tidsplan lämnas in separat som PDF i Omniway.
+
 - Wireframes gjordes i Figma. Mockup och klickbar prototyp byggdes i HTML och Bootstrap.
-- Tre målgrupper: familjen (barn 0–11 år och deras föräldrar), fandom (16–24 år) och nostalgikern (30+ år).
+- Tre målgrupper: familjen (barn 0–11 år och deras föräldrar), fandom (16–24 år) och nostalgikern (30–50 år).
 - Tidsplanen följde kursens fem sprintar. Vi planerade user stories, tasks och frågor till produktägaren i en egen Excel-fil, som vi uppdaterade inför varje sprint.
 
 ## Arbetssätt
