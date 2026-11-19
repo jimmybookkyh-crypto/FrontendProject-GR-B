@@ -183,7 +183,6 @@ a.fv-login:focus-visible {
   outline-offset: 4px;
 }
 
-/* ---------- Desktop: flikarna centrerade med mer avstånd ---------- */
 @media (min-width: 992px) {
   .fv-navbar .navbar-collapse {
     order: 1;
@@ -209,7 +208,6 @@ a.fv-login:focus-visible {
   }
 }
 
-/* 1200-1599 px */
 @media (min-width: 1200px) {
   .fv-navbar .fv-nav {
     gap: 2.8rem;
@@ -221,7 +219,6 @@ a.fv-login:focus-visible {
   }
 }
 
-/* 1600 px och uppåt: flikarna exakt mitt i baren, stora och luftiga */
 @media (min-width: 1600px) {
   .fv-navbar .fv-nav {
     position: absolute;
@@ -261,7 +258,7 @@ a.fv-login:focus-visible {
     margin: 0 0.75rem 0 auto;
   }
 
-  /* Bara ikonen, ingen text. Länken ligger utanför den nerfällda menyn */
+  /* Bara ikonen. Länken ligger utanför den nerfällda menyn */
   .fv-navbar .fv-login {
     margin: 0;
   }
@@ -375,7 +372,7 @@ a.fv-login:focus-visible {
    Mindre text på mobil, och långa namn kortas med … */
 .fv-account-name {
   display: inline-block;
-  max-width: 10rem; /* P32: långa namn kortas med … även på dator */
+  max-width: 10rem; /* långa namn kortas med … även på dator */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
