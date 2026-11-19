@@ -1,5 +1,9 @@
 **GitHub-repo:** [jimmybookkyh-crypto/FrontendProject-GR-B](https://github.com/jimmybookkyh-crypto/FrontendProject-GR-B)
 
+**Figma-Wireframe** [Grupp-B Wireframe och målgruppsbeskrivning](https://www.figma.com/board/9DxCfGzqx0Uv5kClQtG4f1/Wireframe?node-id=0-1&t=VhLdufxC0mc1Y7Ma-0)
+
+**Tidsplan:** [Excel tidsplan (utöver github-projects och pokerplanning)](https://onedrive.live.com/:x:/g/personal/72705aff32cd9855/IQDCPkpy7ToSTI_rXiypwMAjAe6q_UwdE5MfuXLUp-M97TY?rtime=FibMKipG30g&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3gvYy83MjcwNWFmZjMyY2Q5ODU1L0lRRENQa3B5N1RvU1RJX3JYaXlwd01BakFlNnFfVXdkRTVNZnVYTFVwLU05N1RZP2U9OUVEbGh1)
+
 # Filmvisarna
 
 En bokningssajt för biografen Filmvisarna i Småstad
