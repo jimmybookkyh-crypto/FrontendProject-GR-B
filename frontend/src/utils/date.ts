@@ -13,7 +13,7 @@ const monthsShort = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "se
 
 /* Date -> "2026-10-22". Månad och dag fylls ut med nolla: 3 blir "03". */
 function toDateText(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() börjar på 0
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${date.getFullYear()}-${month}-${day}`;
 }
@@ -43,8 +43,7 @@ export function formatShortDate(text: string): string {
   return `${weekdaysShort[date.getDay()]} ${date.getDate()} ${monthsShort[date.getMonth()]}`;
 }
 
-/* Används för datumet i adressen (?datum=...). Någon kan skriva vad som helst där.
-   Är det inte ett riktigt datum, eller är det före idag, så blir det idag. */
+// Används för datumet i adressen (?datum=...). Någon kan skriva vad som helst där.
 export function validDate(text: string | null): string {
   const today = addDays(0);
   if (text === null) return today;

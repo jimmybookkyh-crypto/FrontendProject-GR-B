@@ -10,7 +10,7 @@ export const COOKIE_POLICY_UPDATED = "2026-11-05";
 // Skickas när valet ändras, så att bannern döljs även om valet görs på /cookies
 export const CONSENT_CHANGED_EVENT = "cookieconsentchange";
 
-/* Läser det sparade valet. null = inget giltigt val (då visas bannern). */
+// Läser det sparade valet. null = inget giltigt val (då visas bannern).
 export function getCookieConsent(): CookieConsent | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -31,7 +31,7 @@ export function getCookieConsent(): CookieConsent | null {
   }
 }
 
-/* Sparar valet med dagens datum. statistics: true = "Godkänn alla". */
+// Sparar valet med dagens datum. statistics: true = "Godkänn alla".
 export function saveCookieConsent(statistics: boolean): CookieConsent {
   const consent: CookieConsent = {
     statistics,
