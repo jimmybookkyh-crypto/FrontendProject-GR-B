@@ -1,5 +1,7 @@
 **GitHub-repo:** [jimmybookkyh-crypto/FrontendProject-GR-B](https://github.com/jimmybookkyh-crypto/FrontendProject-GR-B)
 
+**Figma-Wireframe** [Grupp-B Wireframe och målgruppsbeskrivning](https://www.figma.com/board/9DxCfGzqx0Uv5kClQtG4f1/Wireframe?node-id=0-1&t=VhLdufxC0mc1Y7Ma-0)
+
 # Filmvisarna
 
 En bokningssajt för biografen Filmvisarna i Småstad
