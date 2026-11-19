@@ -1,17 +1,6 @@
 import { useState, type InputHTMLAttributes } from "react";
 import "../styles/PasswordInput.css";
 
-/* Lösenordsfält med ögon-knapp som visar eller döljer lösenordet.
-   Fungerar som ett vanligt <input>: alla vanliga props (value, onChange, name,
-   placeholder, autoComplete, id, className …) skickas vidare.
-
-   Användning:
-     <PasswordInput id="login-password" className="form-control" value={…} onChange={…} />
-     <PasswordInput {...formAttribute("password")} placeholder="lösenord" />
-
-   invalid = true ger Bootstraps röda ram (is-invalid). Felmeddelandet läggs utanför
-   komponenten med className="d-block", eftersom fältet ligger i en egen wrapper. */
-
 type PasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
   invalid?: boolean;
 };

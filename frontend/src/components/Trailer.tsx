@@ -2,13 +2,11 @@ import Card from "react-bootstrap/Card";
 import Ratio from "react-bootstrap/Ratio";
 
 type TrailerProps = {
-  youtubeId?: string | null; // från movies.youtubetrailers[0], t.ex. "Go8nTmfrQd8"
-  title: string; // filmens titel, läses upp av skärmläsare
+  youtubeId?: string | null;
+  title: string;
 };
 
-/* #339: Gemensam trailerspelare.
-   Användning: <Trailer youtubeId={film.youtubetrailers?.[0]} title={film.title} />
-   Saknas trailer visas ingenting. */
+
 export default function Trailer({ youtubeId, title }: TrailerProps) {
   if (!youtubeId) return null;
 
@@ -21,7 +19,6 @@ export default function Trailer({ youtubeId, title }: TrailerProps) {
         <div className="trailer-container rounded">
           <Ratio aspectRatio="16x9">
             <iframe
-              // youtube-nocookie.com sätter inga spårningscookies förrän man trycker play
               src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
               title={`Trailer: ${title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
