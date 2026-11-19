@@ -7,16 +7,13 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 import { paths } from "../utils/paths.ts";
-
 import { useAuth } from "../utils/authContext.tsx";
 
 export default function Header() {
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
   const [aboutOpen, setAboutOpen] = useState(false);
-
   const { user, loading, logout } = useAuth();
-
   const hasHover = () =>
     window.matchMedia("(hover: hover) and (min-width: 992px)").matches;
 
@@ -197,7 +194,6 @@ function AdminAccountMenu({ username }: { username: string }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [openedForKey, setOpenedForKey] = useState<string | null>(null);
-
   const { pathname, search, hash } = location;
   const inAdmin = pathname.startsWith(paths.admin);
   const onAccountPage = inAdmin || pathname.startsWith(paths.myPage);
