@@ -7,8 +7,6 @@
   padding-bottom: 3rem;
 }
 
-
-/* Sidrubrik */
 .event-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -31,7 +29,6 @@
   margin: 0;
 }
 
-/* Lista med event, ett under varandra */
 .event-list {
   list-style: none;
   margin: 0;
@@ -47,7 +44,6 @@
   font-family: "Oswald", sans-serif;
 }
 
-/* Eventkort */
 .event-card {
   background-color: rgba(16, 14, 28, 0.65);
   backdrop-filter: blur(12px);
@@ -89,7 +85,7 @@
   }
 }
 
-/* Period som en tydlig bricka (Midnatt på Guldgul = 9,3:1) */
+/* (Midnatt på Guldgul = 9,3:1) */
 .event-period {
   display: inline-block;
   margin: 0 0 0.75rem;
@@ -123,7 +119,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* Filmlista (öppnas med knapp) */
 .event-movies {
   list-style: none;
   margin: 0.75rem 0 0;
@@ -144,7 +139,6 @@
   padding: 0.25rem 0;
 }
 
-/* Knappar */
 .event-buttons {
   display: flex;
   flex-direction: column;

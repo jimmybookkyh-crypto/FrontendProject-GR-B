@@ -1,11 +1,9 @@
 import Alert from "react-bootstrap/Alert";
 
 type ErrorMessageProps = {
-  message: string; // felmeddelandet från useFetch
+  message: string;
 };
 
-/* Gemensam felruta.
-   Användning: {error && <ErrorMessage message={error} />} */
 export default function ErrorMessage({ message }: ErrorMessageProps) {
   return (
     <Alert

@@ -18,12 +18,10 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
         headers.set("Content-Type", "application/json");
     }
 
-    //Authorization adderas bara om en token finns
     if(token) {
         headers.set("Authorization", `Bearer ${token}`);
     }
 
-    //skickar http anropet
     const response = await fetch(
         `${BASE_URL}/${path.replace(/^\+/, "")}`,
         {
@@ -32,19 +30,15 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
         }
     );
 
-    //DELETE kan svara med 204 No Content
     if(response.status === 204) {
         return undefined as T;
     }
 
-    //TypeScript låter inte använda innehållet som om det hade en bestämd struktur 
-    //  innan man kontrollerat eller typat det
     let body: unknown;
 
     try {
-        body = await response.json(); //läser svaret
+        body = await response.json();
     } catch {
-        //om JSON inte går att läsa
         if(!response.ok) {
             throw new Error("Något gick fel. Försök igen om en stund.");
         }
@@ -60,7 +54,6 @@ export default async function apiRequest<T>(path: string, options: RequestInit =
     }
 
     //stödjer både { data: ... } och directa JSON responses
-
     if( typeof body === "object" && body !== null && "data" in body) {
         return (body as { data: T }).data;
     }

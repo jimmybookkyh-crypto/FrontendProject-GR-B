@@ -15,7 +15,7 @@ interface MovieGridProps {
   movies: Movie[];
   date?: string;
   navigatedFrom?: string;
-  showDetails?: boolean; // <-- Lägg till denna i interface
+  showDetails?: boolean;
 }
 
 const MovieGrid: React.FC<MovieGridProps> = ({
@@ -35,7 +35,7 @@ const MovieGrid: React.FC<MovieGridProps> = ({
             ageRating={movie.ageRating}
             date={date}
             navigatedFrom={navigatedFrom}
-            showDetails={showDetails} // <-- Skicka vidare till MovieCard
+            showDetails={showDetails}
           />
         </Col>
       ))}

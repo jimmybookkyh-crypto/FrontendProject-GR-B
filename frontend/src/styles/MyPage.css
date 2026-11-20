@@ -1,5 +1,4 @@
-/* Mina sidor (T126) – färger från den grafiska profilen.
-   Variablerna gäller även modalerna, som React-Bootstrap lägger utanför .mypage */
+/* Variablerna gäller även modalerna, som React-Bootstrap lägger utanför .mypage */
 .mypage,
 .mypage-modal {
   --mp-guld: var(--fv-guldgul);
@@ -21,8 +20,6 @@
   font-weight: 300;
 }
 
-/* ---------- Rubrik ---------- */
-
 .mypage-title {
   font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
   font-size: clamp(2.4rem, 5vw, 3.4rem);
@@ -40,8 +37,6 @@
   max-width: 760px;
   margin: 0 auto 1.5rem;
 }
-
-/* ---------- Paneler ---------- */
 
 .mypage-panel {
   background: var(--mp-panel);
@@ -77,8 +72,6 @@
   margin-left: 0.4rem;
 }
 
-/* ---------- Formulär ---------- */
-
 .mypage .form-label {
   font-size: 0.95rem;
   margin-bottom: 0.3rem;
@@ -106,7 +99,7 @@
 }
 
 .mypage .invalid-feedback {
-  color: var(--fv-fel-rosa); /* läsbar mot mörk bakgrund */
+  color: var(--fv-fel-rosa);
 }
 
 .mypage-help {
@@ -114,13 +107,11 @@
    font-size: 1rem;
 }
 
-/* ---------- Knappar ---------- */
-
 .mypage-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px; /* stor nog att trycka på i mobil */
+  min-height: 44px;
   padding: 0.5rem 1.1rem;
   border-radius: 6px;
   font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
@@ -184,8 +175,6 @@
   padding: 0.6rem 1.8rem;
 }
 
-/* ---------- Kommande bokningar ---------- */
-
 .mypage-list {
   list-style: none;
   padding: 0;
@@ -237,7 +226,6 @@
   margin: 0.2rem 0 0.25rem;
 }
 
-/* Bokningsnumret överst i kortet, stort och guldgult (#517) */
 .mypage-bookingnr {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
@@ -293,8 +281,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ---------- Tidigare bokningar ---------- */
 
 .mypage-past {
   gap: 0;
@@ -368,8 +354,6 @@
   }
 }
 
-/* ---------- Tomma lägen ---------- */
-
 .mypage-empty {
   background: var(--mp-kort);
   border-radius: 6px;
@@ -382,7 +366,7 @@
   color: var(--mp-dampad);
 }
 
-/* ---------- Modaler (renderas utanför .mypage, därför egna färger) ---------- */
+/* Modaler renderas utanför .mypage, därför egna färger */
 
 /* .modal-content.mypage-modal: två klasser, så att stilen vinner över Bootstrap
    (bootstrap.min.css laddas efter sidornas CSS i main.tsx) */

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/* Alla anrop går via /api – Vite-proxyn (#336) skickar dem vidare till backend */
+/* Alla anrop går via /api */
 const BASE_URL = "/api";
 
 type FetchState<T> = {
@@ -9,13 +9,11 @@ type FetchState<T> = {
   error: string | null;
 };
 
-/* Backend svarar alltid { data: ... } eller { error: { message: ... } } */
 type ApiResponse<T> = {
   data?: T;
   error?: { message?: string };
 };
 
-/* Översätter statuskoden till ett svenskt felmeddelande */
 function getErrorMessage(status: number, backendMessage?: string): string {
   if (status === 401) return "Du behöver logga in igen för att se det här.";
   if (backendMessage) return backendMessage;
@@ -25,27 +23,22 @@ function getErrorMessage(status: number, backendMessage?: string): string {
   return "Något gick fel när informationen skulle hämtas.";
 }
 
-/* Hämtar data från backend.
-   path = sökvägen i backend, t.ex. "/movies/current" eller `/movies/${id}`.
-   Skicka null om hämtningen ska vänta (t.ex. tills ett id finns).
-   Användning: const { data, loading, error } = useFetch<Movie[]>("/movies/current"); */
+/* Hämtar data från backend. */
 export default function useFetch<T>(path: string | null): FetchState<T> {
   const [state, setState] = useState<FetchState<T>>({
     data: null,
-    loading: path !== null, // väntar om det finns något att hämta
+    loading: path !== null, 
     error: null,
   });
 
   useEffect(() => {
     if (path === null) return;
 
-    // Avbryter anropet om sidan lämnas eller path ändras innan svaret kommit
     const controller = new AbortController();
     setState({ data: null, loading: true, error: null });
 
     (async () => {
-      // Skickar med inloggningens token om den finns (T126e).
-      // Behövs för skyddade anrop som /bookings/me, påverkar inte publika anrop.
+      // Behövs för skyddade anrop som /bookings/me
       const headers = new Headers();
       const token = localStorage.getItem("token");
       if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -71,7 +64,7 @@ export default function useFetch<T>(path: string | null): FetchState<T> {
       try {
         body = await response.json();
       } catch {
-        // Svaret var inte JSON, t.ex. om backend inte är igång
+      
       }
       if (controller.signal.aborted) return;
 

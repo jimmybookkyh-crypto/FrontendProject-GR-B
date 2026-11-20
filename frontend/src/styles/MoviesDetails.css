@@ -24,7 +24,7 @@
 .film-sida .film-stack>.card {
   margin-bottom: 0 !important;
 }
-/* Vinröda knappar utan hover-effekt. Bootstrap-variablerna sätts om så att
+/* Bootstrap-variablerna sätts om så att
    samma färg gäller i alla lägen (hover, tryck och fokus). */
 .film-sida .tid-knapp,
 .film-sida .tillbaka-knapp {
@@ -47,7 +47,6 @@
   min-height: 52px;
 }
 
-/* Filminformation: större ruta och text, ljusare färg så den syns mot bakgrunden */
 .film-sida .film-info h1,
 .film-sida .film-info h2 {
   font-size: clamp(2rem, 3vw, 2.75rem);
@@ -90,7 +89,6 @@
   color: var(--fv-guldgul);
 }
 
-/* Valt datum: etiketten i guld, själva datumet i vitt */
 .film-sida .valt-datum {
   color: var(--fv-guldgul);
 }
@@ -104,7 +102,6 @@
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
 }
 
-/* Trailer */
 .trailer-container {
   margin: 0 auto;
   border: 5px solid #000;
@@ -128,14 +125,11 @@
   }
 }
 
-/* ---------- Visningsknappen: salong och tid på en rad ---------- */
+/* salong och tid på en rad */
 .film-sida .tid-knapp {
   white-space: nowrap;
-  font-size: 1.25rem; /* same size as the old size="lg" */
+  font-size: 1.25rem;
 }
-
-/* Bara på mobil: lite mindre text så att längre salongsnamn ryms.
-   På iPad och desktop behåller knappen sin vanliga storlek. */
 
 @media (min-width: 576px) {
   .film-sida .tid-knapp {

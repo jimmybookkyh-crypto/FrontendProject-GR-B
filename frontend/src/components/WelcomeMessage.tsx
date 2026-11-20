@@ -3,9 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import Alert from "react-bootstrap/Alert";
 import { useAuth } from "../utils/authContext.tsx";
 
-/* Välkomstmeddelande efter nyregistrering.
-   Register skickar med state.welcome när användaren blivit inloggad direkt.
-   Komponenten ligger i App och visas därför på den sida man hamnar på. */
+
 export default function WelcomeMessage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,20 +12,19 @@ export default function WelcomeMessage() {
 
   const welcome = location.state?.welcome === true;
 
-  // Visar meddelandet när Register har skickat med welcome
+
   useEffect(() => {
     if (!welcome) return;
 
     setIsVisible(true);
 
-    // Tar bort state, annars visas meddelandet igen när sidan laddas om
     navigate(location.pathname + location.search + location.hash, {
       replace: true,
       state: null,
     });
-  }, [welcome]); // körs bara när welcome ändras
+  }, [welcome]); 
 
-  // Försvinner av sig självt efter 6 sekunder
+
   useEffect(() => {
     if (!isVisible) return;
 
@@ -37,7 +34,7 @@ export default function WelcomeMessage() {
 
   if (!isVisible || !user) return null;
 
-  // Ligger över sidan (fixed) så att innehållet inte hoppar när rutan försvinner
+
   return (
     <div
       className="position-fixed start-50 translate-middle-x px-3"

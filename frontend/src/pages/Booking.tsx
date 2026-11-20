@@ -36,13 +36,11 @@ import BgImage from "../components/BgImgBd.tsx";
 
 export default function BookingPage() {
   const navigate = useNavigate();
-  // Läs showingId från URL:en (/bokning/:showingId)
+  
   const { showingId } = useParams();
 
-  // Hämta den inloggade användaren från AuthContext
   const { user } = useAuth();
 
-  // State för e-post och userId
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState<number | null>(null);
 
@@ -67,12 +65,11 @@ export default function BookingPage() {
   const showing = showingRaw;
   const currentMovieId = showing?.movieId;
 
-  // Hämta filmens detaljer (affisch, speltid, åldersgräns m.m.)
   const { data: movie } = useFetch<Movie>(
     currentMovieId ? `/movies/${currentMovieId}` : null,
   );
 
-  // Titeln finns redan i visningen, filmens titel är reserv
+  
   const currentTitle = showing?.movieTitle || movie?.title || "Laddar...";
   const currentImages = movie?.images ?? [];
   const currentDate = formatDate(showing?.date);
@@ -81,7 +78,6 @@ export default function BookingPage() {
   const currentAuditoriumId = showing?.auditoriumId ?? 0;
   const currentAuditoriumName = showing?.auditoriumName || "Salong";
 
-  // Hämta alla stolar för salongen från /seats
   const {
     data: seatsRaw,
     loading: seatsLoading,
@@ -95,7 +91,6 @@ export default function BookingPage() {
   // ANvänder useSeatUpdates för att få realtidsuppdateringar av upptagna stolar via WebSocket
   const occupiedSeats = useSeatUpdates(showingId);
 
-  // Hämta biljetttyper från API:et
   const { data: ticketTypesRaw } = useFetch<TicketType[]>(
     "/tickets/ticketTypes",
   );
@@ -121,7 +116,7 @@ export default function BookingPage() {
 
   const draft = showingId ? loadBookingDraft(Number(showingId)) : null;
 
-  // State
+
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>(
     draft?.selectedSeats || [],
   );
@@ -189,7 +184,7 @@ export default function BookingPage() {
       });
     }
   }, [seatWarning]);
-  // Använder calculateTotalPrice från bookingHelpers
+ 
   const totalPrice = calculateTotalPrice(
     adultTickets,
     childTickets,
@@ -200,7 +195,7 @@ export default function BookingPage() {
   );
 
   const handleSeatClick = (seat: Seat) => {
-    setSeatWarning(null); // Nollställ varningen när användaren klickar på en stol
+    setSeatWarning(null); 
 
     setSelectedSeats((current) =>
       current.some((s) => Number(s.seatId) === Number(seat.seatId))
@@ -234,7 +229,7 @@ export default function BookingPage() {
     const next = current + delta;
     if (next < 0) return setter(0);
 
-    // Använder getMaxAllowedTickets från bookingHelpers
+    
     const maxAllowed = getMaxAllowedTickets(
       selectedSeats.length,
       totalTickets,
@@ -334,7 +329,7 @@ export default function BookingPage() {
     };
 
     try {
-      // Skickar med inloggningens token så att backend kopplar bokningen till kontot (T126b).
+      
       // Utan token sparas bokningen som gästbokning och syns inte på Mina sidor.
       const token = localStorage.getItem("token");
       const response = await fetch("/api/bookings", {
@@ -373,12 +368,10 @@ export default function BookingPage() {
 
       clearBookingDraft();
 
-      // Biljettypens namn utifrån id, t.ex. 1 -> "Vuxen"
       const ticketTypeName = (id: number) =>
         ticketTypes.find((t) => t.ticketTypeId === id)?.name ?? "Biljett";
 
       // Navigera till bekräftelsesidan och skicka med bokningen i state.
-      // replace: true gör att bakåtknappen inte leder tillbaka till bokningsformuläret.
       navigate(paths.bookingConfirmation, {
         replace: true,
         viewTransition: true,
@@ -449,10 +442,8 @@ export default function BookingPage() {
     );
   }
 
-  // Visningen har redan börjat, t.ex. via en gammal länk eller bakåtknappen (#289).
-  // Backend nekar ändå bokningen, men här får besökaren beskedet direkt.
+  
   if (showing?.hasStarted) {
-    // Speltid som "1 tim 55 min", samma format som filmsidan
     const lengthText =
       movie?.length != null
         ? movie.length >= 60
@@ -479,7 +470,6 @@ export default function BookingPage() {
                     </Col>
                   </Row>
 
-                  {/* Filminformation, samma som på filmsidan */}
                   <h1
                     className="text-uppercase mb-1"
                     style={{ fontSize: "clamp(2rem, 3vw, 2.75rem)" }}
@@ -513,7 +503,6 @@ export default function BookingPage() {
 
                   <hr className="my-4" />
 
-                  {/* Beskedet */}
                   <h1 className="heading-gold h3 mb-3">
                     Visningen har redan börjat
                   </h1>
@@ -548,7 +537,6 @@ export default function BookingPage() {
   return (
     <BgImage>
       <div className="booking-page min-vh-100 text-light">
-        {/* Utan to/onClick går BackButton ett steg bakåt i historiken */}
         <BackButton />
 
         <h1 className="h4 fw-bold text-center mb-4 heading-gold">
@@ -749,7 +737,7 @@ export default function BookingPage() {
                             setEmailFieldError(undefined);
                           }}
                           isInvalid={!!emailFieldError}
-                          disabled={isSubmitting || !!user} // Inaktiverar ändring om inloggad
+                          disabled={isSubmitting || !!user} 
                         />
                         <Form.Control.Feedback type="invalid">
                           {emailFieldError}
