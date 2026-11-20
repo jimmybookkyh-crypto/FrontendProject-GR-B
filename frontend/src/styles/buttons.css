@@ -1,5 +1,4 @@
 .cta-btn {
-  /* Same font everywhere, also inside modals that set their own font */
   font-family: var(--bs-body-font-family);
   background: var(--fv-vinrod);
   color: var(--fv-vit);

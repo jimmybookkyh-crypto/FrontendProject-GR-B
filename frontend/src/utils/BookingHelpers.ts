@@ -1,4 +1,3 @@
-// Räknar ut totalpriset för alla biljetter
 export const calculateTotalPrice = (
   adultTickets: number,
   childTickets: number,
@@ -10,7 +9,6 @@ export const calculateTotalPrice = (
   return adultTickets * adultPrice + childTickets * childPrice + seniorTickets * seniorPrice;
 };
 
-// Räknar ut max antal biljetter man får lägga till baserat på valda stolar
 export const getMaxAllowedTickets = (
   totalSelectedSeats: number,
   totalCurrentTickets: number,

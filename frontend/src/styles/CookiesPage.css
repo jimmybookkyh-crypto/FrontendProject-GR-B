@@ -1,5 +1,4 @@
-/* Cookiesidan (P12 #416) – on/off-knappar i den grafiska profilens färger.
-   Färgvariablerna (--mp-…) kommer från .mypage i MyPage.css. */
+/* Färgvariablerna (--mp-…) kommer från .mypage i MyPage.css. */
 
 .cookies-switch .form-check-input {
   width: 3rem;

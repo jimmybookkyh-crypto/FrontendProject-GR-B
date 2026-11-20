@@ -5,7 +5,6 @@ import apiRequest from "./apiRequest.ts"
 import { jwtDecode } from "jwt-decode"; 
 import type { AuthUser } from "../interface/types";
 
-//för token decoding
 interface TokenPayload {
   sub: string;
 }
@@ -36,8 +35,7 @@ export const authService = {
             body: JSON.stringify({username, email, password}),
         });
     },
-
-    // ger användarens data baserat på token som finns i localStorage.
+    
     // restorerar användarens session vid uppdatering av sidan.
     async me(): Promise<AuthUser> {
         const token = localStorage.getItem("token");

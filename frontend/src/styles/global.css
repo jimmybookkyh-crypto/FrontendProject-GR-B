@@ -58,8 +58,6 @@ form a:focus {
   padding-bottom: 2.5rem;
 }
 
-/* ------- Page View Transitions ------- */
-
 ::view-transition-old(root) {
   animation: fade-out 200ms ease-in both;
 }
@@ -110,7 +108,6 @@ form a:focus {
 html {
   scrollbar-gutter: stable;
 }
-/* ------- Movie card poster ------- */
 
 .movie-card-poster {
   aspect-ratio: 2 / 3;
