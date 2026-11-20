@@ -22,7 +22,7 @@ const OPENING_HOURS = [
   { dagar: "Söndag", tid: "14–21" },
 ];
 
-/* TODO: kolla punkterna, särskilt Salong 2 */
+
 const AUDITORIUMS = [
   {
     id: "salong-1",

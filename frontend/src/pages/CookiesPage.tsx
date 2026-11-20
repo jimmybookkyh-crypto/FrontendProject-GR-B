@@ -14,8 +14,6 @@ import "../styles/CookiesPage.css";
 import { routes } from "../utils/paths.ts";
 import { formatFullDate } from "../utils/format.ts";
 
-/* Cookiesidan (P12 #416): förklarar vad som sparas och låter besökaren ändra sitt val.
-   Samma stil som Mina sidor (klasserna i MyPage.css). */
 export default function CookiesPage() {
   const [consent, setConsent] = useState(() => getCookieConsent());
 
