@@ -6,18 +6,13 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { formatShortDate, addDays } from "../utils/date";
 
-/*DateStrip: Idag, Imorgon, fem dagar till och en Kalender-knapp.
-   Sidan som använder den äger valt datum (selectedDate) och får veta
-   när det ändras via onSelectDate.
-   Stilen (.datumremsa, .filter-knapp) ligger i styles/Start.css, som laddas av Start.tsx. */
 
 type DateStripProps = {
-  selectedDate: string; // t.ex. "2026-10-22"
+  selectedDate: string;
   dateList?: string[];
   onSelectDate: (date: string) => void;
 };
 
-/* Texten på dagsknappen: "Idag", "Imorgon" eller t.ex. "lör 24 okt" */
 function buttonText(date: string): string {
   if (date === addDays(0)) return "Idag";
   if (date === addDays(1)) return "Imorgon";
@@ -32,10 +27,8 @@ export default function DateStrip({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const today = addDays(0);
 
-  // 7 dagar: idag, imorgon och fem dagar till eller showings datum som finns
+ 
   const days = dateList ?? [0, 1, 2, 3, 4, 5, 6].map((n) => addDays(n));
-  // Kalenderknappen lyser när kalendern är öppen, eller när man valt ett
-  // datum i kalendern som inte finns bland dagsknapparna.
   const calendarActive = calendarOpen || !days.includes(selectedDate);
 
   function selectDay(date: string) {
@@ -45,13 +38,9 @@ export default function DateStrip({
 
   function handleCalendarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const newDate = event.target.value;
-    // Tomt värde = datumet är inte färdigskrivet än.
-    // Före idag = inte tillåtet. min={today} stänger bara av dagarna i
-    // kalenderrutan, man kan ändå skriva ett gammalt datum med tangentbordet.
-    // Därför kollar vi här också. (Text i formatet ÅÅÅÅ-MM-DD går att jämföra.)
+
     if (newDate === "" || newDate < today) return;
     onSelectDate(newDate);
-    // Kalendern lämnas öppen tills man trycker på Kalender-knappen igen
   }
 
   return (
