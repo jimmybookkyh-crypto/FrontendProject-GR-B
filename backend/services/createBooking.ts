@@ -1,31 +1,20 @@
 import { randomBytes } from "crypto";
 import { pool } from "../db/pool.js";
-import {
-  Booking,
-  BookedTicket,
-  CreatedBooking,
-  CreateBookingInput,
-} from "../interface/types.js";
-import {
-  buildCancelUrl,
-  sendConfirmationEmail,
-} from "./sendConfirmationEmail.js";
+import { Booking, BookedTicket, CreatedBooking, CreateBookingInput, } from "../interface/types.js";
+import { buildCancelUrl, sendConfirmationEmail, } from "./sendConfirmationEmail.js";
 import { broadcastSeats } from "../websocket.js";
 
-/* Hämtar det mejlet behöver och skickar bekräftelsen.
-   Körs efter COMMIT utan await, så ett fel här kan aldrig stoppa eller ångra bokningen.
-   Fel loggas i terminalen. */
+
 async function sendMailForBooking(args: {
   bookingNumber: string;
   showingId: number;
-  guestEmail: string; // adressen från bokningsmodalen
-  userId: number | null; // null = gäst
-  cancelToken: string | null; // only guest bookings have one
+  guestEmail: string; 
+  userId: number | null; 
+  cancelToken: string | null; 
   tickets: BookedTicket[];
   totalPrice: number;
 }): Promise<void> {
   try {
-    // Samma format som GET /showings: date::text och klockslaget som "18:30"
     const showing = await pool.query<{
       title: string;
       date: string;
@@ -45,7 +34,6 @@ async function sendMailForBooking(args: {
       throw new Error("Visningen hittades inte");
     }
 
-    // Inloggad: mejlet går till kontots adress. Gäst: till adressen från modalen.
     let to = args.guestEmail;
 
     if (args.userId !== null) {
@@ -67,7 +55,6 @@ async function sendMailForBooking(args: {
       tickets: args.tickets,
       totalPrice: args.totalPrice,
       isMember: args.userId !== null,
-      // Guests get the cancellation link. The token is only ever sent in this email.
       cancelUrl: args.cancelToken ? buildCancelUrl(args.cancelToken) : undefined,
     });
   } catch (error) {
@@ -79,15 +66,12 @@ async function sendMailForBooking(args: {
   }
 }
 
-/* userId kommer från token (res.locals.user), aldrig från anropets body.
-   null = gästbokning. */
 export async function createBooking(
   input: CreateBookingInput,
   userId: number | null,
 ): Promise<CreatedBooking> {
   const { email, showingId, tickets } = input;
 
-  // Kolla dubbletter av säten
   const seatIds = tickets.map((t) => t.seatId);
   if (new Set(seatIds).size !== seatIds.length) {
     throw Object.assign(new Error("Samma säte kan inte bokas två gånger"), {
@@ -102,8 +86,6 @@ export async function createBooking(
   try {
     await client.query("BEGIN");
 
-    // Låser visningen och frågar databasen om den redan har börjat.
-    // Jämförelsen görs i SQL med now(), samma som avbokningen, så det blir inga tidszonsfel.
     const showing = await client.query<{
       auditoriumId: string;
       hasStarted: boolean;
@@ -122,7 +104,6 @@ export async function createBooking(
       });
     }
 
-    // Passerade visningar går inte att boka
     if (showing.rows[0].hasStarted) {
       throw Object.assign(
         new Error("Visningen har redan börjat och kan därför inte bokas"),
@@ -170,16 +151,13 @@ export async function createBooking(
         new Error("Ett eller flera säten är redan bokade"),
         { status: 409 },
       );
-      // pg ger bigint som text ("99"), men vi vill ha tal
+
       (err as any).seatIds = taken.rows.map((row: any) => Number(row.seatId));
       throw err;
     }
 
     const bookingNumber = randomBytes(4).toString("hex").toUpperCase();
 
-    // Guest bookings get a long random cancel token (64 characters), so the guest can
-    // cancel from the link in the email. Member bookings get none (they use My pages).
-    // The token is never part of "returning", so it never reaches the browser.
     const cancelToken =
       userId === null ? randomBytes(32).toString("hex") : null;
 
@@ -200,9 +178,6 @@ export async function createBooking(
       );
     }
 
-    // Bygger svaret av det vi redan har läst ovan:
-    // rad och stol från seats, typens namn och pris från ticketTypes.
-    // Allt är kontrollerat ovan, därför kan vi lita på att varje stol och typ finns (!).
     const seatById = new Map(seats.rows.map((s) => [Number(s.seatId), s]));
     const typeById = new Map(
       types.rows.map((t) => [Number(t.ticketTypeId), t]),
@@ -241,11 +216,7 @@ export async function createBooking(
 
     broadcastSeats(showingId, bookedSeatIds);
     
-    // pg ger bigint som text ("42"), men typen säger tal. Därför Number().
     const row = booking.rows[0];
-
-    // Bekräftelsemejlet skickas efter COMMIT och väntas inte in.
-    // Misslyckas det är bokningen sparad ändå, och felet loggas i terminalen.
     void sendMailForBooking({
       bookingNumber: row.bookingNumber,
       showingId,

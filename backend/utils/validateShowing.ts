@@ -67,14 +67,11 @@ export function checkShowingOverlap(
   const DEFAULT_CLEANING_TIME = 20;
   const cleaning = newShowing.cleaningTimeMinutes ?? DEFAULT_CLEANING_TIME;
 
-  // start and end time of the new showing 
   const newStart = parseShowingDateTime(newShowing.date, newShowing.time).getTime();
   const totalDurationMinutes = newShowing.movieDurationMinutes + cleaning;
   const newEnd = newStart + totalDurationMinutes * 60 * 1000;
 
-  // check against excisting showings in the same auditorium and date
   return existingShowings.some((existing) => { ;
-    // Ignorera den egna visningen vid PATCH/UPDATE
     if (
       newShowing.showingIdToExclude &&
       existing.showingId === newShowing.showingIdToExclude
@@ -84,12 +81,10 @@ export function checkShowingOverlap(
     if (existing.auditoriumId !== newShowing.auditoriumId) {
       return false;
     }
-    // count start and end time of the existing showing with cleaning time
     const existingStart = parseShowingDateTime(existing.date, existing.time).getTime();
     const existingTotalMinutes = existing.movieDurationMinutes + DEFAULT_CLEANING_TIME;
     const existingEnd = existingStart + existingTotalMinutes * 60 * 1000;
 
-    // Check for overlap start end time
     return newStart < existingEnd && newEnd > existingStart;
   });
 }

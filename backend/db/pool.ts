@@ -6,9 +6,6 @@ import { fileURLToPath } from "url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");
 dotenv.config({ path: path.join(root, ".env") });
 
-
-//BIGINT (in8)
-// Anger egen parser för PostgreSQL-dataypen BIGINT (in8) som annars returneras som sträng
 pg.types.setTypeParser(20, (value) => {
   const parsed = Number(value);
 
@@ -19,12 +16,10 @@ pg.types.setTypeParser(20, (value) => {
   return parsed;
 })
 
-//NUMERIC
-// Anger egen parser för PostgreSQL-dataypen NUMERIC
+
 pg.types.setTypeParser(1700, (value) => {
   const parsed = Number(value);
 
-  //förhindrar NaN och Infinity
   if(!Number.isFinite(parsed)) {
     throw new Error(`NOgiltigt NUMERIC-värde: ${value}`);
   }
@@ -58,12 +53,12 @@ export const pool = new pg.Pool({
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   ssl: { rejectUnauthorized: false },
-  max: 5,                        //max supabase anl
-  idleTimeoutMillis: 30000,      //stäng ansl som inte anv efter tid
-  connectionTimeoutMillis: 5000, //vid anslfel stäng efter tid
+  max: 5,                        
+  idleTimeoutMillis: 30000,      
+  connectionTimeoutMillis: 5000, 
 });
 
-pool.on("error", (err) => { //Om ohanterat error inträffar
+pool.on("error", (err) => { 
   console.error("Database error:", err.message);
 });
 

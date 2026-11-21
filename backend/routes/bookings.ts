@@ -4,22 +4,10 @@ import { parseId, toPositiveInt } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";
-import {
-  Booking,
-  CreateBookingInput,
-  TicketInput,
-} from "../interface/types.js";
+import { Booking, CreateBookingInput, TicketInput,} from "../interface/types.js";
 import { createBooking } from "../services/createBooking.js";
-import {
-  findBookingByNumber,
-  getBookingTickets,
-  parseBookingNumber,
-} from "../services/findBooking.js";
-import {
-  requireAuth,
-  requireAdmin,
-  type AuthUser,
-} from "../utils/requireAuth.js";
+import { findBookingByNumber, getBookingTickets, parseBookingNumber, } from "../services/findBooking.js";
+import { requireAuth, requireAdmin, type AuthUser, } from "../utils/requireAuth.js";
 import { optionalAuth } from "../utils/optionalAuth.js";
 import { getMyBookings } from "../services/myBookings.js";
 import { broadcastSeats } from "../websocket.js";
