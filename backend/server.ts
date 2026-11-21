@@ -1,8 +1,4 @@
-import express, {
-  type NextFunction,
-  type Request,
-  type Response,
-} from "express";
+import express, { type NextFunction, type Request, type Response, } from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 import moviesRouter from "./routes/movies.js";

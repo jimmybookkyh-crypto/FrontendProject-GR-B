@@ -11,9 +11,6 @@ const eventsRouter = Router();
 
 const EVENT_COLUMNS = `"eventId", created_at, name, date::text as date, current, info, image, "altText", tagline`;
 
-
-/* Kollar fälten i en POST/PATCH. Returnerar felmeddelande eller null.
-   partial = true (PATCH): fält som saknas är okej. */
 function validateEventBody(body: Record<string, unknown>, partial: boolean): string | null {
   if (!partial || 'name' in body) {
     if (typeof body.name !== 'string' || body.name.trim() === '' || body.name.length > 255) {
@@ -32,7 +29,6 @@ function validateEventBody(body: Record<string, unknown>, partial: boolean): str
   return null;
 }
 
-/* GET /events event med kommande perioder slutdatum idag eller senare */
 eventsRouter.get('/', async (req, res) => {
   const pagination = parsePagination(req.query);
 
@@ -69,7 +65,6 @@ eventsRouter.get('/', async (req, res) => {
   }
 });
 
-/* GET /events/:id */
 eventsRouter.get('/:id', async (req, res) => {
   const id = parseId(req.params.id);
 
@@ -102,7 +97,6 @@ eventsRouter.get('/:id', async (req, res) => {
   }
 });
 
-/* GET /events/:id/showings */
 eventsRouter.get('/:id/showings', async (req, res) => {
   const id = parseId(req.params.id);
 
@@ -132,7 +126,6 @@ eventsRouter.get('/:id/showings', async (req, res) => {
   }
 });
 
-/* POST /events  –  body: { name, date?, current?, info? } */
 eventsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
   const body = req.body ?? {};
 
@@ -161,7 +154,6 @@ eventsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-/* PATCH /events/:id  –  body: valfria fält av { name, date, current, info } */
 eventsRouter.patch('/:id', requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
 
@@ -230,7 +222,6 @@ eventsRouter.patch('/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-/* DELETE /events/:id */
 eventsRouter.delete('/:id', requireAuth , requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
 

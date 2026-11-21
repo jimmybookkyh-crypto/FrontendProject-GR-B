@@ -1,11 +1,6 @@
 import {
-  addDays,
-  isWeekend,
-  parseDateString,
-  WEEKDAY_EVENT_SLOTS,
-  WEEKEND_EVENT_SLOTS,
-  type EventPeriodDraft,
-  type ShowingSlot,
+  addDays, isWeekend, parseDateString, WEEKDAY_EVENT_SLOTS, WEEKEND_EVENT_SLOTS,
+  type EventPeriodDraft, type ShowingSlot,
 } from "./eventSchedule.js";
 import { checkShowingOverlap } from "./validateShowing.js";
 import type { ExistingShowing } from "../interface/types.js";

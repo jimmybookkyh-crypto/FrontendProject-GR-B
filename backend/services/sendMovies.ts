@@ -6,8 +6,6 @@ export const MOVIE_COLUMNS = `"movieId", title, productioncountries, productiony
   distributor, language, subtitles, director, actors, description, images,
   youtubetrailers, current, "ageRating"`;
 
-/* Hämtar en lista med filmer och skickar svaret.
-   where/params = valfritt filter, page = valfri limit/offset. */
 export async function sendMovies(
   res: Response,
   label: string,
