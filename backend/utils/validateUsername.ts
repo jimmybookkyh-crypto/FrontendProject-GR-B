@@ -1,5 +1,3 @@
-/* P32 (#511): användarnamnet får vara högst 20 tecken.
-   Samma gräns finns i frontend (validateUtil.ts). */
 export const USERNAME_MAX_LENGTH = 20;
 
 export function isUsernameTooLong(username: string): boolean {

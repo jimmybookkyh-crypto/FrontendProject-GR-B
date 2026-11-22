@@ -3,11 +3,7 @@ import { pool } from "../db/pool.js";
 import { signToken } from "../utils/jwt.js";
 import { parseId } from "../utils/parseId.js";
 import { hashPassword } from "../utils/hashPassword.ts";
-import {
-  requireAuth,
-  requireAdmin,
-  isValidRole,
-} from "../utils/requireAuth.ts";
+import { requireAuth, requireAdmin, isValidRole, } from "../utils/requireAuth.ts";
 import { parsePagination } from "../utils/parsePagination.js";
 import { normalizeEmail } from "../utils/normalizeEmail.js";
 import { validateEmail } from "../utils/validateEmail.js";

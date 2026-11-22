@@ -42,7 +42,6 @@ const MOVIE_FIELDS = [
   "ageRating",
 ];
 
-/* json-kolumner måste skickas som JSON-text, annars gör pg om en array till en Postgres-array */
 const JSON_FIELDS = [
   "productioncountries",
   "actors",
@@ -67,8 +66,6 @@ function toDbValue(entry: FieldEntry): unknown {
     ? JSON.stringify(entry.value)
     : entry.value;
 }
-
-//GET------------------------------------------------------------------------------------------------------
 
 moviesRouter.get("/", (req, res) => {
   const pagination = parsePagination(req.query);
@@ -169,8 +166,6 @@ moviesRouter.get("/:id", async (req, res) => {
   }
 });
 
-//POST------------------------------------------------------------------------------------------------------
-
 moviesRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
   const validationError = validateMovieData(req.body ?? {});
 
@@ -223,8 +218,6 @@ moviesRouter.post("/", requireAuth, requireAdmin, async (req, res) => {
       .json({ error: { message: "Fel vid skapande av film" } });
   }
 });
-
-//PATCH------------------------------------------------------------------------------------------------------
 
 moviesRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);
@@ -282,8 +275,6 @@ moviesRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
       .json({ error: { message: "Fel vid uppdatering av film" } });
   }
 });
-
-//DELETE------------------------------------------------------------------------------------------------------
 
 moviesRouter.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = parseId(req.params.id as string);

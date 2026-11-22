@@ -1,16 +1,14 @@
 import { pool } from "../db/pool.js";
 
-/* En biljett i en av användarens bokningar */
 export type MyBookingTicket = {
   seatsRow: number;
   seatsNumber: number;
-  ticketType: string; // t.ex. "Vuxen"
+  ticketType: string;
   price: number;
 };
 
-/* En bokning som den visas på Mina sidor */
 export type MyBooking = {
-  bookingId: string; // bigint kommer som text från pg
+  bookingId: string; 
   bookingNumber: string;
   createdAt: string;
   showingId: string;
@@ -18,8 +16,8 @@ export type MyBooking = {
   movieTitle: string;
   images: string[] | string | null;
   ageRating: number | null;
-  date: string; // "2026-10-26"
-  time: string; // "18:30"
+  date: string; 
+  time: string; 
   auditoriumName: string;
   isUpcoming: boolean;
   totalPrice: number;
@@ -29,20 +27,10 @@ export type MyBooking = {
 };
 
 export type MyBookings = {
-  upcoming: MyBooking[]; // närmast först
-  past: MyBooking[]; // senaste först
+  upcoming: MyBooking[]; 
+  past: MyBooking[]; 
 };
 
-/* Hämtar alla bokningar för en användare (T126c).
-   Om visningen är kommande eller passerad avgörs i SQL (jämförs med now()),
-   så att det inte blir tidszonsfel i JavaScript.
-   Datum returneras som text (date::text), som i T094b.
-
-   När avbokning som status är klar (T113) läggs detta till i select:
-     b.status,
-   och isUpcoming ändras till:
-     (b.status = 'confirmed' and (sh.date + sh."time") > now()) as "isUpcoming"
-   Då hamnar avbokade bokningar alltid under "Tidigare". */
 export async function getMyBookings(userId: number): Promise<MyBookings> {
   const { rows } = await pool.query<MyBooking>(
     `select

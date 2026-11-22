@@ -11,7 +11,6 @@ type Seat = {
   auditoriumId: number;
 };
 
-// GET /seats  |  ?auditoriumId=1
 seatsRouter.get("/", async (req, res) => {
   let auditoriumId: number | null = null;
 

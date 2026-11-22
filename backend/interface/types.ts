@@ -7,7 +7,6 @@ export interface Booking {
   userId: number | null;
 }
 
-// Nu säger TypeScript ifrån om någon försöker läsa userId från anropet.
 export interface CreateBookingInput {
   email: string;
   showingId: number;
@@ -19,24 +18,22 @@ export interface TicketInput {
   ticketTypeId: number;
 }
 
-/* En biljett i svaret från POST /bookings: stolen (rad och nummer) och biljettypen (namn och pris) */
 export interface BookedTicket {
   seatId: number;
   seatsRow: number;
   seatsNumber: number;
   ticketTypeId: number;
-  ticketType: string; // t.ex. "Vuxen"
+  ticketType: string; 
   price: number;
 }
 
-/* Svaret från POST /bookings: bokningen, biljetterna och totalpriset */
 export type CreatedBooking = Booking & {
   tickets: BookedTicket[];
   totalPrice: number;
 };
 
 export interface Movie {
-  movieId: number; // bigint kommer som text från pg
+  movieId: number; 
   title: string;
   productioncountries: string[] | null;
   productionyear: number | null;
@@ -61,29 +58,27 @@ export interface EventRow {
   date: string | null;
   current: boolean;
   info: string | null;
-  image: string | null; // adress till bilden i Supabase Storage
+  image: string | null; 
   altText: string | null;
   tagline: string | null;
 }
 
-/* En period i tabellen eventPeriods, datum som "YYYY-MM-DD" */
+
 export interface EventPeriod {
   startDate: string;
   endDate: string;
 }
 
-/* GET /events: eventet med sina kommande perioder */
 export interface EventWithPeriods
   extends Omit<EventRow, "created_at" | "date" | "current"> {
   periods: EventPeriod[];
 }
 
 export interface Auditorium {
-  auditoriumId: number; // bigint kommer som text från pg
+  auditoriumId: number; 
   name: string;
 }
 
-// Time and overlap validation functions.
 export interface ExistingShowing {
   showingId: number;
   auditoriumId: number;
@@ -100,16 +95,15 @@ export interface NewShowingCheck {
   cleaningTimeMinutes?: number;
   showingIdToExclude?: number;
 }
-/* En rad i svaret från GET /showings (routes/showings.ts).
-   Id som är bigint i databasen kommer som text från pg. */
+
 export interface ShowingListItem {
   showingId: string;
-  date: string; // "2026-10-19"
-  time: string; // "18:00"
+  date: string; 
+  time: string; 
   movieId: number;
   movieTitle: string;
   auditoriumId: string;
   auditoriumName: string;
   eventId: number | null;
-  hasStarted: boolean; // true = visningen har börjat och kan inte bokas (#289)
+  hasStarted: boolean; 
 }

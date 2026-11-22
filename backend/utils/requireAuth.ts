@@ -21,12 +21,6 @@ export interface AuthUser {
   role: Role;
 }
 
-/* requireAuth 
-   1. Kontrollerar att token är äkta och inte har gått ut.
-   2. Slår upp användaren i databasen vid varje anrop:
-      - Kontot raderat  -> 401, token slutar gälla direkt.
-      - Rollen ändrad   -> rollen hämtas från databasen, inte från token,
-                           så en admin som blivit "user" förlorar admin-rätten direkt. */
 export async function requireAuth(
   req: Request,
   res: Response,
@@ -34,14 +28,12 @@ export async function requireAuth(
 ) {
   const authHeader = req.headers.authorization;
 
-  // Kontrollera att Authorization-headern finns
   if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({
       error: { message: "Autentisering krävs, du måste vara inloggad" },
     });
   }
 
-  // Plockar token från headern och tar bort "Bearer "
   const token = authHeader.split(" ")[1];
 
   if (!token) {
@@ -50,7 +42,6 @@ export async function requireAuth(
     });
   }
 
-  // Nyckel för att verifiera token, måste finnas i .env-filen
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
@@ -59,7 +50,6 @@ export async function requireAuth(
     });
   }
 
-  // 1. Verifiera token
   let userIdFromToken: string;
 
   try {
@@ -81,7 +71,6 @@ export async function requireAuth(
     });
   }
 
-  // 2. Kontrollera att kontot finns kvar och hämta aktuell roll
   try {
     const { rows } = await pool.query<{ userId: string; role: string }>(
       `select "userId", role from users where "userId" = $1`,
@@ -104,7 +93,6 @@ export async function requireAuth(
 
     const user: AuthUser = { userId: String(userId), role };
 
-    // Spara användaren för senare middleware och routes
     res.locals.user = user;
 
     return next();
