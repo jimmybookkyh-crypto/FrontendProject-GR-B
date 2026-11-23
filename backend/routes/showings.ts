@@ -4,10 +4,7 @@ import { parseId } from "../utils/parseId.js";
 import { parsePagination } from "../utils/parsePagination.js";
 import { requireAuth, requireAdmin } from "../utils/requireAuth.js";
 import { pgErrorCode, pgInputErrorMessage } from "../utils/pgError.js";
-import {
-  validateShowingInput,
-  checkShowingOverlap,
-} from "../utils/validateShowing.js";
+import { validateShowingInput, checkShowingOverlap, } from "../utils/validateShowing.js";
 import { validateDate } from "../utils/validateDate.js";
 import type { ShowingListItem, ExistingShowing } from "../interface/types.js";
 
@@ -24,8 +21,6 @@ showingsRouter.get("/", async (req, res) => {
 
   const { limit, offset } = pagination;
 
-  /* Filtren är valfria: /showings?date=2026-10-19&movieId=3
-     Vi kollar dem innan vi frågar databasen, så ett fel värde ger 400 och inte 500. */
   const { date } = req.query;
 
   if (date !== undefined && !validateDate(date)) {
@@ -50,9 +45,6 @@ showingsRouter.get("/", async (req, res) => {
     }
   }
 
-  /* Bygger WHERE av de filter som skickats med.
-     Värdena läggs i values och skickas som $1, $2 ... och aldrig in i SQL-texten,
-     så ingen kan smuggla in egen SQL (SQL injection). */
   const conditions: string[] = [];
   const values: unknown[] = [];
 
@@ -120,7 +112,6 @@ showingsRouter.get("/:id", async (req, res, next) => {
   }
 });
 
-/* GET /showings/:id/seats - Hämtar alla upptagna stolar för en specifik visning via view */
 showingsRouter.get("/:id/seats", async (req, res) => {
   try {
     const showingId = parseInt(req.params.id, 10);
@@ -131,13 +122,11 @@ showingsRouter.get("/:id/seats", async (req, res) => {
         .json({ error: { message: "Ogiltigt visning-id" } });
     }
 
-    // Hämtar alla seatId direkt från din nyskapade booked_seats_view
     const { rows } = await pool.query(
       `SELECT "seatId" FROM public.booked_seats_view WHERE "showingId" = $1`,
       [showingId],
     );
 
-    // Mappar om resultatet till en ren array av nummer, t.ex. [12, 13, 14, 15]
     const occupiedSeatIds = rows.map((row) => Number(row.seatId));
 
     return res.status(200).json({ data: occupiedSeatIds });
@@ -240,7 +229,6 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
   }
 
   try {
-    // Hämta den nuvarande visningen
     const currentRes = await pool.query(
       `SELECT 
      "showingId",
@@ -289,7 +277,6 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
       movieDurationMinutes: Number(r.movieDurationMinutes),
     }));
 
-    // Överlappskontroll
     const isOverlapping = checkShowingOverlap(
       {
         auditoriumId: Number(activeAuditoriumId),
@@ -310,7 +297,6 @@ showingsRouter.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
       });
     }
 
-    // Uppdatera visningen i databasen
     const { rows } = await pool.query(
       `UPDATE showings
       SET "movieId" = $2,

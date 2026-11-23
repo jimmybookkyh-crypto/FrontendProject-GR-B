@@ -11,7 +11,6 @@ export async function hashPassword(
   try {
     const { password } = req.body ?? {};
 
-    // bcrypt använder bara de första 72 byten, så längre lösenord nekas
     if (
       typeof password !== "string" ||
       password.length < 8 ||
@@ -24,8 +23,6 @@ export async function hashPassword(
       });
     }
 
-    // Spara hashen under ett nytt namn och ta bort originalet,
-    // så att lösenordet i klartext aldrig når routen eller databasen
     req.body.passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
     delete req.body.password;
 
